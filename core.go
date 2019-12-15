@@ -47,6 +47,7 @@ type Setup interface {
 	SetAggregateConfig(AggregateConfig)
 	SetEventConfig(EventConfig)
 	SetCommandConfig(CommandConfig)
+	SetSnapshotConfig(SnapshotConfig)
 
 	SetEventStoreFactory(EventStoreFactory)
 	SetEventBusFactory(EventBusFactory)
@@ -62,50 +63,57 @@ type Setup interface {
 
 // WithLogger ...
 func WithLogger(logger *log.Logger) Option {
-	return func(c Setup) {
-		c.SetLogger(logger)
+	return func(s Setup) {
+		s.SetLogger(logger)
 	}
 }
 
 // WithAggregateConfig ...
 func WithAggregateConfig(cfg AggregateConfig) Option {
-	return func(c Setup) {
-		c.SetAggregateConfig(cfg)
+	return func(s Setup) {
+		s.SetAggregateConfig(cfg)
 	}
 }
 
 // WithEventConfig ...
 func WithEventConfig(cfg EventConfig) Option {
-	return func(c Setup) {
-		c.SetEventConfig(cfg)
+	return func(s Setup) {
+		s.SetEventConfig(cfg)
 	}
 }
 
 // WithCommandConfig ...
 func WithCommandConfig(cfg CommandConfig) Option {
-	return func(c Setup) {
-		c.SetCommandConfig(cfg)
+	return func(s Setup) {
+		s.SetCommandConfig(cfg)
+	}
+}
+
+// WithSnapshotConfig ...
+func WithSnapshotConfig(cfg SnapshotConfig) Option {
+	return func(s Setup) {
+		s.SetSnapshotConfig(cfg)
 	}
 }
 
 // WithAggregate ...
 func WithAggregate(typ AggregateType, factory AggregateFactory) Option {
-	return func(c Setup) {
-		c.RegisterAggregate(typ, factory)
+	return func(s Setup) {
+		s.RegisterAggregate(typ, factory)
 	}
 }
 
 // WithEvent ...
 func WithEvent(typ EventType, factory EventDataFactory) Option {
-	return func(c Setup) {
-		c.RegisterEvent(typ, factory)
+	return func(s Setup) {
+		s.RegisterEvent(typ, factory)
 	}
 }
 
 // WithCommand ...
 func WithCommand(typ CommandType, handler CommandHandler) Option {
-	return func(c Setup) {
-		c.RegisterCommand(typ, handler)
+	return func(s Setup) {
+		s.RegisterCommand(typ, handler)
 	}
 }
 
@@ -335,6 +343,10 @@ func (s *setup) SetEventConfig(cfg EventConfig) {
 
 func (s *setup) SetCommandConfig(cfg CommandConfig) {
 	s.commandConfig = cfg
+}
+
+func (s *setup) SetSnapshotConfig(cfg SnapshotConfig) {
+	s.snapshotConfig = cfg
 }
 
 func (s *setup) SetEventBus(bus EventBus) {
