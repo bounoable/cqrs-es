@@ -18,7 +18,7 @@ type EventBusFactory func(context.Context, Core) (EventBus, error)
 type CommandBusFactory func(context.Context, Core) (CommandBus, error)
 
 // CommandHandlerFactory ...
-type CommandHandlerFactory func(context.Context, Core) (CommandHandler, error)
+type CommandHandlerFactory func(context.Context, Core) (CommandHandler, []CommandType, error)
 
 // SnapshotRepositoryFactory ...
 type SnapshotRepositoryFactory func(context.Context, Core) (SnapshotRepository, error)
@@ -51,7 +51,7 @@ type Setup interface {
 	SetEventStoreFactory(EventStoreFactory)
 	SetEventBusFactory(EventBusFactory)
 	SetCommandBusFactory(CommandBusFactory)
-	SetCommandHandlerFactory(CommandType, CommandHandlerFactory)
+	AddCommandHandlerFactory(...CommandHandlerFactory)
 	SetSnapshotRepositoryFactory(SnapshotRepositoryFactory)
 	SetAggregateRepositoryFactory(AggregateRepositoryFactory)
 
@@ -103,9 +103,9 @@ func WithEvent(typ EventType, factory EventDataFactory) Option {
 }
 
 // WithCommand ...
-func WithCommand(typ CommandType, handlerFactory CommandHandlerFactory) Option {
+func WithCommand(typ CommandType, handler CommandHandler) Option {
 	return func(c Setup) {
-		c.SetCommandHandlerFactory(typ, handlerFactory)
+		c.RegisterCommand(typ, handler)
 	}
 }
 
@@ -127,6 +127,13 @@ func WithEventBusFactory(f EventBusFactory) Option {
 func WithCommandBusFactory(f CommandBusFactory) Option {
 	return func(setup Setup) {
 		setup.SetCommandBusFactory(f)
+	}
+}
+
+// WithCommandHandlerFactory ...
+func WithCommandHandlerFactory(factories ...CommandHandlerFactory) Option {
+	return func(setup Setup) {
+		setup.AddCommandHandlerFactory(factories...)
 	}
 }
 
@@ -245,12 +252,15 @@ func NewWithConfigs(
 		c.logger.Println("cqrs setup: no aggregate repository")
 	}
 
-	for typ, factory := range setup.commandHandlerFactories {
-		handler, err := factory(ctx, c)
+	for _, f := range setup.commandHandlerFactories {
+		handler, types, err := f(ctx, c)
 		if err != nil {
 			return nil, fmt.Errorf("cqrs setup: %w", err)
 		}
-		c.commandConfig.Register(typ, handler)
+
+		for _, typ := range types {
+			c.commandConfig.Register(typ, handler)
+		}
 	}
 
 	return c, nil
@@ -301,18 +311,17 @@ type setup struct {
 	eventStoreFactory       EventStoreFactory
 	eventBusFactory         EventBusFactory
 	commandBusFactory       CommandBusFactory
-	commandHandlerFactories map[CommandType]CommandHandlerFactory
+	commandHandlerFactories []CommandHandlerFactory
 	snapshotRepoFactory     SnapshotRepositoryFactory
 	aggregateRepoFactory    AggregateRepositoryFactory
 }
 
 func newSetup(c *core) *setup {
 	return &setup{
-		core:                    c,
-		aggregateConfig:         NewAggregateConfig(),
-		eventConfig:             NewEventConfig(),
-		commandConfig:           NewCommandConfig(),
-		commandHandlerFactories: make(map[CommandType]CommandHandlerFactory),
+		core:            c,
+		aggregateConfig: NewAggregateConfig(),
+		eventConfig:     NewEventConfig(),
+		commandConfig:   NewCommandConfig(),
 	}
 }
 
@@ -360,8 +369,8 @@ func (s *setup) SetCommandBusFactory(f CommandBusFactory) {
 	s.commandBusFactory = f
 }
 
-func (s *setup) SetCommandHandlerFactory(typ CommandType, f CommandHandlerFactory) {
-	s.commandHandlerFactories[typ] = f
+func (s *setup) AddCommandHandlerFactory(factories ...CommandHandlerFactory) {
+	s.commandHandlerFactories = append(s.commandHandlerFactories, factories...)
 }
 
 func (s *setup) SetSnapshotRepositoryFactory(f SnapshotRepositoryFactory) {
