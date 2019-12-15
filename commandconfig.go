@@ -3,6 +3,7 @@ package cqrs
 //go:generate mockgen -source=commandconfig.go -destination=./mocks/commandconfig.go
 
 import (
+	"context"
 	"fmt"
 	"sync"
 )
@@ -12,6 +13,11 @@ type CommandConfig interface {
 	Register(CommandType, CommandHandler)
 	Handler(CommandType) (CommandHandler, error)
 	Handlers() map[CommandType]CommandHandler
+}
+
+// CommandHandler handles commands.
+type CommandHandler interface {
+	HandleCommand(context.Context, Command) error
 }
 
 type commandConfig struct {

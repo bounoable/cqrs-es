@@ -13,11 +13,6 @@ type CommandBus interface {
 	Dispatch(context.Context, Command) error
 }
 
-// CommandHandler handles commands.
-type CommandHandler interface {
-	HandleCommand(context.Context, Command) error
-}
-
 type commandBus struct {
 	config CommandConfig
 	logger *log.Logger
