@@ -35,8 +35,8 @@ func (d BaseEventData) EventTime() time.Time {
 
 // Event is an event.
 type Event interface {
-	EventType() EventType
-	EventData() EventData
+	Type() EventType
+	Data() EventData
 	Time() time.Time
 
 	AggregateType() AggregateType
@@ -75,11 +75,11 @@ func NewAggregateEvent(typ EventType, data EventData, time time.Time, aggregateT
 	}
 }
 
-func (e *event) EventType() EventType {
+func (e *event) Type() EventType {
 	return e.typ
 }
 
-func (e *event) EventData() EventData {
+func (e *event) Data() EventData {
 	return e.data
 }
 

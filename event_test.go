@@ -21,8 +21,8 @@ func TestNewEvent(t *testing.T) {
 	time := time.Now()
 	e := cqrs.NewEvent(typ, data, time)
 
-	assert.Equal(t, typ, e.EventType())
-	assert.Equal(t, data, e.EventData())
+	assert.Equal(t, typ, e.Type())
+	assert.Equal(t, data, e.Data())
 	assert.Equal(t, time, e.Time())
 	assert.Equal(t, cqrs.AggregateType(""), e.AggregateType())
 	assert.Equal(t, uuid.Nil, e.AggregateID())
@@ -41,8 +41,8 @@ func TestNewAggregateEvent(t *testing.T) {
 	version := 5
 	e := cqrs.NewAggregateEvent(typ, data, time, aggregateType, aggregateID, 5)
 
-	assert.Equal(t, typ, e.EventType())
-	assert.Equal(t, data, e.EventData())
+	assert.Equal(t, typ, e.Type())
+	assert.Equal(t, data, e.Data())
 	assert.Equal(t, time, e.Time())
 	assert.Equal(t, aggregateType, e.AggregateType())
 	assert.Equal(t, aggregateID, e.AggregateID())

@@ -93,13 +93,13 @@ func WithEventBusFactoryWithConnection(cfg EventBusConfig, nc *nats.Conn) cqrs.O
 func (b *eventBus) Publish(ctx context.Context, events ...cqrs.Event) error {
 	for _, e := range events {
 		var dataBuf bytes.Buffer
-		if err := gob.NewEncoder(&dataBuf).Encode(e.EventData()); err != nil {
+		if err := gob.NewEncoder(&dataBuf).Encode(e.Data()); err != nil {
 			return err
 		}
 
-		subject := b.cfg.subject(e.EventType())
+		subject := b.cfg.subject(e.Type())
 		evt := &eventMessage{
-			EventType:     e.EventType(),
+			EventType:     e.Type(),
 			EventData:     dataBuf.Bytes(),
 			Time:          e.Time(),
 			AggregateType: e.AggregateType(),

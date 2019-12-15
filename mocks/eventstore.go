@@ -36,7 +36,7 @@ func (m *MockEventStore) EXPECT() *MockEventStoreMockRecorder {
 }
 
 // Save mocks base method
-func (m *MockEventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, events ...cqrs.EventData) error {
+func (m *MockEventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, events ...cqrs.Event) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, aggregateType, aggregateID, originalVersion}
 	for _, a := range events {
@@ -55,10 +55,10 @@ func (mr *MockEventStoreMockRecorder) Save(ctx, aggregateType, aggregateID, orig
 }
 
 // Find mocks base method
-func (m *MockEventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, version int) (cqrs.EventData, error) {
+func (m *MockEventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, version int) (cqrs.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Find", ctx, aggregateType, aggregateID, version)
-	ret0, _ := ret[0].(cqrs.EventData)
+	ret0, _ := ret[0].(cqrs.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -70,10 +70,10 @@ func (mr *MockEventStoreMockRecorder) Find(ctx, aggregateType, aggregateID, vers
 }
 
 // Fetch mocks base method
-func (m *MockEventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from, to int) ([]cqrs.EventData, error) {
+func (m *MockEventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from, to int) ([]cqrs.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Fetch", ctx, aggregateType, aggregateID, from, to)
-	ret0, _ := ret[0].([]cqrs.EventData)
+	ret0, _ := ret[0].([]cqrs.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -85,10 +85,10 @@ func (mr *MockEventStoreMockRecorder) Fetch(ctx, aggregateType, aggregateID, fro
 }
 
 // FetchAll mocks base method
-func (m *MockEventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) ([]cqrs.EventData, error) {
+func (m *MockEventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) ([]cqrs.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchAll", ctx, aggregateType, aggregateID)
-	ret0, _ := ret[0].([]cqrs.EventData)
+	ret0, _ := ret[0].([]cqrs.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -100,10 +100,10 @@ func (mr *MockEventStoreMockRecorder) FetchAll(ctx, aggregateType, aggregateID i
 }
 
 // FetchFrom mocks base method
-func (m *MockEventStore) FetchFrom(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs.EventData, error) {
+func (m *MockEventStore) FetchFrom(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchFrom", ctx, aggregateType, aggregateID, from)
-	ret0, _ := ret[0].([]cqrs.EventData)
+	ret0, _ := ret[0].([]cqrs.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -115,10 +115,10 @@ func (mr *MockEventStoreMockRecorder) FetchFrom(ctx, aggregateType, aggregateID,
 }
 
 // FetchTo mocks base method
-func (m *MockEventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs.EventData, error) {
+func (m *MockEventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchTo", ctx, aggregateType, aggregateID, to)
-	ret0, _ := ret[0].([]cqrs.EventData)
+	ret0, _ := ret[0].([]cqrs.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

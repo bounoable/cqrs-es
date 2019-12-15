@@ -45,7 +45,7 @@ func WithEventStoreFactory(ctx context.Context, addr, dbname string) cqrs.Option
 	})
 }
 
-func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, events ...cqrs.EventData) error {
+func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, events ...cqrs.Event) error {
 	if len(events) == 0 {
 		return nil
 	}
@@ -54,14 +54,14 @@ func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType,
 
 	for i, e := range events {
 		var buf bytes.Buffer
-		if err := gob.NewEncoder(&buf).Encode(e); err != nil {
+		if err := gob.NewEncoder(&buf).Encode(e.Data()); err != nil {
 			return wrapError(err)
 		}
 
 		dbevent := &dbEvent{
-			EventType:     e.EventType(),
+			EventType:     e.Type(),
 			EventData:     buf.Bytes(),
-			Time:          e.EventTime(),
+			Time:          e.Time(),
 			AggregateType: aggregateType,
 			AggregateID:   aggregateID,
 			Version:       originalVersion + i + 1,
@@ -108,19 +108,14 @@ func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType,
 		return wrapError(err)
 	}
 
-	aggEvents := make([]cqrs.Event, len(events))
-	for i, ed := range events {
-		aggEvents[i] = cqrs.NewAggregateEvent(ed.EventType(), ed, ed.EventTime(), aggregateType, aggregateID, originalVersion+i+1)
-	}
-
-	if err := s.publisher.Publish(context.Background(), aggEvents...); err != nil {
+	if err := s.publisher.Publish(context.Background(), events...); err != nil {
 		return wrapError(err)
 	}
 
 	return nil
 }
 
-func (s *eventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, version int) (cqrs.EventData, error) {
+func (s *eventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, version int) (cqrs.Event, error) {
 	res := s.db.Collection("events").FindOne(ctx, bson.M{
 		"aggregateType": aggregateType,
 		"aggregateId":   aggregateID,
@@ -137,12 +132,12 @@ func (s *eventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType,
 		return nil, wrapError(err)
 	}
 
-	return evt.EventData(), nil
+	return evt, nil
 }
 
-func (s *eventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int, to int) ([]cqrs.EventData, error) {
+func (s *eventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int, to int) ([]cqrs.Event, error) {
 	if from > to {
-		return []cqrs.EventData{}, nil
+		return []cqrs.Event{}, nil
 	}
 
 	cur, err := s.db.Collection("events").Find(ctx, bson.D{
@@ -163,19 +158,19 @@ func (s *eventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType
 		return nil, wrapError(err)
 	}
 
-	events := make([]cqrs.EventData, len(dbevents))
+	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
 			return nil, wrapError(err)
 		}
-		events[i] = evt.EventData()
+		events[i] = evt
 	}
 
 	return events, nil
 }
 
-func (s *eventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) ([]cqrs.EventData, error) {
+func (s *eventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) ([]cqrs.Event, error) {
 	cur, err := s.db.Collection("events").Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
@@ -190,19 +185,19 @@ func (s *eventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateT
 		return nil, wrapError(err)
 	}
 
-	events := make([]cqrs.EventData, len(dbevents))
+	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
 			return nil, wrapError(err)
 		}
-		events[i] = evt.EventData()
+		events[i] = evt
 	}
 
 	return events, nil
 }
 
-func (s *eventStore) FetchFrom(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs.EventData, error) {
+func (s *eventStore) FetchFrom(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs.Event, error) {
 	cur, err := s.db.Collection("events").Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
@@ -220,19 +215,19 @@ func (s *eventStore) FetchFrom(ctx context.Context, aggregateType cqrs.Aggregate
 		return nil, wrapError(err)
 	}
 
-	events := make([]cqrs.EventData, len(dbevents))
+	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
 			return nil, wrapError(err)
 		}
-		events[i] = evt.EventData()
+		events[i] = evt
 	}
 
 	return events, nil
 }
 
-func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs.EventData, error) {
+func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs.Event, error) {
 	cur, err := s.db.Collection("events").Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
@@ -250,13 +245,13 @@ func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateTy
 		return nil, wrapError(err)
 	}
 
-	events := make([]cqrs.EventData, len(dbevents))
+	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
 			return nil, wrapError(err)
 		}
-		events[i] = evt.EventData()
+		events[i] = evt
 	}
 
 	return events, nil

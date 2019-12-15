@@ -11,12 +11,12 @@ import (
 
 // EventStore stores events in a database.
 type EventStore interface {
-	Save(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, originalVersion int, events ...EventData) error
-	Find(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, version int) (EventData, error)
-	Fetch(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int, to int) ([]EventData, error)
-	FetchAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) ([]EventData, error)
-	FetchFrom(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int) ([]EventData, error)
-	FetchTo(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, to int) ([]EventData, error)
+	Save(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, originalVersion int, events ...Event) error
+	Find(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, version int) (Event, error)
+	Fetch(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int, to int) ([]Event, error)
+	FetchAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) ([]Event, error)
+	FetchFrom(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int) ([]Event, error)
+	FetchTo(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, to int) ([]Event, error)
 }
 
 // EventStoreError ...

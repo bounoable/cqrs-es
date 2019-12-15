@@ -47,7 +47,21 @@ func NewAggregateRepository(
 }
 
 func (r *aggregateRepository) Save(ctx context.Context, aggregate Aggregate) error {
-	if err := r.eventStore.Save(ctx, aggregate.AggregateType(), aggregate.AggregateID(), aggregate.OriginalVersion(), aggregate.Changes()...); err != nil {
+	changes := aggregate.Changes()
+	events := make([]Event, len(changes))
+
+	for i, change := range changes {
+		events[i] = NewAggregateEvent(
+			change.EventType(),
+			change,
+			change.EventTime(),
+			aggregate.AggregateType(),
+			aggregate.AggregateID(),
+			aggregate.OriginalVersion()+i+1,
+		)
+	}
+
+	if err := r.eventStore.Save(ctx, aggregate.AggregateType(), aggregate.AggregateID(), aggregate.OriginalVersion(), events...); err != nil {
 		return err
 	}
 
@@ -86,7 +100,12 @@ func (r *aggregateRepository) Fetch(ctx context.Context, typ AggregateType, id u
 		return nil, err
 	}
 
-	if err := aggregate.ApplyHistory(events...); err != nil {
+	eventData := make([]EventData, len(events))
+	for i, e := range events {
+		eventData[i] = e.Data()
+	}
+
+	if err := aggregate.ApplyHistory(eventData...); err != nil {
 		return nil, err
 	}
 
@@ -115,12 +134,12 @@ func (r *aggregateRepository) FetchLatest(ctx context.Context, typ AggregateType
 		return aggregate, nil
 	}
 
-	eventdata := make([]EventData, len(events))
+	eventData := make([]EventData, len(events))
 	for i, e := range events {
-		eventdata[i] = e
+		eventData[i] = e.Data()
 	}
 
-	if err := aggregate.ApplyHistory(eventdata...); err != nil {
+	if err := aggregate.ApplyHistory(eventData...); err != nil {
 		return nil, err
 	}
 
