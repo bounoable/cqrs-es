@@ -127,7 +127,7 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 }
 
 // WithEventStoreFactory ...
-func WithEventStoreFactory(ctx context.Context, options ...Option) cqrs.Option {
+func WithEventStoreFactory(options ...Option) cqrs.Option {
 	return cqrs.WithEventStoreFactory(func(ctx context.Context, c cqrs.Core) (cqrs.EventStore, error) {
 		options = append([]Option{Publisher(c.EventBus())}, options...)
 		return NewEventStore(ctx, c.EventConfig(), options...)
