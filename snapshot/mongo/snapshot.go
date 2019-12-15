@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"os"
 
 	"github.com/bounoable/cqrs"
 	"github.com/google/uuid"
@@ -10,6 +11,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+const (
+	// DefaultURI ...
+	DefaultURI = "mongodb://localhost:27017"
+)
+
+// Config ...
+type Config struct {
+	URI           string
+	Database      string
+	ClientOptions []*options.ClientOptions
+}
+
+// Option ...
+type Option func(*Config)
 
 type snapshotRepository struct {
 	db              *mongo.Database
@@ -23,8 +39,29 @@ type snapshot struct {
 	Data          []byte             `bson:"data"`
 }
 
+// Database ...
+func Database(name string) Option {
+	return func(cfg *Config) {
+		cfg.Database = name
+	}
+}
+
+// URI ...
+func URI(uri string) Option {
+	return func(cfg *Config) {
+		cfg.URI = uri
+	}
+}
+
+// ClientOptions ...
+func ClientOptions(options ...*options.ClientOptions) Option {
+	return func(cfg *Config) {
+		cfg.ClientOptions = append(cfg.ClientOptions, options...)
+	}
+}
+
 // NewSnapshotRepository ...
-func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateConfig, addr, dbname string) (cqrs.SnapshotRepository, error) {
+func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateConfig, opts ...Option) (cqrs.SnapshotRepository, error) {
 	if aggregateConfig == nil {
 		return nil, cqrs.SnapshotError{
 			Err:       errors.New("aggregate config cannot be nil"),
@@ -32,7 +69,29 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 		}
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(addr))
+	var cfg Config
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	if cfg.URI == "" {
+		cfg.URI = os.Getenv("MONGO_SNAPSHOTS_URI")
+	}
+
+	if cfg.URI == "" {
+		cfg.URI = DefaultURI
+	}
+
+	if cfg.Database == "" {
+		cfg.Database = os.Getenv("MONGO_SNAPSHOTS_DB")
+	}
+
+	if cfg.Database == "" {
+		cfg.Database = "snapshots"
+	}
+
+	clientOptions := append([]*options.ClientOptions{options.Client().ApplyURI(cfg.URI)}, cfg.ClientOptions...)
+	client, err := mongo.Connect(ctx, clientOptions...)
 	if err != nil {
 		return nil, cqrs.SnapshotError{
 			Err:       err,
@@ -41,15 +100,15 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 	}
 
 	return &snapshotRepository{
-		db:              client.Database(dbname),
+		db:              client.Database(cfg.Database),
 		aggregateConfig: aggregateConfig,
 	}, nil
 }
 
 // WithSnapshotRepositoryFactory ...
-func WithSnapshotRepositoryFactory(addr, dbname string) cqrs.Option {
+func WithSnapshotRepositoryFactory(options ...Option) cqrs.Option {
 	return cqrs.WithSnapshotRepositoryFactory(func(ctx context.Context, c cqrs.Core) (cqrs.SnapshotRepository, error) {
-		return NewSnapshotRepository(ctx, c.AggregateConfig(), addr, dbname)
+		return NewSnapshotRepository(ctx, c.AggregateConfig(), options...)
 	})
 }
 

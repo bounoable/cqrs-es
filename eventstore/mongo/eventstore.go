@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"os"
 	"time"
 
 	"github.com/bounoable/cqrs"
@@ -13,30 +14,96 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	// DefaultURI ...
+	DefaultURI = "mongodb://localhost:27017"
+)
+
+// Config ...
+type Config struct {
+	URI           string
+	Database      string
+	Publisher     cqrs.EventPublisher
+	ClientOptions []*options.ClientOptions
+}
+
+// Option ...
+type Option func(*Config)
+
 type eventStore struct {
-	db        *mongo.Database
-	eventCfg  cqrs.EventConfig
-	publisher cqrs.EventPublisher
+	config   Config
+	eventCfg cqrs.EventConfig
+	db       *mongo.Database
+}
+
+// Publisher ...
+func Publisher(publisher cqrs.EventPublisher) Option {
+	return func(cfg *Config) {
+		cfg.Publisher = publisher
+	}
+}
+
+// Database ...
+func Database(name string) Option {
+	return func(cfg *Config) {
+		cfg.Database = name
+	}
+}
+
+// URI ...
+func URI(uri string) Option {
+	return func(cfg *Config) {
+		cfg.URI = uri
+	}
+}
+
+// ClientOptions ...
+func ClientOptions(options ...*options.ClientOptions) Option {
+	return func(cfg *Config) {
+		cfg.ClientOptions = append(cfg.ClientOptions, options...)
+	}
 }
 
 // NewEventStore ...
-func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, addr, dbname string, publisher cqrs.EventPublisher) (cqrs.EventStore, error) {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(addr))
+func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Option) (cqrs.EventStore, error) {
+	var cfg Config
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	if cfg.URI == "" {
+		cfg.URI = os.Getenv("MONGO_EVENTS_URI")
+	}
+
+	if cfg.URI == "" {
+		cfg.URI = DefaultURI
+	}
+
+	if cfg.Database == "" {
+		cfg.Database = os.Getenv("MONGO_EVENTS_DB")
+	}
+
+	if cfg.Database == "" {
+		cfg.Database = "events"
+	}
+
+	clientOptions := append([]*options.ClientOptions{options.Client().ApplyURI(cfg.URI)}, cfg.ClientOptions...)
+	client, err := mongo.Connect(ctx, clientOptions...)
 	if err != nil {
 		return nil, wrapError(err)
 	}
 
 	return &eventStore{
-		db:        client.Database(dbname),
-		eventCfg:  eventCfg,
-		publisher: publisher,
+		db:       client.Database(cfg.Database),
+		eventCfg: eventCfg,
 	}, nil
 }
 
 // WithEventStoreFactory ...
-func WithEventStoreFactory(ctx context.Context, addr, dbname string) cqrs.Option {
+func WithEventStoreFactory(ctx context.Context, options ...Option) cqrs.Option {
 	return cqrs.WithEventStoreFactory(func(ctx context.Context, c cqrs.Core) (cqrs.EventStore, error) {
-		return NewEventStore(ctx, c.EventConfig(), addr, dbname, c.EventBus())
+		options = append([]Option{Publisher(c.EventBus())}, options...)
+		return NewEventStore(ctx, c.EventConfig(), options...)
 	})
 }
 
@@ -103,8 +170,8 @@ func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType,
 		return wrapError(err)
 	}
 
-	if s.publisher != nil {
-		if err := s.publisher.Publish(context.Background(), events...); err != nil {
+	if s.config.Publisher != nil {
+		if err := s.config.Publisher.Publish(context.Background(), events...); err != nil {
 			return wrapError(err)
 		}
 	}
