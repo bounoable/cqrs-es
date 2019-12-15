@@ -36,9 +36,9 @@ func (m *MockEventStore) EXPECT() *MockEventStoreMockRecorder {
 }
 
 // Save mocks base method
-func (m *MockEventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, events ...cqrs.Event) error {
+func (m *MockEventStore) Save(ctx context.Context, originalVersion int, events ...cqrs.Event) error {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, aggregateType, aggregateID, originalVersion}
+	varargs := []interface{}{ctx, originalVersion}
 	for _, a := range events {
 		varargs = append(varargs, a)
 	}
@@ -48,9 +48,9 @@ func (m *MockEventStore) Save(ctx context.Context, aggregateType cqrs.AggregateT
 }
 
 // Save indicates an expected call of Save
-func (mr *MockEventStoreMockRecorder) Save(ctx, aggregateType, aggregateID, originalVersion interface{}, events ...interface{}) *gomock.Call {
+func (mr *MockEventStoreMockRecorder) Save(ctx, originalVersion interface{}, events ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, aggregateType, aggregateID, originalVersion}, events...)
+	varargs := append([]interface{}{ctx, originalVersion}, events...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockEventStore)(nil).Save), varargs...)
 }
 

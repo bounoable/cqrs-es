@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"fmt"
 	"os"
 	"time"
 
@@ -24,6 +25,7 @@ type Config struct {
 	URI           string
 	Database      string
 	Publisher     cqrs.EventPublisher
+	Transactions  bool
 	ClientOptions []*options.ClientOptions
 }
 
@@ -34,6 +36,24 @@ type eventStore struct {
 	config   Config
 	eventCfg cqrs.EventConfig
 	db       *mongo.Database
+}
+
+// InconsistentEventError ...
+type InconsistentEventError struct {
+	ExpectedAggregateType cqrs.AggregateType
+	ProvidedAggregateType cqrs.AggregateType
+	ExpectedAggregateID   uuid.UUID
+	ProvidedAggregateID   uuid.UUID
+}
+
+func (err InconsistentEventError) Error() string {
+	return fmt.Sprintf(
+		"inconsistent event: expected '%s:%s', got '%s:%s'",
+		err.ExpectedAggregateType,
+		err.ExpectedAggregateID,
+		err.ProvidedAggregateType,
+		err.ProvidedAggregateID,
+	)
 }
 
 // Publisher ...
@@ -54,6 +74,13 @@ func Database(name string) Option {
 func URI(uri string) Option {
 	return func(cfg *Config) {
 		cfg.URI = uri
+	}
+}
+
+// Transactions ...
+func Transactions(use bool) Option {
+	return func(cfg *Config) {
+		cfg.Transactions = use
 	}
 }
 
@@ -107,14 +134,25 @@ func WithEventStoreFactory(ctx context.Context, options ...Option) cqrs.Option {
 	})
 }
 
-func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, events ...cqrs.Event) error {
+func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cqrs.Event) error {
 	if len(events) == 0 {
 		return nil
 	}
 
-	dbEvents := make([]*dbEvent, len(events))
+	aggregateType := events[0].AggregateType()
+	aggregateID := events[0].AggregateID()
 
+	dbEvents := make([]*dbEvent, len(events))
 	for i, e := range events {
+		if e.AggregateType() != aggregateType || e.AggregateID() != aggregateID {
+			return InconsistentEventError{
+				ExpectedAggregateType: aggregateType,
+				ProvidedAggregateType: e.AggregateType(),
+				ExpectedAggregateID:   aggregateID,
+				ProvidedAggregateID:   e.AggregateID(),
+			}
+		}
+
 		var buf bytes.Buffer
 		if err := gob.NewEncoder(&buf).Encode(e.Data()); err != nil {
 			return wrapError(err)
@@ -137,43 +175,57 @@ func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType,
 		docs[i] = dbevent
 	}
 
-	if err := s.db.Client().UseSession(ctx, func(ctx mongo.SessionContext) error {
-		if err := ctx.StartTransaction(); err != nil {
-			return err
-		}
-
-		res := s.db.Collection("events").FindOne(ctx, bson.M{
-			"aggregateType": aggregateType,
-			"aggregateId":   aggregateID,
-		}, options.FindOne().SetSort(bson.D{{Key: "version", Value: -1}}))
-
-		latestVersion := -1
-
-		var latest dbEvent
-		if err := res.Decode(&latest); err == nil {
-			latestVersion = latest.Version
-		}
-
-		if latestVersion != originalVersion {
-			return cqrs.OptimisticConcurrencyError{
-				LatestVersion:   latest.Version,
-				ProvidedVersion: originalVersion,
+	if s.config.Transactions {
+		if err := s.db.Client().UseSession(ctx, func(ctx mongo.SessionContext) error {
+			if err := ctx.StartTransaction(); err != nil {
+				return err
 			}
-		}
 
-		if _, err := s.db.Collection("events").InsertMany(ctx, docs); err != nil {
+			if err := s.saveDocs(ctx, aggregateType, aggregateID, originalVersion, docs); err != nil {
+				return err
+			}
+
+			return ctx.CommitTransaction(ctx)
+		}); err != nil {
+			return wrapError(err)
+		}
+	} else {
+		if err := s.saveDocs(ctx, aggregateType, aggregateID, originalVersion, docs); err != nil {
 			return err
 		}
-
-		return ctx.CommitTransaction(ctx)
-	}); err != nil {
-		return wrapError(err)
 	}
 
 	if s.config.Publisher != nil {
 		if err := s.config.Publisher.Publish(context.Background(), events...); err != nil {
 			return wrapError(err)
 		}
+	}
+
+	return nil
+}
+
+func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, docs []interface{}) error {
+	res := s.db.Collection("events").FindOne(ctx, bson.M{
+		"aggregateType": aggregateType,
+		"aggregateId":   aggregateID,
+	}, options.FindOne().SetSort(bson.D{{Key: "version", Value: -1}}))
+
+	latestVersion := -1
+
+	var latest dbEvent
+	if err := res.Decode(&latest); err == nil {
+		latestVersion = latest.Version
+	}
+
+	if latestVersion != originalVersion {
+		return cqrs.OptimisticConcurrencyError{
+			LatestVersion:   latest.Version,
+			ProvidedVersion: originalVersion,
+		}
+	}
+
+	if _, err := s.db.Collection("events").InsertMany(ctx, docs); err != nil {
+		return err
 	}
 
 	return nil

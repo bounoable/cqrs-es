@@ -61,7 +61,7 @@ func (r *aggregateRepository) Save(ctx context.Context, aggregate Aggregate) err
 		)
 	}
 
-	if err := r.eventStore.Save(ctx, aggregate.AggregateType(), aggregate.AggregateID(), aggregate.OriginalVersion(), events...); err != nil {
+	if err := r.eventStore.Save(ctx, aggregate.OriginalVersion(), events...); err != nil {
 		return err
 	}
 

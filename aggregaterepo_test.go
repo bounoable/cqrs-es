@@ -76,12 +76,10 @@ func TestSaveAggregateWithoutSnapshot(t *testing.T) {
 		aggregate.EXPECT().OriginalVersion().Return(-1)
 	}
 
-	aggregate.EXPECT().AggregateType().Return(aggregateType)
-	aggregate.EXPECT().AggregateID().Return(aggregateID)
 	aggregate.EXPECT().OriginalVersion().Return(5)
 	aggregate.EXPECT().Changes().Return(changes)
 
-	eventStore.EXPECT().Save(ctx, aggregateType, aggregateID, 5, gomock.Any()).Return(nil)
+	eventStore.EXPECT().Save(ctx, 5, gomock.Any()).Return(nil)
 
 	err := repo.Save(ctx, aggregate)
 	assert.Nil(t, err)
@@ -117,15 +115,13 @@ func TestSaveAggregateWithSnapshot(t *testing.T) {
 		aggregate.EXPECT().OriginalVersion().Return(-1)
 	}
 
-	aggregate.EXPECT().AggregateType().Return(aggregateType)
-	aggregate.EXPECT().AggregateID().Return(aggregateID)
 	aggregate.EXPECT().OriginalVersion().Return(5)
 	aggregate.EXPECT().Changes().Return(changes)
 
 	snapshotConfig.EXPECT().IsDue(aggregate).Return(true)
 	snapshots.EXPECT().Save(ctx, aggregate).Return(nil)
 
-	eventStore.EXPECT().Save(ctx, aggregateType, aggregateID, 5, gomock.Any()).Return(nil)
+	eventStore.EXPECT().Save(ctx, 5, gomock.Any()).Return(nil)
 
 	err := repo.Save(ctx, aggregate)
 	assert.Nil(t, err)
