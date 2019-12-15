@@ -148,7 +148,7 @@ func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption)
 	})
 }
 
-func (b *eventBus) Publish(ctx context.Context, events ...cqrs.Event) error {
+func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 	for _, e := range events {
 		var dataBuf bytes.Buffer
 		if err := gob.NewEncoder(&dataBuf).Encode(e.Data()); err != nil {
