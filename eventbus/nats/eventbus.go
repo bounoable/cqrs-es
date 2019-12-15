@@ -196,7 +196,7 @@ func (b *eventBus) Subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 	}
 
 	events := make(chan cqrs.Event, b.cfg.SubscriptionBufferSize)
-	go b.handleMessages(ctx, msgs, events)
+	go b.handleMessages(msgs, events)
 	go func() {
 		<-ctx.Done()
 		if err := sub.Unsubscribe(); err != nil && b.logger != nil {
@@ -210,44 +210,35 @@ func (b *eventBus) Subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 	return events, nil
 }
 
-func (b *eventBus) handleMessages(ctx context.Context, msgs <-chan *nats.Msg, events chan<- cqrs.Event) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case msg, ok := <-msgs:
-			if !ok {
-				return
+func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Event) {
+	for msg := range msgs {
+		var evtmsg eventMessage
+		if err := gob.NewDecoder(bytes.NewBuffer(msg.Data)).Decode(&evtmsg); err != nil {
+			if b.logger != nil {
+				b.logger.Println(err)
 			}
+			continue
+		}
 
-			var evtmsg eventMessage
-			if err := gob.NewDecoder(bytes.NewBuffer(msg.Data)).Decode(&evtmsg); err != nil {
-				if b.logger != nil {
-					b.logger.Println(err)
-				}
-				break
+		data, err := b.eventCfg.NewData(evtmsg.EventType)
+		if err != nil {
+			if b.logger != nil {
+				b.logger.Println(err)
 			}
+			continue
+		}
 
-			data, err := b.eventCfg.NewData(evtmsg.EventType)
-			if err != nil {
-				if b.logger != nil {
-					b.logger.Println(err)
-				}
-				break
+		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(data); err != nil {
+			if b.logger != nil {
+				b.logger.Println(err)
 			}
+			continue
+		}
 
-			if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(data); err != nil {
-				if b.logger != nil {
-					b.logger.Println(err)
-				}
-				break
-			}
-
-			if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
-				events <- cqrs.NewAggregateEvent(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
-			} else {
-				events <- cqrs.NewEvent(evtmsg.EventType, data, evtmsg.Time)
-			}
+		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
+			events <- cqrs.NewAggregateEvent(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
+		} else {
+			events <- cqrs.NewEvent(evtmsg.EventType, data, evtmsg.Time)
 		}
 	}
 }
