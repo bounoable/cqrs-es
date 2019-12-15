@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
-	"errors"
 	"time"
 
 	"github.com/bounoable/cqrs"
@@ -22,10 +21,6 @@ type eventStore struct {
 
 // NewEventStore ...
 func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, addr, dbname string, publisher cqrs.EventPublisher) (cqrs.EventStore, error) {
-	if publisher == nil {
-		return nil, wrapError(errors.New("event publisher cannot be nil"))
-	}
-
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(addr))
 	if err != nil {
 		return nil, wrapError(err)
@@ -108,8 +103,10 @@ func (s *eventStore) Save(ctx context.Context, aggregateType cqrs.AggregateType,
 		return wrapError(err)
 	}
 
-	if err := s.publisher.Publish(context.Background(), events...); err != nil {
-		return wrapError(err)
+	if s.publisher != nil {
+		if err := s.publisher.Publish(context.Background(), events...); err != nil {
+			return wrapError(err)
+		}
 	}
 
 	return nil
