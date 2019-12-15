@@ -5,7 +5,7 @@
 package mock_cqrs
 
 import (
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	reflect "reflect"
@@ -35,7 +35,7 @@ func (m *MockAggregateConfig) EXPECT() *MockAggregateConfigMockRecorder {
 }
 
 // Register mocks base method
-func (m *MockAggregateConfig) Register(arg0 cqrs.AggregateType, arg1 cqrs.AggregateFactory) {
+func (m *MockAggregateConfig) Register(arg0 cqrs_es.AggregateType, arg1 cqrs_es.AggregateFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Register", arg0, arg1)
 }
@@ -47,10 +47,10 @@ func (mr *MockAggregateConfigMockRecorder) Register(arg0, arg1 interface{}) *gom
 }
 
 // New mocks base method
-func (m *MockAggregateConfig) New(arg0 cqrs.AggregateType, arg1 uuid.UUID) (cqrs.Aggregate, error) {
+func (m *MockAggregateConfig) New(arg0 cqrs_es.AggregateType, arg1 uuid.UUID) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "New", arg0, arg1)
-	ret0, _ := ret[0].(cqrs.Aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -62,10 +62,10 @@ func (mr *MockAggregateConfigMockRecorder) New(arg0, arg1 interface{}) *gomock.C
 }
 
 // Factories mocks base method
-func (m *MockAggregateConfig) Factories() map[cqrs.AggregateType]cqrs.AggregateFactory {
+func (m *MockAggregateConfig) Factories() map[cqrs_es.AggregateType]cqrs_es.AggregateFactory {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Factories")
-	ret0, _ := ret[0].(map[cqrs.AggregateType]cqrs.AggregateFactory)
+	ret0, _ := ret[0].(map[cqrs_es.AggregateType]cqrs_es.AggregateFactory)
 	return ret0
 }
 

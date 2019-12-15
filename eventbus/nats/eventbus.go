@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/bounoable/cqrs"
+	"github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 )

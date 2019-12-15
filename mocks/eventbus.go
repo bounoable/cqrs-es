@@ -6,7 +6,7 @@ package mock_cqrs
 
 import (
 	context "context"
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -35,7 +35,7 @@ func (m *MockEventPublisher) EXPECT() *MockEventPublisherMockRecorder {
 }
 
 // Publish mocks base method
-func (m *MockEventPublisher) Publish(ctx context.Context, events ...cqrs.Event) error {
+func (m *MockEventPublisher) Publish(ctx context.Context, events ...cqrs_es.Event) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range events {
@@ -77,10 +77,10 @@ func (m *MockEventSubscriber) EXPECT() *MockEventSubscriberMockRecorder {
 }
 
 // Subscribe mocks base method
-func (m *MockEventSubscriber) Subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
+func (m *MockEventSubscriber) Subscribe(ctx context.Context, typ cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Subscribe", ctx, typ)
-	ret0, _ := ret[0].(<-chan cqrs.Event)
+	ret0, _ := ret[0].(<-chan cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -115,7 +115,7 @@ func (m *MockEventBus) EXPECT() *MockEventBusMockRecorder {
 }
 
 // Publish mocks base method
-func (m *MockEventBus) Publish(ctx context.Context, events ...cqrs.Event) error {
+func (m *MockEventBus) Publish(ctx context.Context, events ...cqrs_es.Event) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range events {
@@ -134,10 +134,10 @@ func (mr *MockEventBusMockRecorder) Publish(ctx interface{}, events ...interface
 }
 
 // Subscribe mocks base method
-func (m *MockEventBus) Subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
+func (m *MockEventBus) Subscribe(ctx context.Context, typ cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Subscribe", ctx, typ)
-	ret0, _ := ret[0].(<-chan cqrs.Event)
+	ret0, _ := ret[0].(<-chan cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

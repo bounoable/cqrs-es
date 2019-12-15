@@ -6,7 +6,7 @@ package mock_cqrs
 
 import (
 	context "context"
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	reflect "reflect"
@@ -36,7 +36,7 @@ func (m *MockSnapshotRepository) EXPECT() *MockSnapshotRepositoryMockRecorder {
 }
 
 // Save mocks base method
-func (m *MockSnapshotRepository) Save(ctx context.Context, snap cqrs.Aggregate) error {
+func (m *MockSnapshotRepository) Save(ctx context.Context, snap cqrs_es.Aggregate) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", ctx, snap)
 	ret0, _ := ret[0].(error)
@@ -50,10 +50,10 @@ func (mr *MockSnapshotRepositoryMockRecorder) Save(ctx, snap interface{}) *gomoc
 }
 
 // Find mocks base method
-func (m *MockSnapshotRepository) Find(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, version int) (cqrs.Aggregate, error) {
+func (m *MockSnapshotRepository) Find(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, version int) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Find", ctx, typ, id, version)
-	ret0, _ := ret[0].(cqrs.Aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +65,10 @@ func (mr *MockSnapshotRepositoryMockRecorder) Find(ctx, typ, id, version interfa
 }
 
 // Latest mocks base method
-func (m *MockSnapshotRepository) Latest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
+func (m *MockSnapshotRepository) Latest(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Latest", ctx, typ, id)
-	ret0, _ := ret[0].(cqrs.Aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +80,10 @@ func (mr *MockSnapshotRepositoryMockRecorder) Latest(ctx, typ, id interface{}) *
 }
 
 // MaxVersion mocks base method
-func (m *MockSnapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, maxVersion int) (cqrs.Aggregate, error) {
+func (m *MockSnapshotRepository) MaxVersion(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, maxVersion int) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MaxVersion", ctx, typ, id, maxVersion)
-	ret0, _ := ret[0].(cqrs.Aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -118,7 +118,7 @@ func (m *MockSnapshotConfig) EXPECT() *MockSnapshotConfigMockRecorder {
 }
 
 // IsDue mocks base method
-func (m *MockSnapshotConfig) IsDue(arg0 cqrs.Aggregate) bool {
+func (m *MockSnapshotConfig) IsDue(arg0 cqrs_es.Aggregate) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsDue", arg0)
 	ret0, _ := ret[0].(bool)

@@ -5,7 +5,7 @@
 package mock_cqrs
 
 import (
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -34,7 +34,7 @@ func (m *MockEventConfig) EXPECT() *MockEventConfigMockRecorder {
 }
 
 // Register mocks base method
-func (m *MockEventConfig) Register(arg0 cqrs.EventType, arg1 cqrs.EventDataFactory) {
+func (m *MockEventConfig) Register(arg0 cqrs_es.EventType, arg1 cqrs_es.EventDataFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Register", arg0, arg1)
 }
@@ -46,10 +46,10 @@ func (mr *MockEventConfigMockRecorder) Register(arg0, arg1 interface{}) *gomock.
 }
 
 // NewData mocks base method
-func (m *MockEventConfig) NewData(arg0 cqrs.EventType) (cqrs.EventData, error) {
+func (m *MockEventConfig) NewData(arg0 cqrs_es.EventType) (cqrs_es.EventData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NewData", arg0)
-	ret0, _ := ret[0].(cqrs.EventData)
+	ret0, _ := ret[0].(cqrs_es.EventData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -61,10 +61,10 @@ func (mr *MockEventConfigMockRecorder) NewData(arg0 interface{}) *gomock.Call {
 }
 
 // Factories mocks base method
-func (m *MockEventConfig) Factories() map[cqrs.EventType]cqrs.EventDataFactory {
+func (m *MockEventConfig) Factories() map[cqrs_es.EventType]cqrs_es.EventDataFactory {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Factories")
-	ret0, _ := ret[0].(map[cqrs.EventType]cqrs.EventDataFactory)
+	ret0, _ := ret[0].(map[cqrs_es.EventType]cqrs_es.EventDataFactory)
 	return ret0
 }
 

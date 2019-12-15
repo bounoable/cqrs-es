@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bounoable/cqrs"
+	"github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	mock_cqrs "github.com/bounoable/cqrs/mocks"
+	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 )
 

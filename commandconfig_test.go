@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bounoable/cqrs"
+	"github.com/bounoable/cqrs-es"
 	"github.com/stretchr/testify/assert"
 
-	mock_cqrs "github.com/bounoable/cqrs/mocks"
+	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 )
 

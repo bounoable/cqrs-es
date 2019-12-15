@@ -5,7 +5,7 @@
 package mock_cqrs
 
 import (
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	log "log"
 	reflect "reflect"
@@ -35,10 +35,10 @@ func (m *MockCore) EXPECT() *MockCoreMockRecorder {
 }
 
 // AggregateConfig mocks base method
-func (m *MockCore) AggregateConfig() cqrs.AggregateConfig {
+func (m *MockCore) AggregateConfig() cqrs_es.AggregateConfig {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AggregateConfig")
-	ret0, _ := ret[0].(cqrs.AggregateConfig)
+	ret0, _ := ret[0].(cqrs_es.AggregateConfig)
 	return ret0
 }
 
@@ -49,10 +49,10 @@ func (mr *MockCoreMockRecorder) AggregateConfig() *gomock.Call {
 }
 
 // EventConfig mocks base method
-func (m *MockCore) EventConfig() cqrs.EventConfig {
+func (m *MockCore) EventConfig() cqrs_es.EventConfig {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EventConfig")
-	ret0, _ := ret[0].(cqrs.EventConfig)
+	ret0, _ := ret[0].(cqrs_es.EventConfig)
 	return ret0
 }
 
@@ -63,10 +63,10 @@ func (mr *MockCoreMockRecorder) EventConfig() *gomock.Call {
 }
 
 // CommandConfig mocks base method
-func (m *MockCore) CommandConfig() cqrs.CommandConfig {
+func (m *MockCore) CommandConfig() cqrs_es.CommandConfig {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CommandConfig")
-	ret0, _ := ret[0].(cqrs.CommandConfig)
+	ret0, _ := ret[0].(cqrs_es.CommandConfig)
 	return ret0
 }
 
@@ -77,10 +77,10 @@ func (mr *MockCoreMockRecorder) CommandConfig() *gomock.Call {
 }
 
 // EventBus mocks base method
-func (m *MockCore) EventBus() cqrs.EventBus {
+func (m *MockCore) EventBus() cqrs_es.EventBus {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EventBus")
-	ret0, _ := ret[0].(cqrs.EventBus)
+	ret0, _ := ret[0].(cqrs_es.EventBus)
 	return ret0
 }
 
@@ -91,10 +91,10 @@ func (mr *MockCoreMockRecorder) EventBus() *gomock.Call {
 }
 
 // EventStore mocks base method
-func (m *MockCore) EventStore() cqrs.EventStore {
+func (m *MockCore) EventStore() cqrs_es.EventStore {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EventStore")
-	ret0, _ := ret[0].(cqrs.EventStore)
+	ret0, _ := ret[0].(cqrs_es.EventStore)
 	return ret0
 }
 
@@ -105,10 +105,10 @@ func (mr *MockCoreMockRecorder) EventStore() *gomock.Call {
 }
 
 // CommandBus mocks base method
-func (m *MockCore) CommandBus() cqrs.CommandBus {
+func (m *MockCore) CommandBus() cqrs_es.CommandBus {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CommandBus")
-	ret0, _ := ret[0].(cqrs.CommandBus)
+	ret0, _ := ret[0].(cqrs_es.CommandBus)
 	return ret0
 }
 
@@ -119,10 +119,10 @@ func (mr *MockCoreMockRecorder) CommandBus() *gomock.Call {
 }
 
 // Snapshots mocks base method
-func (m *MockCore) Snapshots() cqrs.SnapshotRepository {
+func (m *MockCore) Snapshots() cqrs_es.SnapshotRepository {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Snapshots")
-	ret0, _ := ret[0].(cqrs.SnapshotRepository)
+	ret0, _ := ret[0].(cqrs_es.SnapshotRepository)
 	return ret0
 }
 
@@ -133,10 +133,10 @@ func (mr *MockCoreMockRecorder) Snapshots() *gomock.Call {
 }
 
 // Aggregates mocks base method
-func (m *MockCore) Aggregates() cqrs.AggregateRepository {
+func (m *MockCore) Aggregates() cqrs_es.AggregateRepository {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Aggregates")
-	ret0, _ := ret[0].(cqrs.AggregateRepository)
+	ret0, _ := ret[0].(cqrs_es.AggregateRepository)
 	return ret0
 }
 
@@ -182,7 +182,7 @@ func (mr *MockSetupMockRecorder) SetLogger(arg0 interface{}) *gomock.Call {
 }
 
 // SetAggregateConfig mocks base method
-func (m *MockSetup) SetAggregateConfig(arg0 cqrs.AggregateConfig) {
+func (m *MockSetup) SetAggregateConfig(arg0 cqrs_es.AggregateConfig) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetAggregateConfig", arg0)
 }
@@ -194,7 +194,7 @@ func (mr *MockSetupMockRecorder) SetAggregateConfig(arg0 interface{}) *gomock.Ca
 }
 
 // SetEventConfig mocks base method
-func (m *MockSetup) SetEventConfig(arg0 cqrs.EventConfig) {
+func (m *MockSetup) SetEventConfig(arg0 cqrs_es.EventConfig) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetEventConfig", arg0)
 }
@@ -206,7 +206,7 @@ func (mr *MockSetupMockRecorder) SetEventConfig(arg0 interface{}) *gomock.Call {
 }
 
 // SetCommandConfig mocks base method
-func (m *MockSetup) SetCommandConfig(arg0 cqrs.CommandConfig) {
+func (m *MockSetup) SetCommandConfig(arg0 cqrs_es.CommandConfig) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCommandConfig", arg0)
 }
@@ -218,7 +218,7 @@ func (mr *MockSetupMockRecorder) SetCommandConfig(arg0 interface{}) *gomock.Call
 }
 
 // SetEventStoreFactory mocks base method
-func (m *MockSetup) SetEventStoreFactory(arg0 cqrs.EventStoreFactory) {
+func (m *MockSetup) SetEventStoreFactory(arg0 cqrs_es.EventStoreFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetEventStoreFactory", arg0)
 }
@@ -230,7 +230,7 @@ func (mr *MockSetupMockRecorder) SetEventStoreFactory(arg0 interface{}) *gomock.
 }
 
 // SetEventBusFactory mocks base method
-func (m *MockSetup) SetEventBusFactory(arg0 cqrs.EventBusFactory) {
+func (m *MockSetup) SetEventBusFactory(arg0 cqrs_es.EventBusFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetEventBusFactory", arg0)
 }
@@ -242,7 +242,7 @@ func (mr *MockSetupMockRecorder) SetEventBusFactory(arg0 interface{}) *gomock.Ca
 }
 
 // SetCommandBusFactory mocks base method
-func (m *MockSetup) SetCommandBusFactory(arg0 cqrs.CommandBusFactory) {
+func (m *MockSetup) SetCommandBusFactory(arg0 cqrs_es.CommandBusFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCommandBusFactory", arg0)
 }
@@ -254,7 +254,7 @@ func (mr *MockSetupMockRecorder) SetCommandBusFactory(arg0 interface{}) *gomock.
 }
 
 // SetSnapshotRepositoryFactory mocks base method
-func (m *MockSetup) SetSnapshotRepositoryFactory(arg0 cqrs.SnapshotRepositoryFactory) {
+func (m *MockSetup) SetSnapshotRepositoryFactory(arg0 cqrs_es.SnapshotRepositoryFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetSnapshotRepositoryFactory", arg0)
 }
@@ -266,7 +266,7 @@ func (mr *MockSetupMockRecorder) SetSnapshotRepositoryFactory(arg0 interface{}) 
 }
 
 // SetAggregateRepositoryFactory mocks base method
-func (m *MockSetup) SetAggregateRepositoryFactory(arg0 cqrs.AggregateRepositoryFactory) {
+func (m *MockSetup) SetAggregateRepositoryFactory(arg0 cqrs_es.AggregateRepositoryFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetAggregateRepositoryFactory", arg0)
 }
@@ -278,7 +278,7 @@ func (mr *MockSetupMockRecorder) SetAggregateRepositoryFactory(arg0 interface{})
 }
 
 // RegisterAggregate mocks base method
-func (m *MockSetup) RegisterAggregate(arg0 cqrs.AggregateType, arg1 cqrs.AggregateFactory) {
+func (m *MockSetup) RegisterAggregate(arg0 cqrs_es.AggregateType, arg1 cqrs_es.AggregateFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "RegisterAggregate", arg0, arg1)
 }
@@ -290,7 +290,7 @@ func (mr *MockSetupMockRecorder) RegisterAggregate(arg0, arg1 interface{}) *gomo
 }
 
 // RegisterEvent mocks base method
-func (m *MockSetup) RegisterEvent(arg0 cqrs.EventType, arg1 cqrs.EventDataFactory) {
+func (m *MockSetup) RegisterEvent(arg0 cqrs_es.EventType, arg1 cqrs_es.EventDataFactory) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "RegisterEvent", arg0, arg1)
 }
@@ -302,7 +302,7 @@ func (mr *MockSetupMockRecorder) RegisterEvent(arg0, arg1 interface{}) *gomock.C
 }
 
 // RegisterCommand mocks base method
-func (m *MockSetup) RegisterCommand(arg0 cqrs.CommandType, arg1 cqrs.CommandHandler) {
+func (m *MockSetup) RegisterCommand(arg0 cqrs_es.CommandType, arg1 cqrs_es.CommandHandler) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "RegisterCommand", arg0, arg1)
 }

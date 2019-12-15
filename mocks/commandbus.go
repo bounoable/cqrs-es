@@ -6,7 +6,7 @@ package mock_cqrs
 
 import (
 	context "context"
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -35,7 +35,7 @@ func (m *MockCommandBus) EXPECT() *MockCommandBusMockRecorder {
 }
 
 // Dispatch mocks base method
-func (m *MockCommandBus) Dispatch(arg0 context.Context, arg1 cqrs.Command) error {
+func (m *MockCommandBus) Dispatch(arg0 context.Context, arg1 cqrs_es.Command) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Dispatch", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -72,7 +72,7 @@ func (m *MockCommandHandler) EXPECT() *MockCommandHandlerMockRecorder {
 }
 
 // HandleCommand mocks base method
-func (m *MockCommandHandler) HandleCommand(arg0 context.Context, arg1 cqrs.Command) error {
+func (m *MockCommandHandler) HandleCommand(arg0 context.Context, arg1 cqrs_es.Command) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "HandleCommand", arg0, arg1)
 	ret0, _ := ret[0].(error)

@@ -5,7 +5,7 @@
 package mock_cqrs
 
 import (
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	reflect "reflect"
@@ -36,10 +36,10 @@ func (m *MockEventData) EXPECT() *MockEventDataMockRecorder {
 }
 
 // EventType mocks base method
-func (m *MockEventData) EventType() cqrs.EventType {
+func (m *MockEventData) EventType() cqrs_es.EventType {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EventType")
-	ret0, _ := ret[0].(cqrs.EventType)
+	ret0, _ := ret[0].(cqrs_es.EventType)
 	return ret0
 }
 
@@ -87,10 +87,10 @@ func (m *MockEvent) EXPECT() *MockEventMockRecorder {
 }
 
 // Type mocks base method
-func (m *MockEvent) Type() cqrs.EventType {
+func (m *MockEvent) Type() cqrs_es.EventType {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Type")
-	ret0, _ := ret[0].(cqrs.EventType)
+	ret0, _ := ret[0].(cqrs_es.EventType)
 	return ret0
 }
 
@@ -101,10 +101,10 @@ func (mr *MockEventMockRecorder) Type() *gomock.Call {
 }
 
 // Data mocks base method
-func (m *MockEvent) Data() cqrs.EventData {
+func (m *MockEvent) Data() cqrs_es.EventData {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Data")
-	ret0, _ := ret[0].(cqrs.EventData)
+	ret0, _ := ret[0].(cqrs_es.EventData)
 	return ret0
 }
 
@@ -129,10 +129,10 @@ func (mr *MockEventMockRecorder) Time() *gomock.Call {
 }
 
 // AggregateType mocks base method
-func (m *MockEvent) AggregateType() cqrs.AggregateType {
+func (m *MockEvent) AggregateType() cqrs_es.AggregateType {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AggregateType")
-	ret0, _ := ret[0].(cqrs.AggregateType)
+	ret0, _ := ret[0].(cqrs_es.AggregateType)
 	return ret0
 }
 

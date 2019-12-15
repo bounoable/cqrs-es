@@ -5,7 +5,7 @@
 package mock_cqrs
 
 import (
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	reflect "reflect"
@@ -35,10 +35,10 @@ func (m *MockCommand) EXPECT() *MockCommandMockRecorder {
 }
 
 // CommandType mocks base method
-func (m *MockCommand) CommandType() cqrs.CommandType {
+func (m *MockCommand) CommandType() cqrs_es.CommandType {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CommandType")
-	ret0, _ := ret[0].(cqrs.CommandType)
+	ret0, _ := ret[0].(cqrs_es.CommandType)
 	return ret0
 }
 
@@ -49,10 +49,10 @@ func (mr *MockCommandMockRecorder) CommandType() *gomock.Call {
 }
 
 // AggregateType mocks base method
-func (m *MockCommand) AggregateType() cqrs.AggregateType {
+func (m *MockCommand) AggregateType() cqrs_es.AggregateType {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AggregateType")
-	ret0, _ := ret[0].(cqrs.AggregateType)
+	ret0, _ := ret[0].(cqrs_es.AggregateType)
 	return ret0
 }
 

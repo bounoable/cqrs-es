@@ -1,4 +1,4 @@
-module github.com/bounoable/cqrs
+module github.com/bounoable/cqrs-es
 
 go 1.13
 

@@ -3,7 +3,7 @@ package cqrs_test
 import (
 	"testing"
 
-	"github.com/bounoable/cqrs"
+	"github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

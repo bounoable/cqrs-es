@@ -5,7 +5,7 @@
 package mock_cqrs
 
 import (
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	reflect "reflect"
@@ -49,10 +49,10 @@ func (mr *MockAggregateMockRecorder) AggregateID() *gomock.Call {
 }
 
 // AggregateType mocks base method
-func (m *MockAggregate) AggregateType() cqrs.AggregateType {
+func (m *MockAggregate) AggregateType() cqrs_es.AggregateType {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AggregateType")
-	ret0, _ := ret[0].(cqrs.AggregateType)
+	ret0, _ := ret[0].(cqrs_es.AggregateType)
 	return ret0
 }
 
@@ -91,10 +91,10 @@ func (mr *MockAggregateMockRecorder) CurrentVersion() *gomock.Call {
 }
 
 // Changes mocks base method
-func (m *MockAggregate) Changes() []cqrs.EventData {
+func (m *MockAggregate) Changes() []cqrs_es.EventData {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Changes")
-	ret0, _ := ret[0].([]cqrs.EventData)
+	ret0, _ := ret[0].([]cqrs_es.EventData)
 	return ret0
 }
 
@@ -105,7 +105,7 @@ func (mr *MockAggregateMockRecorder) Changes() *gomock.Call {
 }
 
 // ApplyEvents mocks base method
-func (m *MockAggregate) ApplyEvents(arg0 ...cqrs.EventData) error {
+func (m *MockAggregate) ApplyEvents(arg0 ...cqrs_es.EventData) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -123,7 +123,7 @@ func (mr *MockAggregateMockRecorder) ApplyEvents(arg0 ...interface{}) *gomock.Ca
 }
 
 // ApplyHistory mocks base method
-func (m *MockAggregate) ApplyHistory(arg0 ...cqrs.EventData) error {
+func (m *MockAggregate) ApplyHistory(arg0 ...cqrs_es.EventData) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {

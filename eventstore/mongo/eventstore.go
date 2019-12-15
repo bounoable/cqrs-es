@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/bounoable/cqrs"
+	"github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

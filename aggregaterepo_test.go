@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bounoable/cqrs"
-	mock_cqrs "github.com/bounoable/cqrs/mocks"
+	"github.com/bounoable/cqrs-es"
+	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

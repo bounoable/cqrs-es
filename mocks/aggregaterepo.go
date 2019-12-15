@@ -6,7 +6,7 @@ package mock_cqrs
 
 import (
 	context "context"
-	cqrs "github.com/bounoable/cqrs"
+	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
 	reflect "reflect"
@@ -36,7 +36,7 @@ func (m *MockAggregateRepository) EXPECT() *MockAggregateRepositoryMockRecorder 
 }
 
 // Save mocks base method
-func (m *MockAggregateRepository) Save(ctx context.Context, aggregate cqrs.Aggregate) error {
+func (m *MockAggregateRepository) Save(ctx context.Context, aggregate cqrs_es.Aggregate) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", ctx, aggregate)
 	ret0, _ := ret[0].(error)
@@ -50,10 +50,10 @@ func (mr *MockAggregateRepositoryMockRecorder) Save(ctx, aggregate interface{}) 
 }
 
 // Fetch mocks base method
-func (m *MockAggregateRepository) Fetch(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, version int) (cqrs.Aggregate, error) {
+func (m *MockAggregateRepository) Fetch(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, version int) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Fetch", ctx, typ, id, version)
-	ret0, _ := ret[0].(cqrs.Aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +65,10 @@ func (mr *MockAggregateRepositoryMockRecorder) Fetch(ctx, typ, id, version inter
 }
 
 // FetchLatest mocks base method
-func (m *MockAggregateRepository) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
+func (m *MockAggregateRepository) FetchLatest(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchLatest", ctx, typ, id)
-	ret0, _ := ret[0].(cqrs.Aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
