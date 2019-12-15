@@ -145,6 +145,7 @@ type core struct {
 	aggregateConfig AggregateConfig
 	eventConfig     EventConfig
 	commandConfig   CommandConfig
+	snapshotConfig  SnapshotConfig
 	eventBus        EventBus
 	eventStore      EventStore
 	commandBus      CommandBus
@@ -218,16 +219,6 @@ func NewWithConfigs(
 		c.logger.Println("cqrs setup: no command bus")
 	}
 
-	if setup.aggregateRepoFactory != nil {
-		repo, err := setup.aggregateRepoFactory(ctx, c)
-		if err != nil {
-			return nil, fmt.Errorf("cqrs setup: %w", err)
-		}
-		c.aggregates = repo
-	} else if c.logger != nil {
-		c.logger.Println("cqrs setup: no aggregate repository")
-	}
-
 	if setup.snapshotRepoFactory != nil {
 		repo, err := setup.snapshotRepoFactory(ctx, c)
 		if err != nil {
@@ -236,6 +227,18 @@ func NewWithConfigs(
 		c.snapshots = repo
 	} else if c.logger != nil {
 		c.logger.Println("cqrs setup: no snapshot repository")
+	}
+
+	if setup.aggregateRepoFactory != nil {
+		repo, err := setup.aggregateRepoFactory(ctx, c)
+		if err != nil {
+			return nil, fmt.Errorf("cqrs setup: %w", err)
+		}
+		c.aggregates = repo
+	} else if c.eventStore != nil && c.aggregateConfig != nil {
+		c.aggregates = NewAggregateRepository(c.eventStore, c.aggregateConfig, c.snapshotConfig, c.snapshots)
+	} else if c.logger != nil {
+		c.logger.Println("cqrs setup: no aggregate repository")
 	}
 
 	return c, nil
