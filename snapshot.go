@@ -5,6 +5,7 @@ package cqrs
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/google/uuid"
 )
@@ -22,8 +23,12 @@ type SnapshotConfig interface {
 	IsDue(Aggregate) bool
 }
 
+// SnapshotOption ...
+type SnapshotOption func(*snapshotConfig)
+
 type snapshotConfig struct {
-	every int
+	mux       sync.RWMutex
+	intervals map[AggregateType]int
 }
 
 // SnapshotError ...
@@ -41,13 +46,31 @@ func (err SnapshotError) Unwrap() error {
 	return err.Err
 }
 
-// NewSnapshotConfig ...
-func NewSnapshotConfig(every int) SnapshotConfig {
-	return snapshotConfig{
-		every: every,
+// SnapshotInterval ...
+func SnapshotInterval(typ AggregateType, every int) SnapshotOption {
+	return func(cfg *snapshotConfig) {
+		cfg.intervals[typ] = every
 	}
 }
 
-func (cfg snapshotConfig) IsDue(aggregate Aggregate) bool {
-	return cfg.every > 0 && len(aggregate.Changes()) >= cfg.every
+// NewSnapshotConfig ...
+func NewSnapshotConfig(options ...SnapshotOption) SnapshotConfig {
+	var cfg snapshotConfig
+	for _, opt := range options {
+		opt(&cfg)
+	}
+
+	return &cfg
+}
+
+func (cfg *snapshotConfig) IsDue(aggregate Aggregate) bool {
+	cfg.mux.RLock()
+	defer cfg.mux.RUnlock()
+
+	interval, ok := cfg.intervals[aggregate.AggregateType()]
+	if !ok {
+		return false
+	}
+
+	return interval > 0 && len(aggregate.Changes()) >= interval
 }
