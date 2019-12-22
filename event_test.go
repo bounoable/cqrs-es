@@ -12,14 +12,14 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestNewEvent(t *testing.T) {
+func TestNewEventWithTime(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	typ := cqrs.EventType("test")
 	data := mock_cqrs.NewMockEventData(ctrl)
 	time := time.Now()
-	e := cqrs.NewEvent(typ, data, time)
+	e := cqrs.NewEventWithTime(typ, data, time)
 
 	assert.Equal(t, typ, e.Type())
 	assert.Equal(t, data, e.Data())
@@ -29,7 +29,7 @@ func TestNewEvent(t *testing.T) {
 	assert.Equal(t, -1, e.Version())
 }
 
-func TestNewAggregateEvent(t *testing.T) {
+func TestNewAggregateEventWithTime(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -39,7 +39,7 @@ func TestNewAggregateEvent(t *testing.T) {
 	aggregateType := cqrs.AggregateType("test")
 	aggregateID := uuid.New()
 	version := 5
-	e := cqrs.NewAggregateEvent(typ, data, time, aggregateType, aggregateID, 5)
+	e := cqrs.NewAggregateEventWithTime(typ, data, time, aggregateType, aggregateID, 5)
 
 	assert.Equal(t, typ, e.Type())
 	assert.Equal(t, data, e.Data())

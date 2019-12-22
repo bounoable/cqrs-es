@@ -3,7 +3,6 @@ package cqrs_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/bounoable/cqrs-es"
 	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
@@ -59,21 +58,10 @@ func TestSaveAggregateWithoutSnapshot(t *testing.T) {
 	ctx := context.Background()
 
 	aggregate := mock_cqrs.NewMockAggregate(ctrl)
-	aggregateType := cqrs.AggregateType("test")
-	aggregateID := uuid.New()
-	changes := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-	}
-
-	for _, change := range changes {
-		c := change.(*mock_cqrs.MockEventData)
-		c.EXPECT().EventType().Return(cqrs.EventType("test"))
-		c.EXPECT().EventTime().Return(time.Now())
-		aggregate.EXPECT().AggregateType().Return(aggregateType)
-		aggregate.EXPECT().AggregateID().Return(aggregateID)
-		aggregate.EXPECT().OriginalVersion().Return(-1)
+	changes := []cqrs.Event{
+		mock_cqrs.NewMockEvent(ctrl),
+		mock_cqrs.NewMockEvent(ctrl),
+		mock_cqrs.NewMockEvent(ctrl),
 	}
 
 	aggregate.EXPECT().OriginalVersion().Return(5)
@@ -98,21 +86,10 @@ func TestSaveAggregateWithSnapshot(t *testing.T) {
 	ctx := context.Background()
 
 	aggregate := mock_cqrs.NewMockAggregate(ctrl)
-	aggregateType := cqrs.AggregateType("test")
-	aggregateID := uuid.New()
-	changes := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-	}
-
-	for _, change := range changes {
-		c := change.(*mock_cqrs.MockEventData)
-		c.EXPECT().EventType().Return(cqrs.EventType("test"))
-		c.EXPECT().EventTime().Return(time.Now())
-		aggregate.EXPECT().AggregateType().Return(aggregateType)
-		aggregate.EXPECT().AggregateID().Return(aggregateID)
-		aggregate.EXPECT().OriginalVersion().Return(-1)
+	changes := []cqrs.Event{
+		mock_cqrs.NewMockEvent(ctrl),
+		mock_cqrs.NewMockEvent(ctrl),
+		mock_cqrs.NewMockEvent(ctrl),
 	}
 
 	aggregate.EXPECT().OriginalVersion().Return(5)
@@ -141,20 +118,10 @@ func TestFetchAggregateWithoutSnapshot(t *testing.T) {
 	aggregateID := uuid.New()
 	version := 10
 
-	events := []cqrs.Event{
+	changes := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
-	}
-
-	changes := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-	}
-
-	for i, e := range events {
-		e.(*mock_cqrs.MockEvent).EXPECT().Data().Return(changes[i])
 	}
 
 	changesArgs := make([]interface{}, len(changes))
@@ -164,7 +131,7 @@ func TestFetchAggregateWithoutSnapshot(t *testing.T) {
 
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	aggregate.EXPECT().OriginalVersion().Return(3)
-	eventStore.EXPECT().Fetch(ctx, aggregateType, aggregateID, 4, version).Return(events, nil)
+	eventStore.EXPECT().Fetch(ctx, aggregateType, aggregateID, 4, version).Return(changes, nil)
 	aggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
 
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
@@ -188,20 +155,10 @@ func TestFetchAggregateWithSnapshot(t *testing.T) {
 	snapAggregate := mock_cqrs.NewMockAggregate(ctrl)
 	version := 10
 
-	events := []cqrs.Event{
+	changes := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
-	}
-
-	changes := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-	}
-
-	for i, e := range events {
-		e.(*mock_cqrs.MockEvent).EXPECT().Data().Return(changes[i])
 	}
 
 	changesArgs := make([]interface{}, len(changes))
@@ -212,7 +169,7 @@ func TestFetchAggregateWithSnapshot(t *testing.T) {
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	snapshots.EXPECT().MaxVersion(ctx, aggregateType, aggregateID, version).Return(snapAggregate, nil)
 	snapAggregate.EXPECT().OriginalVersion().Return(3)
-	eventStore.EXPECT().Fetch(ctx, aggregateType, aggregateID, 4, version).Return(events, nil)
+	eventStore.EXPECT().Fetch(ctx, aggregateType, aggregateID, 4, version).Return(changes, nil)
 	snapAggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
 
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
@@ -233,20 +190,10 @@ func TestFetchLatestAggregateWithoutSnapshot(t *testing.T) {
 	aggregateType := cqrs.AggregateType("test")
 	aggregateID := uuid.New()
 
-	events := []cqrs.Event{
+	changes := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
-	}
-
-	changes := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-	}
-
-	for i, e := range events {
-		e.(*mock_cqrs.MockEvent).EXPECT().Data().Return(changes[i])
 	}
 
 	changesArgs := make([]interface{}, len(changes))
@@ -256,7 +203,7 @@ func TestFetchLatestAggregateWithoutSnapshot(t *testing.T) {
 
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	aggregate.EXPECT().OriginalVersion().Return(3)
-	eventStore.EXPECT().FetchFrom(ctx, aggregateType, aggregateID, 4).Return(events, nil)
+	eventStore.EXPECT().FetchFrom(ctx, aggregateType, aggregateID, 4).Return(changes, nil)
 	aggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
@@ -279,20 +226,10 @@ func TestFetchLatestAggregateWithSnapshot(t *testing.T) {
 	aggregateID := uuid.New()
 	snapAggregate := mock_cqrs.NewMockAggregate(ctrl)
 
-	events := []cqrs.Event{
+	changes := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
-	}
-
-	changes := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
-	}
-
-	for i, e := range events {
-		e.(*mock_cqrs.MockEvent).EXPECT().Data().Return(changes[i])
 	}
 
 	changesArgs := make([]interface{}, len(changes))
@@ -303,7 +240,7 @@ func TestFetchLatestAggregateWithSnapshot(t *testing.T) {
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	snapshots.EXPECT().Latest(ctx, aggregateType, aggregateID).Return(snapAggregate, nil)
 	snapAggregate.EXPECT().OriginalVersion().Return(3)
-	eventStore.EXPECT().FetchFrom(ctx, aggregateType, aggregateID, 4).Return(events, nil)
+	eventStore.EXPECT().FetchFrom(ctx, aggregateType, aggregateID, 4).Return(changes, nil)
 	snapAggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)

@@ -236,9 +236,9 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 		}
 
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
-			events <- cqrs.NewAggregateEvent(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
+			events <- cqrs.NewAggregateEventWithTime(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
 		} else {
-			events <- cqrs.NewEvent(evtmsg.EventType, data, evtmsg.Time)
+			events <- cqrs.NewEventWithTime(evtmsg.EventType, data, evtmsg.Time)
 		}
 	}
 }

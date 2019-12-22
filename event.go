@@ -12,26 +12,7 @@ import (
 type EventType string
 
 // EventData is the payload of an event.
-type EventData interface {
-	EventType() EventType
-	EventTime() time.Time
-}
-
-// BaseEventData ...
-type BaseEventData struct {
-	Type EventType `bson:"type"`
-	Time time.Time `bson:"time"`
-}
-
-// EventType ...
-func (d BaseEventData) EventType() EventType {
-	return d.Type
-}
-
-// EventTime ...
-func (d BaseEventData) EventTime() time.Time {
-	return d.Time
-}
+type EventData interface{}
 
 // Event is an event.
 type Event interface {
@@ -53,8 +34,13 @@ type event struct {
 	version       int
 }
 
-// NewEvent creates a new event.
-func NewEvent(typ EventType, data EventData, time time.Time) Event {
+// NewEvent creates a new event with time set to time.Now().
+func NewEvent(typ EventType, data EventData) Event {
+	return NewEventWithTime(typ, data, time.Now())
+}
+
+// NewEventWithTime creates a new event.
+func NewEventWithTime(typ EventType, data EventData, time time.Time) Event {
 	return &event{
 		typ:     typ,
 		data:    data,
@@ -63,8 +49,13 @@ func NewEvent(typ EventType, data EventData, time time.Time) Event {
 	}
 }
 
-// NewAggregateEvent creates a new event.
-func NewAggregateEvent(typ EventType, data EventData, time time.Time, aggregateType AggregateType, aggregateID uuid.UUID, version int) Event {
+// NewAggregateEvent creates a new aggregate event with time set to time.Now().
+func NewAggregateEvent(typ EventType, data EventData, aggregateType AggregateType, aggregateID uuid.UUID, version int) Event {
+	return NewAggregateEventWithTime(typ, data, time.Now(), aggregateType, aggregateID, version)
+}
+
+// NewAggregateEventWithTime creates a new aggregate event.
+func NewAggregateEventWithTime(typ EventType, data EventData, time time.Time, aggregateType AggregateType, aggregateID uuid.UUID, version int) Event {
 	return &event{
 		typ:           typ,
 		data:          data,

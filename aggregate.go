@@ -15,9 +15,9 @@ type Aggregate interface {
 	AggregateType() AggregateType
 	OriginalVersion() int
 	CurrentVersion() int
-	Changes() []EventData
-	ApplyEvents(...EventData) error
-	ApplyHistory(...EventData) error
+	Changes() []Event
+	ApplyEvents(...Event) error
+	ApplyHistory(...Event) error
 }
 
 // BaseAggregate is the base implementation for an aggregate.
@@ -25,7 +25,7 @@ type BaseAggregate struct {
 	ID      uuid.UUID
 	Type    AggregateType
 	Version int
-	changes []EventData
+	changes []Event
 }
 
 // NewBaseAggregate returns a new BaseAggregate.
@@ -58,12 +58,12 @@ func (a *BaseAggregate) CurrentVersion() int {
 }
 
 // Changes returns the applied events.
-func (a *BaseAggregate) Changes() []EventData {
+func (a *BaseAggregate) Changes() []Event {
 	return a.changes
 }
 
 // TrackChange adds applied events to the aggregate.
-func (a *BaseAggregate) TrackChange(events ...EventData) {
+func (a *BaseAggregate) TrackChange(events ...Event) {
 	a.changes = append(a.changes, events...)
 }
 

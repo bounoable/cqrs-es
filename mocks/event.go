@@ -35,34 +35,6 @@ func (m *MockEventData) EXPECT() *MockEventDataMockRecorder {
 	return m.recorder
 }
 
-// EventType mocks base method
-func (m *MockEventData) EventType() cqrs_es.EventType {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EventType")
-	ret0, _ := ret[0].(cqrs_es.EventType)
-	return ret0
-}
-
-// EventType indicates an expected call of EventType
-func (mr *MockEventDataMockRecorder) EventType() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventType", reflect.TypeOf((*MockEventData)(nil).EventType))
-}
-
-// EventTime mocks base method
-func (m *MockEventData) EventTime() time.Time {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EventTime")
-	ret0, _ := ret[0].(time.Time)
-	return ret0
-}
-
-// EventTime indicates an expected call of EventTime
-func (mr *MockEventDataMockRecorder) EventTime() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventTime", reflect.TypeOf((*MockEventData)(nil).EventTime))
-}
-
 // MockEvent is a mock of Event interface
 type MockEvent struct {
 	ctrl     *gomock.Controller

@@ -26,9 +26,9 @@ func TestTrackChange(t *testing.T) {
 	defer ctrl.Finish()
 
 	a := cqrs.NewBaseAggregate(cqrs.AggregateType("test"), uuid.New())
-	events := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
+	events := []cqrs.Event{
+		mock_cqrs.NewMockEvent(ctrl),
+		mock_cqrs.NewMockEvent(ctrl),
 	}
 	a.TrackChange(events...)
 
@@ -41,9 +41,9 @@ func TestFlushChanges(t *testing.T) {
 	defer ctrl.Finish()
 
 	a := cqrs.NewBaseAggregate(cqrs.AggregateType("test"), uuid.New())
-	events := []cqrs.EventData{
-		mock_cqrs.NewMockEventData(ctrl),
-		mock_cqrs.NewMockEventData(ctrl),
+	events := []cqrs.Event{
+		mock_cqrs.NewMockEvent(ctrl),
+		mock_cqrs.NewMockEvent(ctrl),
 	}
 	a.TrackChange(events...)
 	a.FlushChanges()

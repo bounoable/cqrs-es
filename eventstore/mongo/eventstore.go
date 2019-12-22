@@ -384,7 +384,7 @@ func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 		return nil, err
 	}
 
-	return cqrs.NewAggregateEvent(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
+	return cqrs.NewAggregateEventWithTime(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
 }
 
 type dbEvent struct {

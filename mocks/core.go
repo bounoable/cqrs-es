@@ -217,6 +217,18 @@ func (mr *MockSetupMockRecorder) SetCommandConfig(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCommandConfig", reflect.TypeOf((*MockSetup)(nil).SetCommandConfig), arg0)
 }
 
+// SetSnapshotConfig mocks base method
+func (m *MockSetup) SetSnapshotConfig(arg0 cqrs_es.SnapshotConfig) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetSnapshotConfig", arg0)
+}
+
+// SetSnapshotConfig indicates an expected call of SetSnapshotConfig
+func (mr *MockSetupMockRecorder) SetSnapshotConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSnapshotConfig", reflect.TypeOf((*MockSetup)(nil).SetSnapshotConfig), arg0)
+}
+
 // SetEventStoreFactory mocks base method
 func (m *MockSetup) SetEventStoreFactory(arg0 cqrs_es.EventStoreFactory) {
 	m.ctrl.T.Helper()
@@ -251,6 +263,22 @@ func (m *MockSetup) SetCommandBusFactory(arg0 cqrs_es.CommandBusFactory) {
 func (mr *MockSetupMockRecorder) SetCommandBusFactory(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCommandBusFactory", reflect.TypeOf((*MockSetup)(nil).SetCommandBusFactory), arg0)
+}
+
+// AddCommandHandlerFactory mocks base method
+func (m *MockSetup) AddCommandHandlerFactory(arg0 ...cqrs_es.CommandHandlerFactory) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range arg0 {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "AddCommandHandlerFactory", varargs...)
+}
+
+// AddCommandHandlerFactory indicates an expected call of AddCommandHandlerFactory
+func (mr *MockSetupMockRecorder) AddCommandHandlerFactory(arg0 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCommandHandlerFactory", reflect.TypeOf((*MockSetup)(nil).AddCommandHandlerFactory), arg0...)
 }
 
 // SetSnapshotRepositoryFactory mocks base method

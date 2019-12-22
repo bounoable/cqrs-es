@@ -91,10 +91,10 @@ func (mr *MockAggregateMockRecorder) CurrentVersion() *gomock.Call {
 }
 
 // Changes mocks base method
-func (m *MockAggregate) Changes() []cqrs_es.EventData {
+func (m *MockAggregate) Changes() []cqrs_es.Event {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Changes")
-	ret0, _ := ret[0].([]cqrs_es.EventData)
+	ret0, _ := ret[0].([]cqrs_es.Event)
 	return ret0
 }
 
@@ -105,7 +105,7 @@ func (mr *MockAggregateMockRecorder) Changes() *gomock.Call {
 }
 
 // ApplyEvents mocks base method
-func (m *MockAggregate) ApplyEvents(arg0 ...cqrs_es.EventData) error {
+func (m *MockAggregate) ApplyEvents(arg0 ...cqrs_es.Event) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
@@ -123,7 +123,7 @@ func (mr *MockAggregateMockRecorder) ApplyEvents(arg0 ...interface{}) *gomock.Ca
 }
 
 // ApplyHistory mocks base method
-func (m *MockAggregate) ApplyHistory(arg0 ...cqrs_es.EventData) error {
+func (m *MockAggregate) ApplyHistory(arg0 ...cqrs_es.Event) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
