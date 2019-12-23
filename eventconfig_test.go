@@ -5,12 +5,13 @@ import (
 	"testing"
 
 	"github.com/bounoable/cqrs-es"
-	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRegisterEvent(t *testing.T) {
+	type testEventData struct{}
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -23,14 +24,9 @@ func TestRegisterEvent(t *testing.T) {
 	}, err))
 	assert.Nil(t, ed)
 
-	eventData := mock_cqrs.NewMockEventData(ctrl)
-	factory := cqrs.EventDataFactory(func() cqrs.EventData {
-		return eventData
-	})
-
-	cfg.Register(typ, factory)
+	cfg.Register(typ, testEventData{})
 
 	ed, err = cfg.NewData(typ)
 	assert.Nil(t, err)
-	assert.Equal(t, eventData, ed)
+	assert.Equal(t, testEventData{}, ed)
 }

@@ -201,7 +201,7 @@ func NewWithConfigs(
 	}
 
 	for typ, factory := range setup.eventConfig.Factories() {
-		c.eventConfig.Register(typ, factory)
+		c.eventConfig.Register(typ, factory())
 	}
 
 	for typ, handler := range setup.commandConfig.Handlers() {

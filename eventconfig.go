@@ -4,6 +4,7 @@ package cqrs
 
 import (
 	"fmt"
+	"reflect"
 	"sync"
 )
 
@@ -12,7 +13,9 @@ type EventDataFactory func() EventData
 
 // EventConfig is the configuration for the events.
 type EventConfig interface {
-	Register(EventType, EventDataFactory)
+	Register(EventType, EventData)
+	// NewData creates an EventData instance for EventType.
+	// The returned object is a struct.
 	NewData(EventType) (EventData, error)
 	Factories() map[EventType]EventDataFactory
 }
@@ -38,14 +41,23 @@ func NewEventConfig() EventConfig {
 	}
 }
 
-func (cfg *eventConfig) Register(typ EventType, factory EventDataFactory) {
-	if factory == nil {
+func (cfg *eventConfig) Register(typ EventType, proto EventData) {
+	if proto == nil {
 		panic("eventconfig: EventDataFactory cannot be nil")
 	}
 
+	refval := reflect.TypeOf(proto)
+	for refval.Kind() == reflect.Ptr {
+		refval = refval.Elem()
+	}
+
+	proto = reflect.New(refval).Elem().Interface()
+
 	cfg.mux.Lock()
 	defer cfg.mux.Unlock()
-	cfg.factories[typ] = factory
+	cfg.factories[typ] = func() EventData {
+		return proto
+	}
 }
 
 func (cfg *eventConfig) NewData(typ EventType) (EventData, error) {

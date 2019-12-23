@@ -228,7 +228,7 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 			continue
 		}
 
-		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(data); err != nil {
+		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(&data); err != nil {
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
