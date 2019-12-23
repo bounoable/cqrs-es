@@ -57,7 +57,7 @@ type Setup interface {
 	SetAggregateRepositoryFactory(AggregateRepositoryFactory)
 
 	RegisterAggregate(AggregateType, AggregateFactory)
-	RegisterEvent(EventType, EventDataFactory)
+	RegisterEvent(EventType, EventData)
 	RegisterCommand(CommandType, CommandHandler)
 }
 
@@ -104,9 +104,9 @@ func WithAggregate(typ AggregateType, factory AggregateFactory) Option {
 }
 
 // WithEvent ...
-func WithEvent(typ EventType, factory EventDataFactory) Option {
+func WithEvent(typ EventType, proto EventData) Option {
 	return func(s Setup) {
-		s.RegisterEvent(typ, factory)
+		s.RegisterEvent(typ, proto)
 	}
 }
 
@@ -397,8 +397,8 @@ func (s *setup) RegisterAggregate(typ AggregateType, factory AggregateFactory) {
 	s.aggregateConfig.Register(typ, factory)
 }
 
-func (s *setup) RegisterEvent(typ EventType, factory EventDataFactory) {
-	s.eventConfig.Register(typ, factory)
+func (s *setup) RegisterEvent(typ EventType, proto EventData) {
+	s.eventConfig.Register(typ, proto)
 }
 
 func (s *setup) RegisterCommand(typ CommandType, handler CommandHandler) {
