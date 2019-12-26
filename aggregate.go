@@ -22,6 +22,7 @@ type Aggregate interface {
 
 // BaseAggregate is the base implementation for an aggregate.
 type BaseAggregate struct {
+	Aggregate
 	ID      uuid.UUID
 	Type    AggregateType
 	Version int
@@ -71,4 +72,14 @@ func (a *BaseAggregate) TrackChange(events ...Event) {
 func (a *BaseAggregate) FlushChanges() {
 	a.Version = a.CurrentVersion()
 	a.changes = nil
+}
+
+// ApplyHistory ...
+func (a *BaseAggregate) ApplyHistory(events ...Event) error {
+	if err := a.ApplyEvents(events...); err != nil {
+		return err
+	}
+
+	a.FlushChanges()
+	return nil
 }
