@@ -19,7 +19,6 @@ func TestNewAggregateRepository(t *testing.T) {
 		cqrs.NewAggregateRepository(
 			nil,
 			mock_cqrs.NewMockAggregateConfig(ctrl),
-			mock_cqrs.NewMockSnapshotConfig(ctrl),
 			mock_cqrs.NewMockSnapshotRepository(ctrl),
 		)
 	})
@@ -30,7 +29,6 @@ func TestNewAggregateRepository(t *testing.T) {
 		cqrs.NewAggregateRepository(
 			mock_cqrs.NewMockEventStore(ctrl),
 			nil,
-			mock_cqrs.NewMockSnapshotConfig(ctrl),
 			mock_cqrs.NewMockSnapshotRepository(ctrl),
 		)
 	})
@@ -41,19 +39,18 @@ func TestNewAggregateRepository(t *testing.T) {
 		cqrs.NewAggregateRepository(
 			mock_cqrs.NewMockEventStore(ctrl),
 			mock_cqrs.NewMockAggregateConfig(ctrl),
-			mock_cqrs.NewMockSnapshotConfig(ctrl),
 			mock_cqrs.NewMockSnapshotRepository(ctrl),
 		)
 	})
 }
 
-func TestSaveAggregateWithoutSnapshot(t *testing.T) {
+func TestSaveAggregate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	eventStore := mock_cqrs.NewMockEventStore(ctrl)
 	aggregateConfig := mock_cqrs.NewMockAggregateConfig(ctrl)
-	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil, nil)
+	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil)
 
 	ctx := context.Background()
 
@@ -66,37 +63,6 @@ func TestSaveAggregateWithoutSnapshot(t *testing.T) {
 
 	aggregate.EXPECT().OriginalVersion().Return(5)
 	aggregate.EXPECT().Changes().Return(changes)
-
-	eventStore.EXPECT().Save(ctx, 5, gomock.Any()).Return(nil)
-
-	err := repo.Save(ctx, aggregate)
-	assert.Nil(t, err)
-}
-
-func TestSaveAggregateWithSnapshot(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	eventStore := mock_cqrs.NewMockEventStore(ctrl)
-	aggregateConfig := mock_cqrs.NewMockAggregateConfig(ctrl)
-	snapshotConfig := mock_cqrs.NewMockSnapshotConfig(ctrl)
-	snapshots := mock_cqrs.NewMockSnapshotRepository(ctrl)
-	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, snapshotConfig, snapshots)
-
-	ctx := context.Background()
-
-	aggregate := mock_cqrs.NewMockAggregate(ctrl)
-	changes := []cqrs.Event{
-		mock_cqrs.NewMockEvent(ctrl),
-		mock_cqrs.NewMockEvent(ctrl),
-		mock_cqrs.NewMockEvent(ctrl),
-	}
-
-	aggregate.EXPECT().OriginalVersion().Return(5)
-	aggregate.EXPECT().Changes().Return(changes)
-
-	snapshotConfig.EXPECT().IsDue(aggregate).Return(true)
-	snapshots.EXPECT().Save(ctx, aggregate).Return(nil)
 
 	eventStore.EXPECT().Save(ctx, 5, gomock.Any()).Return(nil)
 
@@ -110,7 +76,7 @@ func TestFetchAggregateWithoutSnapshot(t *testing.T) {
 
 	eventStore := mock_cqrs.NewMockEventStore(ctrl)
 	aggregateConfig := mock_cqrs.NewMockAggregateConfig(ctrl)
-	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil, nil)
+	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil)
 
 	ctx := context.Background()
 	aggregate := mock_cqrs.NewMockAggregate(ctrl)
@@ -146,7 +112,7 @@ func TestFetchAggregateWithSnapshot(t *testing.T) {
 	eventStore := mock_cqrs.NewMockEventStore(ctrl)
 	aggregateConfig := mock_cqrs.NewMockAggregateConfig(ctrl)
 	snapshots := mock_cqrs.NewMockSnapshotRepository(ctrl)
-	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil, snapshots)
+	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, snapshots)
 
 	ctx := context.Background()
 	aggregate := mock_cqrs.NewMockAggregate(ctrl)
@@ -183,7 +149,7 @@ func TestFetchLatestAggregateWithoutSnapshot(t *testing.T) {
 
 	eventStore := mock_cqrs.NewMockEventStore(ctrl)
 	aggregateConfig := mock_cqrs.NewMockAggregateConfig(ctrl)
-	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil, nil)
+	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil)
 
 	ctx := context.Background()
 	aggregate := mock_cqrs.NewMockAggregate(ctrl)
@@ -218,7 +184,7 @@ func TestFetchLatestAggregateWithSnapshot(t *testing.T) {
 	eventStore := mock_cqrs.NewMockEventStore(ctrl)
 	aggregateConfig := mock_cqrs.NewMockAggregateConfig(ctrl)
 	snapshots := mock_cqrs.NewMockSnapshotRepository(ctrl)
-	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, nil, snapshots)
+	repo := cqrs.NewAggregateRepository(eventStore, aggregateConfig, snapshots)
 
 	ctx := context.Background()
 	aggregate := mock_cqrs.NewMockAggregate(ctrl)

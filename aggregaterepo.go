@@ -4,6 +4,7 @@ package cqrs
 
 import (
 	"context"
+	"sync"
 
 	"github.com/google/uuid"
 )
@@ -15,20 +16,33 @@ type AggregateRepository interface {
 	FetchLatest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
 }
 
+// AggregateRepositoryOption ...
+type AggregateRepositoryOption func(*aggregateRepository)
+
 type aggregateRepository struct {
-	eventStore     EventStore
-	aggregateCfg   AggregateConfig
-	snapshotConfig SnapshotConfig
-	snapshots      SnapshotRepository
+	eventStore   EventStore
+	aggregateCfg AggregateConfig
+	snapshots    SnapshotRepository
+
+	mux              sync.RWMutex
+	dueForSnapshot   map[Aggregate]struct{}
+	snapshotEveryNth int
+}
+
+// SnapshotEveryNth ...
+func SnapshotEveryNth(n int) AggregateRepositoryOption {
+	return func(repo *aggregateRepository) {
+		repo.snapshotEveryNth = n
+	}
 }
 
 // NewAggregateRepository ...
-// snapshotConfig & snapshots are optional
+// snapshots is optional.
 func NewAggregateRepository(
 	eventStore EventStore,
 	aggregateCfg AggregateConfig,
-	snapshotConfig SnapshotConfig,
 	snapshots SnapshotRepository,
+	options ...AggregateRepositoryOption,
 ) AggregateRepository {
 	if eventStore == nil {
 		panic("event store cannot be nil")
@@ -38,12 +52,17 @@ func NewAggregateRepository(
 		panic("aggregate config cannot be nil")
 	}
 
-	return &aggregateRepository{
-		eventStore:     eventStore,
-		aggregateCfg:   aggregateCfg,
-		snapshotConfig: snapshotConfig,
-		snapshots:      snapshots,
+	repo := &aggregateRepository{
+		eventStore:   eventStore,
+		aggregateCfg: aggregateCfg,
+		snapshots:    snapshots,
 	}
+
+	for _, opt := range options {
+		opt(repo)
+	}
+
+	return repo
 }
 
 func (r *aggregateRepository) Save(ctx context.Context, aggregate Aggregate) error {
@@ -53,17 +72,11 @@ func (r *aggregateRepository) Save(ctx context.Context, aggregate Aggregate) err
 		return err
 	}
 
-	if r.snapshots == nil || r.snapshotConfig == nil {
+	if r.snapshots == nil || !r.snapshotDue(aggregate) {
 		return nil
 	}
 
-	if r.snapshotConfig.IsDue(aggregate) {
-		if err := r.snapshots.Save(ctx, aggregate); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return r.snapshots.Save(ctx, aggregate)
 }
 
 func (r *aggregateRepository) Fetch(ctx context.Context, typ AggregateType, id uuid.UUID, version int) (Aggregate, error) {
@@ -88,14 +101,11 @@ func (r *aggregateRepository) Fetch(ctx context.Context, typ AggregateType, id u
 		return nil, err
 	}
 
-	// eventData := make([]EventData, len(events))
-	// for i, e := range events {
-	// 	eventData[i] = e.Data()
-	// }
-
 	if err := aggregate.ApplyHistory(events...); err != nil {
 		return nil, err
 	}
+
+	r.checkDue(aggregate, len(events))
 
 	return aggregate, nil
 }
@@ -126,5 +136,29 @@ func (r *aggregateRepository) FetchLatest(ctx context.Context, typ AggregateType
 		return nil, err
 	}
 
+	r.checkDue(aggregate, len(events))
+
 	return aggregate, nil
+}
+
+func (r *aggregateRepository) checkDue(aggregate Aggregate, events int) {
+	if r.snapshotEveryNth == 0 || events < r.snapshotEveryNth {
+		return
+	}
+
+	r.mux.Lock()
+	r.dueForSnapshot[aggregate] = struct{}{}
+	r.mux.Unlock()
+}
+
+func (r *aggregateRepository) snapshotDue(aggregate Aggregate) bool {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	_, due := r.dueForSnapshot[aggregate]
+
+	if due {
+		delete(r.dueForSnapshot, aggregate)
+	}
+
+	return due
 }

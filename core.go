@@ -47,7 +47,6 @@ type Setup interface {
 	SetAggregateConfig(AggregateConfig)
 	SetEventConfig(EventConfig)
 	SetCommandConfig(CommandConfig)
-	SetSnapshotConfig(SnapshotConfig)
 
 	SetEventStoreFactory(EventStoreFactory)
 	SetEventBusFactory(EventBusFactory)
@@ -86,13 +85,6 @@ func WithEventConfig(cfg EventConfig) Option {
 func WithCommandConfig(cfg CommandConfig) Option {
 	return func(s Setup) {
 		s.SetCommandConfig(cfg)
-	}
-}
-
-// WithSnapshotConfig ...
-func WithSnapshotConfig(cfg SnapshotConfig) Option {
-	return func(s Setup) {
-		s.SetSnapshotConfig(cfg)
 	}
 }
 
@@ -164,7 +156,6 @@ type core struct {
 	aggregateConfig AggregateConfig
 	eventConfig     EventConfig
 	commandConfig   CommandConfig
-	snapshotConfig  SnapshotConfig
 	eventBus        EventBus
 	eventStore      EventStore
 	commandBus      CommandBus
@@ -255,7 +246,7 @@ func NewWithConfigs(
 		}
 		c.aggregates = repo
 	} else if c.eventStore != nil && c.aggregateConfig != nil {
-		c.aggregates = NewAggregateRepository(c.eventStore, c.aggregateConfig, c.snapshotConfig, c.snapshots)
+		c.aggregates = NewAggregateRepository(c.eventStore, c.aggregateConfig, c.snapshots)
 	} else if c.logger != nil {
 		c.logger.Println("cqrs setup: no aggregate repository")
 	}
@@ -343,10 +334,6 @@ func (s *setup) SetEventConfig(cfg EventConfig) {
 
 func (s *setup) SetCommandConfig(cfg CommandConfig) {
 	s.commandConfig = cfg
-}
-
-func (s *setup) SetSnapshotConfig(cfg SnapshotConfig) {
-	s.snapshotConfig = cfg
 }
 
 func (s *setup) SetEventBus(bus EventBus) {
