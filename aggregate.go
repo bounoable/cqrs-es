@@ -3,6 +3,8 @@ package cqrs
 //go:generate mockgen -source=aggregate.go -destination=./mocks/aggregate.go
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -82,4 +84,14 @@ func (a *BaseAggregate) ApplyHistory(events ...Event) error {
 
 	a.FlushChanges()
 	return nil
+}
+
+// NewEventWithTime ...
+func (a *BaseAggregate) NewEventWithTime(typ EventType, data EventData, time time.Time) Event {
+	return NewAggregateEventWithTime(typ, data, time, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
+}
+
+// NewEvent ...
+func (a *BaseAggregate) NewEvent(typ EventType, data EventData) Event {
+	return NewAggregateEvent(typ, data, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
 }
