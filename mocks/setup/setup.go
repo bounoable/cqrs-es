@@ -47,40 +47,46 @@ func (mr *MockSetupMockRecorder) SetLogger(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLogger", reflect.TypeOf((*MockSetup)(nil).SetLogger), arg0)
 }
 
-// SetAggregateConfig mocks base method
-func (m *MockSetup) SetAggregateConfig(arg0 cqrs_es.AggregateConfig) {
+// AggregateConfig mocks base method
+func (m *MockSetup) AggregateConfig() cqrs_es.AggregateConfig {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetAggregateConfig", arg0)
+	ret := m.ctrl.Call(m, "AggregateConfig")
+	ret0, _ := ret[0].(cqrs_es.AggregateConfig)
+	return ret0
 }
 
-// SetAggregateConfig indicates an expected call of SetAggregateConfig
-func (mr *MockSetupMockRecorder) SetAggregateConfig(arg0 interface{}) *gomock.Call {
+// AggregateConfig indicates an expected call of AggregateConfig
+func (mr *MockSetupMockRecorder) AggregateConfig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAggregateConfig", reflect.TypeOf((*MockSetup)(nil).SetAggregateConfig), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateConfig", reflect.TypeOf((*MockSetup)(nil).AggregateConfig))
 }
 
-// SetEventConfig mocks base method
-func (m *MockSetup) SetEventConfig(arg0 cqrs_es.EventConfig) {
+// EventConfig mocks base method
+func (m *MockSetup) EventConfig() cqrs_es.EventConfig {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetEventConfig", arg0)
+	ret := m.ctrl.Call(m, "EventConfig")
+	ret0, _ := ret[0].(cqrs_es.EventConfig)
+	return ret0
 }
 
-// SetEventConfig indicates an expected call of SetEventConfig
-func (mr *MockSetupMockRecorder) SetEventConfig(arg0 interface{}) *gomock.Call {
+// EventConfig indicates an expected call of EventConfig
+func (mr *MockSetupMockRecorder) EventConfig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEventConfig", reflect.TypeOf((*MockSetup)(nil).SetEventConfig), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventConfig", reflect.TypeOf((*MockSetup)(nil).EventConfig))
 }
 
-// SetCommandConfig mocks base method
-func (m *MockSetup) SetCommandConfig(arg0 cqrs_es.CommandConfig) {
+// CommandConfig mocks base method
+func (m *MockSetup) CommandConfig() cqrs_es.CommandConfig {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetCommandConfig", arg0)
+	ret := m.ctrl.Call(m, "CommandConfig")
+	ret0, _ := ret[0].(cqrs_es.CommandConfig)
+	return ret0
 }
 
-// SetCommandConfig indicates an expected call of SetCommandConfig
-func (mr *MockSetupMockRecorder) SetCommandConfig(arg0 interface{}) *gomock.Call {
+// CommandConfig indicates an expected call of CommandConfig
+func (mr *MockSetupMockRecorder) CommandConfig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCommandConfig", reflect.TypeOf((*MockSetup)(nil).SetCommandConfig), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommandConfig", reflect.TypeOf((*MockSetup)(nil).CommandConfig))
 }
 
 // SetEventStoreFactory mocks base method
@@ -157,6 +163,76 @@ func (m *MockSetup) SetAggregateRepositoryFactory(arg0 setup.AggregateRepository
 func (mr *MockSetupMockRecorder) SetAggregateRepositoryFactory(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAggregateRepositoryFactory", reflect.TypeOf((*MockSetup)(nil).SetAggregateRepositoryFactory), arg0)
+}
+
+// EventStore mocks base method
+func (m *MockSetup) EventStore() cqrs_es.EventStore {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventStore")
+	ret0, _ := ret[0].(cqrs_es.EventStore)
+	return ret0
+}
+
+// EventStore indicates an expected call of EventStore
+func (mr *MockSetupMockRecorder) EventStore() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventStore", reflect.TypeOf((*MockSetup)(nil).EventStore))
+}
+
+// EventBus mocks base method
+func (m *MockSetup) EventBus() cqrs_es.EventBus {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventBus")
+	ret0, _ := ret[0].(cqrs_es.EventBus)
+	return ret0
+}
+
+// EventBus indicates an expected call of EventBus
+func (mr *MockSetupMockRecorder) EventBus() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventBus", reflect.TypeOf((*MockSetup)(nil).EventBus))
+}
+
+// CommandBus mocks base method
+func (m *MockSetup) CommandBus() cqrs_es.CommandBus {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CommandBus")
+	ret0, _ := ret[0].(cqrs_es.CommandBus)
+	return ret0
+}
+
+// CommandBus indicates an expected call of CommandBus
+func (mr *MockSetupMockRecorder) CommandBus() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommandBus", reflect.TypeOf((*MockSetup)(nil).CommandBus))
+}
+
+// SnapshotRepository mocks base method
+func (m *MockSetup) SnapshotRepository() cqrs_es.SnapshotRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SnapshotRepository")
+	ret0, _ := ret[0].(cqrs_es.SnapshotRepository)
+	return ret0
+}
+
+// SnapshotRepository indicates an expected call of SnapshotRepository
+func (mr *MockSetupMockRecorder) SnapshotRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SnapshotRepository", reflect.TypeOf((*MockSetup)(nil).SnapshotRepository))
+}
+
+// AggregateRepository mocks base method
+func (m *MockSetup) AggregateRepository() cqrs_es.AggregateRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateRepository")
+	ret0, _ := ret[0].(cqrs_es.AggregateRepository)
+	return ret0
+}
+
+// AggregateRepository indicates an expected call of AggregateRepository
+func (mr *MockSetupMockRecorder) AggregateRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateRepository", reflect.TypeOf((*MockSetup)(nil).AggregateRepository))
 }
 
 // RegisterAggregate mocks base method

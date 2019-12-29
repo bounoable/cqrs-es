@@ -122,6 +122,20 @@ func (mr *MockAggregateMockRecorder) ApplyEvents(arg0 ...interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyEvents", reflect.TypeOf((*MockAggregate)(nil).ApplyEvents), arg0...)
 }
 
+// ApplyEvent mocks base method
+func (m *MockAggregate) ApplyEvent(arg0 cqrs_es.Event) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ApplyEvent", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ApplyEvent indicates an expected call of ApplyEvent
+func (mr *MockAggregateMockRecorder) ApplyEvent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyEvent", reflect.TypeOf((*MockAggregate)(nil).ApplyEvent), arg0)
+}
+
 // ApplyHistory mocks base method
 func (m *MockAggregate) ApplyHistory(arg0 ...cqrs_es.Event) error {
 	m.ctrl.T.Helper()
@@ -138,4 +152,41 @@ func (m *MockAggregate) ApplyHistory(arg0 ...cqrs_es.Event) error {
 func (mr *MockAggregateMockRecorder) ApplyHistory(arg0 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyHistory", reflect.TypeOf((*MockAggregate)(nil).ApplyHistory), arg0...)
+}
+
+// MockEventApplier is a mock of EventApplier interface
+type MockEventApplier struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventApplierMockRecorder
+}
+
+// MockEventApplierMockRecorder is the mock recorder for MockEventApplier
+type MockEventApplierMockRecorder struct {
+	mock *MockEventApplier
+}
+
+// NewMockEventApplier creates a new mock instance
+func NewMockEventApplier(ctrl *gomock.Controller) *MockEventApplier {
+	mock := &MockEventApplier{ctrl: ctrl}
+	mock.recorder = &MockEventApplierMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventApplier) EXPECT() *MockEventApplierMockRecorder {
+	return m.recorder
+}
+
+// Apply mocks base method
+func (m *MockEventApplier) Apply(arg0 cqrs_es.Aggregate, arg1 cqrs_es.Event) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Apply", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Apply indicates an expected call of Apply
+func (mr *MockEventApplierMockRecorder) Apply(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockEventApplier)(nil).Apply), arg0, arg1)
 }

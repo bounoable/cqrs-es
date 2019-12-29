@@ -3,9 +3,16 @@ package cqrs
 //go:generate mockgen -source=aggregate.go -destination=./mocks/aggregate.go
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+)
+
+var (
+	// ErrUnregisteredEventType ...
+	ErrUnregisteredEventType = errors.New("unregistered event type")
 )
 
 // AggregateType is the type of an aggregate.
@@ -19,8 +26,17 @@ type Aggregate interface {
 	CurrentVersion() int
 	Changes() []Event
 	ApplyEvents(...Event) error
+	ApplyEvent(Event) error
 	ApplyHistory(...Event) error
 }
+
+// EventApplier ...
+type EventApplier interface {
+	Apply(Aggregate, Event) error
+}
+
+// EventApplierFunc ...
+type EventApplierFunc func(Aggregate, Event) error
 
 // BaseAggregate is the base implementation for an aggregate.
 type BaseAggregate struct {
@@ -83,6 +99,19 @@ func (a *BaseAggregate) ApplyHistory(events ...Event) error {
 	}
 
 	a.FlushChanges()
+	return nil
+}
+
+// ApplyEvents ...
+func (a *BaseAggregate) ApplyEvents(events ...Event) error {
+	for _, event := range events {
+		if err := a.ApplyEvent(event); err != nil {
+			return fmt.Errorf("could not apply event: %w", err)
+		}
+
+		a.TrackChange(event)
+	}
+
 	return nil
 }
 
