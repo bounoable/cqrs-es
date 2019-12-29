@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -106,9 +107,9 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 }
 
 // WithSnapshotRepositoryFactory ...
-func WithSnapshotRepositoryFactory(options ...Option) cqrs.Option {
-	return cqrs.WithSnapshotRepositoryFactory(func(ctx context.Context, c cqrs.Core) (cqrs.SnapshotRepository, error) {
-		return NewSnapshotRepository(ctx, c.AggregateConfig(), options...)
+func WithSnapshotRepositoryFactory(options ...Option) setup.Option {
+	return setup.WithSnapshotRepositoryFactory(func(ctx context.Context, s setup.Setup) (cqrs.SnapshotRepository, error) {
+		return NewSnapshotRepository(ctx, s.AggregateConfig(), options...)
 	})
 }
 

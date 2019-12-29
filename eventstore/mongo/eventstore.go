@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -127,10 +128,10 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 }
 
 // WithEventStoreFactory ...
-func WithEventStoreFactory(options ...Option) cqrs.Option {
-	return cqrs.WithEventStoreFactory(func(ctx context.Context, c cqrs.Core) (cqrs.EventStore, error) {
-		options = append([]Option{Publisher(c.EventBus())}, options...)
-		return NewEventStore(ctx, c.EventConfig(), options...)
+func WithEventStoreFactory(options ...Option) setup.Option {
+	return setup.WithEventStoreFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventStore, error) {
+		options = append([]Option{Publisher(s.EventBus())}, options...)
+		return NewEventStore(ctx, s.EventConfig(), options...)
 	})
 }
 

@@ -34,7 +34,7 @@ func (m *MockEventConfig) EXPECT() *MockEventConfigMockRecorder {
 }
 
 // Register mocks base method
-func (m *MockEventConfig) Register(arg0 cqrs_es.EventType, arg1 cqrs_es.EventDataFactory) {
+func (m *MockEventConfig) Register(arg0 cqrs_es.EventType, arg1 cqrs_es.EventData) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Register", arg0, arg1)
 }
