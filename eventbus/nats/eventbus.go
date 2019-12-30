@@ -17,18 +17,18 @@ import (
 
 var (
 	defaultConfig = Config{
-		SubscriptionBufferSize: 1024,
+		BufferSize: 1024,
 	}
 )
 
 // Config is the events bus config.
 type Config struct {
-	URL                    string
-	SubjectPrefix          string
-	SubscriptionBufferSize int
-	QueueGroup             string
-	ConnectOptions         []nats.Option
-	Logger                 *log.Logger
+	URL            string
+	SubjectPrefix  string
+	BufferSize     int
+	QueueGroup     string
+	ConnectOptions []nats.Option
+	Logger         *log.Logger
 }
 
 // EventBusOption ...
@@ -71,10 +71,10 @@ func SubjectPrefix(prefix string) EventBusOption {
 	}
 }
 
-// SubscriptionBufferSize ...
-func SubscriptionBufferSize(size int) EventBusOption {
+// BufferSize ...
+func BufferSize(size int) EventBusOption {
 	return func(cfg *Config) {
-		cfg.SubscriptionBufferSize = size
+		cfg.BufferSize = size
 	}
 }
 
@@ -179,9 +179,32 @@ func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 	return nil
 }
 
-func (b *eventBus) Subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
+func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-chan cqrs.Event, error) {
+	if len(types) == 1 {
+		return b.subscribe(ctx, types[0])
+	}
+
+	events := make(chan cqrs.Event, b.cfg.BufferSize*len(types))
+
+	for _, typ := range types {
+		typevents, err := b.subscribe(ctx, typ)
+		if err != nil {
+			return nil, err
+		}
+
+		go func() {
+			for event := range typevents {
+				events <- event
+			}
+		}()
+	}
+
+	return events, nil
+}
+
+func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
 	subject := b.cfg.subject(typ)
-	msgs := make(chan *nats.Msg, b.cfg.SubscriptionBufferSize)
+	msgs := make(chan *nats.Msg, b.cfg.BufferSize)
 
 	var sub *nats.Subscription
 	var err error
@@ -196,16 +219,14 @@ func (b *eventBus) Subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 		return nil, fmt.Errorf("nats eventbus: %w", err)
 	}
 
-	events := make(chan cqrs.Event, b.cfg.SubscriptionBufferSize)
+	events := make(chan cqrs.Event, b.cfg.BufferSize)
+
 	go b.handleMessages(msgs, events)
 	go func() {
 		<-ctx.Done()
-		if err := sub.Unsubscribe(); err != nil && b.logger != nil {
+		if err := sub.Drain(); err != nil && b.logger != nil {
 			b.logger.Println(fmt.Errorf("nats eventbus: %w", err))
 		}
-
-		close(msgs)
-		close(events)
 	}()
 
 	return events, nil
@@ -218,7 +239,7 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
-			continue
+			break
 		}
 
 		data, err := b.eventCfg.NewData(evtmsg.EventType)
@@ -226,14 +247,14 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
-			continue
+			break
 		}
 
 		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(&data); err != nil {
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
-			continue
+			break
 		}
 
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {

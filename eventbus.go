@@ -13,7 +13,7 @@ type EventPublisher interface {
 
 // EventSubscriber subscribes to events.
 type EventSubscriber interface {
-	Subscribe(ctx context.Context, typ EventType) (<-chan Event, error)
+	Subscribe(ctx context.Context, types ...EventType) (<-chan Event, error)
 }
 
 // EventBus is the event bus.
