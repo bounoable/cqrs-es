@@ -193,8 +193,16 @@ func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-ch
 		}
 
 		go func() {
-			for event := range typevents {
-				events <- event
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case event, ok := <-typevents:
+					if !ok {
+						return
+					}
+					events <- event
+				}
 			}
 		}()
 	}
@@ -239,7 +247,7 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
-			break
+			continue
 		}
 
 		data, err := b.eventCfg.NewData(evtmsg.EventType)
@@ -247,14 +255,14 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
-			break
+			continue
 		}
 
 		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(&data); err != nil {
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
-			break
+			continue
 		}
 
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
