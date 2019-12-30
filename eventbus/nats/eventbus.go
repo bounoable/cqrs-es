@@ -197,10 +197,7 @@ func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-ch
 				select {
 				case <-ctx.Done():
 					return
-				case event, ok := <-typevents:
-					if !ok {
-						return
-					}
+				case event := <-typevents:
 					events <- event
 				}
 			}
