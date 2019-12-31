@@ -196,6 +196,8 @@ func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-ch
 			for {
 				select {
 				case <-ctx.Done():
+					pushAllEvents(events, typevents)
+					close(events)
 					return
 				case event := <-typevents:
 					events <- event
@@ -205,6 +207,12 @@ func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-ch
 	}
 
 	return events, nil
+}
+
+func pushAllEvents(target chan<- cqrs.Event, source <-chan cqrs.Event) {
+	for event := range source {
+		target <- event
+	}
 }
 
 func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
@@ -232,6 +240,8 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 		if err := sub.Drain(); err != nil && b.logger != nil {
 			b.logger.Println(fmt.Errorf("nats eventbus: %w", err))
 		}
+
+		close(events)
 	}()
 
 	return events, nil
