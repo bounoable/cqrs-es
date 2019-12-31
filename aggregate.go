@@ -30,14 +30,6 @@ type Aggregate interface {
 	ApplyHistory(...Event) error
 }
 
-// EventApplier ...
-type EventApplier interface {
-	Apply(Aggregate, Event) error
-}
-
-// EventApplierFunc ...
-type EventApplierFunc func(Aggregate, Event) error
-
 // BaseAggregate is the base implementation for an aggregate.
 type BaseAggregate struct {
 	Aggregate
