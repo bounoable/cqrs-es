@@ -27,6 +27,7 @@ type Config struct {
 	Database      string
 	Publisher     cqrs.EventPublisher
 	Transactions  bool
+	CreateIndexes bool
 	ClientOptions []*options.ClientOptions
 }
 
@@ -85,6 +86,13 @@ func Transactions(use bool) Option {
 	}
 }
 
+// CreateIndexes ...
+func CreateIndexes() Option {
+	return func(cfg *Config) {
+		cfg.CreateIndexes = true
+	}
+}
+
 // ClientOptions ...
 func ClientOptions(options ...*options.ClientOptions) Option {
 	return func(cfg *Config) {
@@ -121,8 +129,16 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 		return nil, wrapError(err)
 	}
 
+	db := client.Database(cfg.Database)
+
+	if cfg.CreateIndexes {
+		if err := createIndexes(ctx, db); err != nil {
+			return nil, wrapError(err)
+		}
+	}
+
 	return &eventStore{
-		db:       client.Database(cfg.Database),
+		db:       db,
 		eventCfg: eventCfg,
 	}, nil
 }
@@ -399,4 +415,16 @@ type dbEvent struct {
 
 func wrapError(err error) error {
 	return wrapError(err)
+}
+
+func createIndexes(ctx context.Context, db *mongo.Database) error {
+	_, err := db.Collection("events").Indexes().CreateMany(ctx, []mongo.IndexModel{
+		{Keys: bson.D{{Key: "type", Value: 1}}},
+		{Keys: bson.D{{Key: "time", Value: 1}}},
+		{Keys: bson.D{{Key: "aggregateType", Value: 1}}},
+		{Keys: bson.D{{Key: "aggregateId", Value: 1}}},
+		{Keys: bson.D{{Key: "version", Value: 1}}},
+	})
+
+	return err
 }
