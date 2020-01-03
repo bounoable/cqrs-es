@@ -77,18 +77,23 @@ func (m *MockEventSubscriber) EXPECT() *MockEventSubscriberMockRecorder {
 }
 
 // Subscribe mocks base method
-func (m *MockEventSubscriber) Subscribe(ctx context.Context, typ cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
+func (m *MockEventSubscriber) Subscribe(ctx context.Context, types ...cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", ctx, typ)
+	varargs := []interface{}{ctx}
+	for _, a := range types {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Subscribe", varargs...)
 	ret0, _ := ret[0].(<-chan cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Subscribe indicates an expected call of Subscribe
-func (mr *MockEventSubscriberMockRecorder) Subscribe(ctx, typ interface{}) *gomock.Call {
+func (mr *MockEventSubscriberMockRecorder) Subscribe(ctx interface{}, types ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventSubscriber)(nil).Subscribe), ctx, typ)
+	varargs := append([]interface{}{ctx}, types...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventSubscriber)(nil).Subscribe), varargs...)
 }
 
 // MockEventBus is a mock of EventBus interface
@@ -134,16 +139,21 @@ func (mr *MockEventBusMockRecorder) Publish(ctx interface{}, events ...interface
 }
 
 // Subscribe mocks base method
-func (m *MockEventBus) Subscribe(ctx context.Context, typ cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
+func (m *MockEventBus) Subscribe(ctx context.Context, types ...cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", ctx, typ)
+	varargs := []interface{}{ctx}
+	for _, a := range types {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Subscribe", varargs...)
 	ret0, _ := ret[0].(<-chan cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Subscribe indicates an expected call of Subscribe
-func (mr *MockEventBusMockRecorder) Subscribe(ctx, typ interface{}) *gomock.Call {
+func (mr *MockEventBusMockRecorder) Subscribe(ctx interface{}, types ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventBus)(nil).Subscribe), ctx, typ)
+	varargs := append([]interface{}{ctx}, types...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventBus)(nil).Subscribe), varargs...)
 }

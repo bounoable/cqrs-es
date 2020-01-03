@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bounoable/cqrs-es"
+	cqrs "github.com/bounoable/cqrs-es"
 )
 
 // EventStoreFactory ...
