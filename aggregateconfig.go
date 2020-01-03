@@ -29,10 +29,6 @@ type UnregisteredAggregateError struct {
 	AggregateType AggregateType
 }
 
-func (err UnregisteredAggregateError) Error() string {
-	return fmt.Sprintf("unregistered aggregate '%s'", err.AggregateType)
-}
-
 // NewAggregateConfig ...
 func NewAggregateConfig() AggregateConfig {
 	return &aggregateConfig{
@@ -74,4 +70,8 @@ func (cfg *aggregateConfig) Factories() map[AggregateType]AggregateFactory {
 	}
 
 	return m
+}
+
+func (err UnregisteredAggregateError) Error() string {
+	return fmt.Sprintf("unregistered aggregate '%s'", err.AggregateType)
 }

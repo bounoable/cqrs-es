@@ -11,6 +11,11 @@ import (
 	cqrs "github.com/bounoable/cqrs-es"
 )
 
+var (
+	globalAggregateConfig cqrs.AggregateConfig
+	globalEventConfig     cqrs.EventConfig
+)
+
 // EventStoreFactory ...
 type EventStoreFactory func(context.Context, Setup) (cqrs.EventStore, error)
 
@@ -58,6 +63,16 @@ type Setup interface {
 	RegisterCommand(cqrs.CommandType, cqrs.CommandHandler)
 }
 
+// RegisterAggregate ...
+func RegisterAggregate(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {
+	globalAggregateConfig.Register(typ, factory)
+}
+
+// RegisterEvent ...
+func RegisterEvent(typ cqrs.EventType, proto cqrs.EventData) {
+	globalEventConfig.Register(typ, proto)
+}
+
 // New ...
 func New(ctx context.Context, options ...Option) (cqrs.Container, error) {
 	return NewWithConfigs(ctx, cqrs.NewAggregateConfig(), cqrs.NewEventConfig(), cqrs.NewCommandConfig(), options...)
@@ -88,6 +103,8 @@ func NewWithConfigs(
 		eventConfig:     eventConfig,
 		commandConfig:   commandConfig,
 	}
+
+	applyGlobalConfigs(aggregateConfig, eventConfig)
 
 	for _, opt := range options {
 		opt(s)
@@ -342,4 +359,14 @@ func (s *setup) RegisterEvent(typ cqrs.EventType, proto cqrs.EventData) {
 
 func (s *setup) RegisterCommand(typ cqrs.CommandType, handler cqrs.CommandHandler) {
 	s.commandConfig.Register(typ, handler)
+}
+
+func applyGlobalConfigs(aggregates cqrs.AggregateConfig, events cqrs.EventConfig) {
+	for k, v := range globalAggregateConfig.Factories() {
+		aggregates.Register(k, v)
+	}
+
+	for k, v := range globalEventConfig.Factories() {
+		events.Register(k, v())
+	}
 }
