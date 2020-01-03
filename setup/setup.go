@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	globalAggregateConfig cqrs.AggregateConfig
-	globalEventConfig     cqrs.EventConfig
+	globalAggregateConfig = cqrs.NewAggregateConfig()
+	globalEventConfig     = cqrs.NewEventConfig()
 )
 
 // EventStoreFactory ...
