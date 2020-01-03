@@ -90,15 +90,15 @@ func TestFetchAggregateWithoutSnapshot(t *testing.T) {
 		mock_cqrs.NewMockEvent(ctrl),
 	}
 
-	changesArgs := make([]interface{}, len(changes))
-	for i, change := range changes {
-		changesArgs[i] = change
-	}
-
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	aggregate.EXPECT().OriginalVersion().Return(3)
 	eventStore.EXPECT().Fetch(ctx, aggregateType, aggregateID, 4, version).Return(changes, nil)
-	aggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
+
+	for _, change := range changes {
+		aggregate.EXPECT().ApplyEvent(change).Return(nil)
+	}
+
+	aggregate.EXPECT().FlushChanges()
 
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
 	assert.Nil(t, err)
@@ -127,16 +127,16 @@ func TestFetchAggregateWithSnapshot(t *testing.T) {
 		mock_cqrs.NewMockEvent(ctrl),
 	}
 
-	changesArgs := make([]interface{}, len(changes))
-	for i, change := range changes {
-		changesArgs[i] = change
-	}
-
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	snapshots.EXPECT().MaxVersion(ctx, aggregateType, aggregateID, version).Return(snapAggregate, nil)
 	snapAggregate.EXPECT().OriginalVersion().Return(3)
 	eventStore.EXPECT().Fetch(ctx, aggregateType, aggregateID, 4, version).Return(changes, nil)
-	snapAggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
+
+	for _, change := range changes {
+		snapAggregate.EXPECT().ApplyEvent(change).Return(nil)
+	}
+
+	snapAggregate.EXPECT().FlushChanges().Return()
 
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
 	assert.Nil(t, err)
@@ -162,15 +162,15 @@ func TestFetchLatestAggregateWithoutSnapshot(t *testing.T) {
 		mock_cqrs.NewMockEvent(ctrl),
 	}
 
-	changesArgs := make([]interface{}, len(changes))
-	for i, change := range changes {
-		changesArgs[i] = change
-	}
-
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	aggregate.EXPECT().OriginalVersion().Return(3)
 	eventStore.EXPECT().FetchFrom(ctx, aggregateType, aggregateID, 4).Return(changes, nil)
-	aggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
+
+	for _, change := range changes {
+		aggregate.EXPECT().ApplyEvent(change).Return(nil)
+	}
+
+	aggregate.EXPECT().FlushChanges().Return()
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
 	assert.Nil(t, err)
@@ -198,16 +198,16 @@ func TestFetchLatestAggregateWithSnapshot(t *testing.T) {
 		mock_cqrs.NewMockEvent(ctrl),
 	}
 
-	changesArgs := make([]interface{}, len(changes))
-	for i, change := range changes {
-		changesArgs[i] = change
-	}
-
 	aggregateConfig.EXPECT().New(aggregateType, aggregateID).Return(aggregate, nil)
 	snapshots.EXPECT().Latest(ctx, aggregateType, aggregateID).Return(snapAggregate, nil)
 	snapAggregate.EXPECT().OriginalVersion().Return(3)
 	eventStore.EXPECT().FetchFrom(ctx, aggregateType, aggregateID, 4).Return(changes, nil)
-	snapAggregate.EXPECT().ApplyHistory(changesArgs...).Return(nil)
+
+	for _, change := range changes {
+		snapAggregate.EXPECT().ApplyEvent(change).Return(nil)
+	}
+
+	snapAggregate.EXPECT().FlushChanges().Return()
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
 	assert.Nil(t, err)

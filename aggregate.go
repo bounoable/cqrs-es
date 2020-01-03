@@ -4,7 +4,6 @@ package cqrs
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,14 +24,12 @@ type Aggregate interface {
 	OriginalVersion() int
 	CurrentVersion() int
 	Changes() []Event
-	ApplyEvents(...Event) error
+	FlushChanges()
 	ApplyEvent(Event) error
-	ApplyHistory(...Event) error
 }
 
 // BaseAggregate is the base implementation for an aggregate.
 type BaseAggregate struct {
-	Aggregate
 	ID      uuid.UUID
 	Type    AggregateType
 	Version int
@@ -84,29 +81,6 @@ func (a *BaseAggregate) FlushChanges() {
 	a.changes = nil
 }
 
-// ApplyHistory ...
-func (a *BaseAggregate) ApplyHistory(events ...Event) error {
-	if err := a.ApplyEvents(events...); err != nil {
-		return err
-	}
-
-	a.FlushChanges()
-	return nil
-}
-
-// ApplyEvents ...
-func (a *BaseAggregate) ApplyEvents(events ...Event) error {
-	for _, event := range events {
-		if err := a.ApplyEvent(event); err != nil {
-			return fmt.Errorf("could not apply event: %w", err)
-		}
-
-		a.TrackChange(event)
-	}
-
-	return nil
-}
-
 // NewEventWithTime ...
 func (a *BaseAggregate) NewEventWithTime(typ EventType, data EventData, time time.Time) Event {
 	return NewAggregateEventWithTime(typ, data, time, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
@@ -115,4 +89,27 @@ func (a *BaseAggregate) NewEventWithTime(typ EventType, data EventData, time tim
 // NewEvent ...
 func (a *BaseAggregate) NewEvent(typ EventType, data EventData) Event {
 	return NewAggregateEvent(typ, data, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
+}
+
+// ApplyHistory ...
+func ApplyHistory(aggregate Aggregate, events ...Event) error {
+	for _, event := range events {
+		if err := aggregate.ApplyEvent(event); err != nil {
+			return err
+		}
+	}
+
+	aggregate.FlushChanges()
+	return nil
+}
+
+// ApplyEvents ...
+func ApplyEvents(aggregate Aggregate, events ...Event) error {
+	for _, event := range events {
+		if err := aggregate.ApplyEvent(event); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

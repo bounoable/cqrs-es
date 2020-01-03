@@ -104,22 +104,16 @@ func (mr *MockAggregateMockRecorder) Changes() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Changes", reflect.TypeOf((*MockAggregate)(nil).Changes))
 }
 
-// ApplyEvents mocks base method
-func (m *MockAggregate) ApplyEvents(arg0 ...cqrs_es.Event) error {
+// FlushChanges mocks base method
+func (m *MockAggregate) FlushChanges() {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ApplyEvents", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
+	m.ctrl.Call(m, "FlushChanges")
 }
 
-// ApplyEvents indicates an expected call of ApplyEvents
-func (mr *MockAggregateMockRecorder) ApplyEvents(arg0 ...interface{}) *gomock.Call {
+// FlushChanges indicates an expected call of FlushChanges
+func (mr *MockAggregateMockRecorder) FlushChanges() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyEvents", reflect.TypeOf((*MockAggregate)(nil).ApplyEvents), arg0...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FlushChanges", reflect.TypeOf((*MockAggregate)(nil).FlushChanges))
 }
 
 // ApplyEvent mocks base method
@@ -134,22 +128,4 @@ func (m *MockAggregate) ApplyEvent(arg0 cqrs_es.Event) error {
 func (mr *MockAggregateMockRecorder) ApplyEvent(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyEvent", reflect.TypeOf((*MockAggregate)(nil).ApplyEvent), arg0)
-}
-
-// ApplyHistory mocks base method
-func (m *MockAggregate) ApplyHistory(arg0 ...cqrs_es.Event) error {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a := range arg0 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ApplyHistory", varargs...)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ApplyHistory indicates an expected call of ApplyHistory
-func (mr *MockAggregateMockRecorder) ApplyHistory(arg0 ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyHistory", reflect.TypeOf((*MockAggregate)(nil).ApplyHistory), arg0...)
 }

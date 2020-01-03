@@ -10,9 +10,9 @@ require (
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/nats-io/nats-server/v2 v2.1.2 // indirect
+	github.com/nats-io/nats-streaming-server v0.16.2 // indirect
 	github.com/nats-io/nats.go v1.9.1
 	github.com/nats-io/stan.go v0.6.0
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect

@@ -101,7 +101,7 @@ func (r *aggregateRepository) Fetch(ctx context.Context, typ AggregateType, id u
 		return nil, err
 	}
 
-	if err := aggregate.ApplyHistory(events...); err != nil {
+	if err := ApplyHistory(aggregate, events...); err != nil {
 		return nil, err
 	}
 
@@ -132,7 +132,7 @@ func (r *aggregateRepository) FetchLatest(ctx context.Context, typ AggregateType
 		return aggregate, nil
 	}
 
-	if err := aggregate.ApplyHistory(events...); err != nil {
+	if err := ApplyHistory(aggregate, events...); err != nil {
 		return nil, err
 	}
 
