@@ -1,4 +1,4 @@
-package nats
+package stan
 
 import (
 	"bytes"
@@ -14,6 +14,7 @@ import (
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/stan.go"
 )
 
 var (
@@ -24,12 +25,16 @@ var (
 
 // Config is the events bus config.
 type Config struct {
-	URL            string
-	SubjectPrefix  string
-	BufferSize     int
-	QueueGroup     string
-	ConnectOptions []nats.Option
-	Logger         *log.Logger
+	ClusterID           string
+	ClientID            string
+	DurableName         string
+	URL                 string
+	SubjectPrefix       string
+	BufferSize          int
+	QueueGroup          string
+	ConnectOptions      []stan.Option
+	SubscriptionOptions []stan.SubscriptionOption
+	Logger              *log.Logger
 }
 
 // EventBusOption ...
@@ -38,7 +43,7 @@ type EventBusOption func(*Config)
 type eventBus struct {
 	cfg      Config
 	eventCfg cqrs.EventConfig
-	nc       *nats.Conn
+	sc       stan.Conn
 	logger   *log.Logger
 }
 
@@ -55,6 +60,27 @@ type eventMessage struct {
 func Logger(logger *log.Logger) EventBusOption {
 	return func(cfg *Config) {
 		cfg.Logger = logger
+	}
+}
+
+// ClusterID ...
+func ClusterID(id string) EventBusOption {
+	return func(cfg *Config) {
+		cfg.ClusterID = id
+	}
+}
+
+// ClientID ...
+func ClientID(id string) EventBusOption {
+	return func(cfg *Config) {
+		cfg.ClientID = id
+	}
+}
+
+// DurableName ...
+func DurableName(name string) EventBusOption {
+	return func(cfg *Config) {
+		cfg.DurableName = name
 	}
 }
 
@@ -87,9 +113,16 @@ func QueueGroup(group string) EventBusOption {
 }
 
 // ConnectOptions ...
-func ConnectOptions(options ...nats.Option) EventBusOption {
+func ConnectOptions(options ...stan.Option) EventBusOption {
 	return func(cfg *Config) {
 		cfg.ConnectOptions = append(cfg.ConnectOptions, options...)
+	}
+}
+
+// SubscriptionOptions ...
+func SubscriptionOptions(options ...stan.SubscriptionOption) EventBusOption {
+	return func(cfg *Config) {
+		cfg.SubscriptionOptions = append(cfg.SubscriptionOptions, options...)
 	}
 }
 
@@ -106,10 +139,11 @@ func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.Eve
 	}
 
 	if cfg.URL == "" {
-		cfg.URL = nats.DefaultURL
+		cfg.URL = stan.DefaultNatsURL
 	}
 
-	nc, err := nats.Connect(cfg.URL, cfg.ConnectOptions...)
+	connectOpts := append([]stan.Option{stan.NatsURL(cfg.URL)}, cfg.ConnectOptions...)
+	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, connectOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,12 +151,12 @@ func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.Eve
 	return &eventBus{
 		cfg:      cfg,
 		eventCfg: eventCfg,
-		nc:       nc,
+		sc:       sc,
 	}, nil
 }
 
-// NewEventBusWithConnection returns a new NATS event bus.
-func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) cqrs.EventBus {
+// NewEventBusWithConnection returns a new NATS streaming event bus.
+func NewEventBusWithConnection(sc stan.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) cqrs.EventBus {
 	cfg := defaultConfig
 
 	for _, opt := range options {
@@ -132,8 +166,14 @@ func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options
 	return &eventBus{
 		cfg:      cfg,
 		eventCfg: eventCfg,
-		nc:       nc,
+		sc:       sc,
 	}
+}
+
+// NewEventBusWithNATSConnection returns a NATS streaming events bus.
+func NewEventBusWithNATSConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
+	options = append([]EventBusOption{ConnectOptions(stan.NatsConn(nc))})
+	return NewEventBus(eventCfg, options...)
 }
 
 // WithEventBusFactory ...
@@ -144,9 +184,16 @@ func WithEventBusFactory(options ...EventBusOption) setup.Option {
 }
 
 // WithEventBusFactoryWithConnection ...
-func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption) setup.Option {
+func WithEventBusFactoryWithConnection(sc stan.Conn, options ...EventBusOption) setup.Option {
 	return setup.WithEventBusFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventBus, error) {
-		return NewEventBusWithConnection(nc, s.EventConfig(), options...), nil
+		return NewEventBusWithConnection(sc, s.EventConfig(), options...), nil
+	})
+}
+
+// WithEventBusFactoryWithNATSConnection ...
+func WithEventBusFactoryWithNATSConnection(nc *nats.Conn, options ...EventBusOption) setup.Option {
+	return setup.WithEventBusFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventBus, error) {
+		return NewEventBusWithNATSConnection(nc, s.EventConfig(), options...)
 	})
 }
 
@@ -172,7 +219,7 @@ func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 			return fmt.Errorf("could not marshal event data: %w", err)
 		}
 
-		if err := b.nc.Publish(subject, buf.Bytes()); err != nil {
+		if err := b.sc.Publish(subject, buf.Bytes()); err != nil {
 			return fmt.Errorf("could not publish event: %w", err)
 		}
 	}
@@ -226,19 +273,21 @@ func pushAllEvents(target chan<- cqrs.Event, source <-chan cqrs.Event) {
 
 func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
 	subject := b.cfg.subject(typ)
-	msgs := make(chan *nats.Msg, b.cfg.BufferSize)
+	msgs := make(chan *stan.Msg, b.cfg.BufferSize)
 
-	var sub *nats.Subscription
+	var sub stan.Subscription
 	var err error
 
+	options := append([]stan.SubscriptionOption{stan.DurableName(b.cfg.DurableName)}, b.cfg.SubscriptionOptions...)
+
 	if b.cfg.QueueGroup == "" {
-		sub, err = b.nc.ChanSubscribe(subject, msgs)
+		sub, err = b.sc.Subscribe(subject, func(msg *stan.Msg) { msgs <- msg }, options...)
 	} else {
-		sub, err = b.nc.ChanQueueSubscribe(subject, b.cfg.QueueGroup, msgs)
+		sub, err = b.sc.QueueSubscribe(subject, b.cfg.QueueGroup, func(msg *stan.Msg) { msgs <- msg }, options...)
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("nats eventbus: %w", err)
+		return nil, fmt.Errorf("stan eventbus: %w", err)
 	}
 
 	events := make(chan cqrs.Event, b.cfg.BufferSize)
@@ -247,8 +296,8 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 	go b.handleMessages(msgs, events, handleDone)
 	go func() {
 		<-ctx.Done()
-		if err := sub.Drain(); err != nil && b.logger != nil {
-			b.logger.Println(fmt.Errorf("nats eventbus: %w", err))
+		if err := sub.Close(); err != nil && b.logger != nil {
+			b.logger.Println(fmt.Errorf("stan eventbus: %w", err))
 		}
 
 		close(msgs)
@@ -259,7 +308,7 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 	return events, nil
 }
 
-func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Event, done chan<- struct{}) {
+func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, events chan<- cqrs.Event, done chan<- struct{}) {
 	for msg := range msgs {
 		var evtmsg eventMessage
 		if err := gob.NewDecoder(bytes.NewBuffer(msg.Data)).Decode(&evtmsg); err != nil {
