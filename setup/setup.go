@@ -63,13 +63,13 @@ type Setup interface {
 	RegisterCommand(cqrs.CommandType, cqrs.CommandHandler)
 }
 
-// RegisterAggregate ...
-func RegisterAggregate(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {
+// Aggregate ...
+func Aggregate(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {
 	globalAggregateConfig.Register(typ, factory)
 }
 
-// RegisterEvent ...
-func RegisterEvent(typ cqrs.EventType, proto cqrs.EventData) {
+// Event ...
+func Event(typ cqrs.EventType, proto cqrs.EventData) {
 	globalEventConfig.Register(typ, proto)
 }
 
