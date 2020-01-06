@@ -23,21 +23,23 @@ const (
 
 // Config ...
 type Config struct {
-	URI           string
-	Database      string
-	Publisher     cqrs.EventPublisher
-	Transactions  bool
-	CreateIndexes bool
-	ClientOptions []*options.ClientOptions
+	URI              string
+	Database         string
+	Publisher        cqrs.EventPublisher
+	ResolvePublisher func() (cqrs.EventPublisher, bool)
+	Transactions     bool
+	CreateIndexes    bool
+	ClientOptions    []*options.ClientOptions
 }
 
 // Option ...
 type Option func(*Config)
 
 type eventStore struct {
-	config   Config
-	eventCfg cqrs.EventConfig
-	db       *mongo.Database
+	config    Config
+	eventCfg  cqrs.EventConfig
+	db        *mongo.Database
+	publisher cqrs.EventPublisher
 }
 
 // InconsistentEventError ...
@@ -66,9 +68,9 @@ func Publisher(publisher cqrs.EventPublisher) Option {
 }
 
 // ResolvePublisher ...
-func ResolvePublisher(resolve func() cqrs.EventPublisher) Option {
+func ResolvePublisher(resolve func() (cqrs.EventPublisher, bool)) Option {
 	return func(cfg *Config) {
-		cfg.Publisher = resolve()
+		cfg.ResolvePublisher = resolve
 	}
 }
 
@@ -153,14 +155,7 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 // WithEventStoreFactory ...
 func WithEventStoreFactory(options ...Option) setup.Option {
 	return setup.WithEventStoreFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventStore, error) {
-		options = append([]Option{ResolvePublisher(func() cqrs.EventPublisher {
-			pub, ok := s.EventPublisherResolver()()
-			if !ok {
-				return nil
-			}
-
-			return pub
-		})}, options...)
+		options = append([]Option{ResolvePublisher(s.EventPublisherResolver())}, options...)
 		return NewEventStore(ctx, s.EventConfig(), options...)
 	})
 }
@@ -226,10 +221,22 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		}
 	}
 
-	if s.config.Publisher != nil {
-		if err := s.config.Publisher.Publish(context.Background(), events...); err != nil {
-			return wrapError(err)
+	if err := s.publish(context.Background(), events...); err != nil {
+		return wrapError(err)
+	}
+
+	return nil
+}
+
+func (s *eventStore) publish(ctx context.Context, events ...cqrs.Event) error {
+	if s.publisher == nil && s.config.ResolvePublisher != nil {
+		if pub, ok := s.config.ResolvePublisher(); ok {
+			s.publisher = pub
 		}
+	}
+
+	if s.publisher != nil {
+		return s.publisher.Publish(ctx, events...)
 	}
 
 	return nil
