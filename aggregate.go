@@ -24,7 +24,7 @@ type Aggregate interface {
 	OriginalVersion() int
 	CurrentVersion() int
 	Changes() []Event
-	FlushChanges()
+	TrackChanges(...Event)
 	ApplyEvent(Event) error
 }
 
@@ -93,22 +93,28 @@ func (a *BaseAggregate) NewEvent(typ EventType, data EventData) Event {
 
 // ApplyHistory ...
 func ApplyHistory(aggregate Aggregate, events ...Event) error {
+	return ApplyEvents(aggregate, false, events...)
+}
+
+// ApplyEvents ...
+func ApplyEvents(aggregate Aggregate, track bool, events ...Event) error {
 	for _, event := range events {
-		if err := aggregate.ApplyEvent(event); err != nil {
+		if err := ApplyEvent(aggregate, track, event); err != nil {
 			return err
 		}
 	}
 
-	aggregate.FlushChanges()
 	return nil
 }
 
-// ApplyEvents ...
-func ApplyEvents(aggregate Aggregate, events ...Event) error {
-	for _, event := range events {
-		if err := aggregate.ApplyEvent(event); err != nil {
-			return err
-		}
+// ApplyEvent ...
+func ApplyEvent(aggregate Aggregate, track bool, event Event) error {
+	if err := aggregate.ApplyEvent(event); err != nil {
+		return err
+	}
+
+	if track {
+		aggregate.TrackChanges(event)
 	}
 
 	return nil

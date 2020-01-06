@@ -98,8 +98,6 @@ func TestFetchAggregateWithoutSnapshot(t *testing.T) {
 		aggregate.EXPECT().ApplyEvent(change).Return(nil)
 	}
 
-	aggregate.EXPECT().FlushChanges()
-
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
 	assert.Nil(t, err)
 	assert.Equal(t, aggregate, a)
@@ -136,8 +134,6 @@ func TestFetchAggregateWithSnapshot(t *testing.T) {
 		snapAggregate.EXPECT().ApplyEvent(change).Return(nil)
 	}
 
-	snapAggregate.EXPECT().FlushChanges().Return()
-
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
 	assert.Nil(t, err)
 	assert.Equal(t, snapAggregate, a)
@@ -169,8 +165,6 @@ func TestFetchLatestAggregateWithoutSnapshot(t *testing.T) {
 	for _, change := range changes {
 		aggregate.EXPECT().ApplyEvent(change).Return(nil)
 	}
-
-	aggregate.EXPECT().FlushChanges().Return()
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
 	assert.Nil(t, err)
@@ -206,8 +200,6 @@ func TestFetchLatestAggregateWithSnapshot(t *testing.T) {
 	for _, change := range changes {
 		snapAggregate.EXPECT().ApplyEvent(change).Return(nil)
 	}
-
-	snapAggregate.EXPECT().FlushChanges().Return()
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
 	assert.Nil(t, err)

@@ -104,6 +104,22 @@ func (mr *MockAggregateMockRecorder) Changes() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Changes", reflect.TypeOf((*MockAggregate)(nil).Changes))
 }
 
+// TrackChanges mocks base method
+func (m *MockAggregate) TrackChanges(arg0 ...cqrs_es.Event) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range arg0 {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "TrackChanges", varargs...)
+}
+
+// TrackChanges indicates an expected call of TrackChanges
+func (mr *MockAggregateMockRecorder) TrackChanges(arg0 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackChanges", reflect.TypeOf((*MockAggregate)(nil).TrackChanges), arg0...)
+}
+
 // FlushChanges mocks base method
 func (m *MockAggregate) FlushChanges() {
 	m.ctrl.T.Helper()
