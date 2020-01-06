@@ -154,8 +154,7 @@ func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption)
 func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 	for _, e := range events {
 		var dataBuf bytes.Buffer
-		data := e.Data()
-		if err := gob.NewEncoder(&dataBuf).Encode(data); err != nil {
+		if err := gob.NewEncoder(&dataBuf).Encode(e.Data()); err != nil {
 			return err
 		}
 
@@ -266,7 +265,7 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Event, done chan<- struct{}) {
 	for msg := range msgs {
 		var evtmsg eventMessage
-		if err := gob.NewDecoder(bytes.NewBuffer(msg.Data)).Decode(&evtmsg); err != nil {
+		if err := gob.NewDecoder(bytes.NewReader(msg.Data)).Decode(&evtmsg); err != nil {
 			if b.cfg.Logger != nil {
 				b.cfg.Logger.Println(err)
 			}
@@ -281,7 +280,7 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 			continue
 		}
 
-		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(data); err != nil {
+		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(data); err != nil {
 			if b.cfg.Logger != nil {
 				b.cfg.Logger.Println(err)
 			}

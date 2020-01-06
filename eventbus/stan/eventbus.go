@@ -242,7 +242,6 @@ func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-ch
 		}
 
 		wg.Add(1)
-
 		go func() {
 			for {
 				select {
@@ -311,7 +310,7 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, events chan<- cqrs.Event, done chan<- struct{}) {
 	for msg := range msgs {
 		var evtmsg eventMessage
-		if err := gob.NewDecoder(bytes.NewBuffer(msg.Data)).Decode(&evtmsg); err != nil {
+		if err := gob.NewDecoder(bytes.NewReader(msg.Data)).Decode(&evtmsg); err != nil {
 			if b.logger != nil {
 				b.logger.Println(err)
 			}
@@ -326,7 +325,7 @@ func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, events chan<- cqrs.Even
 			continue
 		}
 
-		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(&data); err != nil {
+		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(data); err != nil {
 			if b.logger != nil {
 				b.logger.Println(err)
 			}

@@ -419,7 +419,7 @@ func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 	}
 
 	r := bytes.NewReader(evt.EventData)
-	if err := gob.NewDecoder(r).Decode(&data); err != nil {
+	if err := gob.NewDecoder(r).Decode(data); err != nil {
 		return nil, err
 	}
 
