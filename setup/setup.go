@@ -110,6 +110,16 @@ func NewWithConfigs(
 		opt(s)
 	}
 
+	if s.commandBusFactory != nil {
+		bus, err := s.commandBusFactory(ctx, s)
+		if err != nil {
+			return nil, fmt.Errorf("setup: %w", err)
+		}
+		s.commandBus = bus
+	} else {
+		s.commandBus = cqrs.NewCommandBus(s.logger)
+	}
+
 	if s.eventBusFactory != nil {
 		bus, err := s.eventBusFactory(ctx, s)
 		if err != nil {
@@ -128,16 +138,6 @@ func NewWithConfigs(
 		s.eventStore = store
 	} else if s.logger != nil {
 		s.logger.Println("setup: no event store")
-	}
-
-	if s.commandBusFactory != nil {
-		bus, err := s.commandBusFactory(ctx, s)
-		if err != nil {
-			return nil, fmt.Errorf("setup: %w", err)
-		}
-		s.commandBus = bus
-	} else if s.logger != nil {
-		s.logger.Println("setup: no command bus")
 	}
 
 	if s.snapshotRepoFactory != nil {
