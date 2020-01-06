@@ -28,5 +28,5 @@ func TestRegisterEvent(t *testing.T) {
 
 	ed, err = cfg.NewData(typ)
 	assert.Nil(t, err)
-	assert.Equal(t, testEventData{}, ed)
+	assert.Equal(t, testEventData{}, *ed.(*testEventData))
 }

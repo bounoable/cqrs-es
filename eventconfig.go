@@ -43,7 +43,7 @@ func NewEventConfig() EventConfig {
 
 func (cfg *eventConfig) Register(typ EventType, proto EventData) {
 	if proto == nil {
-		panic("eventconfig: EventDataFactory cannot be nil")
+		panic("eventconfig: proto cannot be nil")
 	}
 
 	refval := reflect.TypeOf(proto)
@@ -51,13 +51,19 @@ func (cfg *eventConfig) Register(typ EventType, proto EventData) {
 		refval = refval.Elem()
 	}
 
-	proto = reflect.New(refval).Elem().Interface()
+	cfg.RegisterFactory(typ, func() EventData {
+		return reflect.New(refval).Interface()
+	})
+}
+
+func (cfg *eventConfig) RegisterFactory(typ EventType, factory EventDataFactory) {
+	if factory == nil {
+		panic("eventconfig: factory cannot be nil")
+	}
 
 	cfg.mux.Lock()
 	defer cfg.mux.Unlock()
-	cfg.factories[typ] = func() EventData {
-		return proto
-	}
+	cfg.factories[typ] = factory
 }
 
 func (cfg *eventConfig) NewData(typ EventType) (EventData, error) {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"sync"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var (
@@ -39,12 +41,11 @@ type eventBus struct {
 	cfg      Config
 	eventCfg cqrs.EventConfig
 	nc       *nats.Conn
-	logger   *log.Logger
 }
 
 type eventMessage struct {
 	EventType     cqrs.EventType
-	EventData     []byte
+	EventData     bson.Raw
 	Time          time.Time
 	AggregateType cqrs.AggregateType
 	AggregateID   uuid.UUID
@@ -153,7 +154,8 @@ func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption)
 func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 	for _, e := range events {
 		var dataBuf bytes.Buffer
-		if err := gob.NewEncoder(&dataBuf).Encode(e.Data()); err != nil {
+		data := e.Data()
+		if err := gob.NewEncoder(&dataBuf).Encode(data); err != nil {
 			return err
 		}
 
@@ -249,8 +251,8 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 	go b.handleMessages(msgs, events, handleDone)
 	go func() {
 		<-ctx.Done()
-		if err := sub.Drain(); err != nil && b.logger != nil {
-			b.logger.Println(fmt.Errorf("nats eventbus: %w", err))
+		if err := sub.Drain(); err != nil && b.cfg.Logger != nil {
+			b.cfg.Logger.Println(fmt.Errorf("nats eventbus: %w", err))
 		}
 
 		close(msgs)
@@ -265,26 +267,28 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, events chan<- cqrs.Even
 	for msg := range msgs {
 		var evtmsg eventMessage
 		if err := gob.NewDecoder(bytes.NewBuffer(msg.Data)).Decode(&evtmsg); err != nil {
-			if b.logger != nil {
-				b.logger.Println(err)
+			if b.cfg.Logger != nil {
+				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
 		data, err := b.eventCfg.NewData(evtmsg.EventType)
 		if err != nil {
-			if b.logger != nil {
-				b.logger.Println(err)
+			if b.cfg.Logger != nil {
+				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
-		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(&data); err != nil {
-			if b.logger != nil {
-				b.logger.Println(err)
+		if err := gob.NewDecoder(bytes.NewBuffer(evtmsg.EventData)).Decode(data); err != nil {
+			if b.cfg.Logger != nil {
+				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
+
+		data = reflect.ValueOf(data).Elem().Interface()
 
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
 			events <- cqrs.NewAggregateEventWithTime(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
