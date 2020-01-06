@@ -52,11 +52,19 @@ type Setup interface {
 	SetSnapshotRepositoryFactory(SnapshotRepositoryFactory)
 	SetAggregateRepositoryFactory(AggregateRepositoryFactory)
 
-	EventStore() cqrs.EventStore
-	EventBus() cqrs.EventBus
-	CommandBus() cqrs.CommandBus
-	SnapshotRepository() cqrs.SnapshotRepository
-	AggregateRepository() cqrs.AggregateRepository
+	// EventStore() cqrs.EventStore
+	// EventBus() cqrs.EventBus
+	// CommandBus() cqrs.CommandBus
+	// SnapshotRepository() cqrs.SnapshotRepository
+	// AggregateRepository() cqrs.AggregateRepository
+
+	EventStoreResolver() func() (cqrs.EventStore, bool)
+	EventBusResolver() func() (cqrs.EventBus, bool)
+	EventPublisherResolver() func() (cqrs.EventPublisher, bool)
+	EventSubscriberResolver() func() (cqrs.EventSubscriber, bool)
+	CommandBusResolver() func() (cqrs.CommandBus, bool)
+	SnapshotRepositoryResolver() func() (cqrs.SnapshotRepository, bool)
+	AggregateRepositoryResolver() func() (cqrs.AggregateRepository, bool)
 
 	RegisterAggregate(cqrs.AggregateType, cqrs.AggregateFactory)
 	RegisterEvent(cqrs.EventType, cqrs.EventData)
@@ -333,20 +341,62 @@ func (s *setup) EventStore() cqrs.EventStore {
 	return s.eventStore
 }
 
+func (s *setup) EventStoreResolver() func() (cqrs.EventStore, bool) {
+	return func() (cqrs.EventStore, bool) {
+		return s.EventStore(), s.EventStore() != nil
+	}
+}
+
 func (s *setup) EventBus() cqrs.EventBus {
 	return s.eventBus
+}
+
+func (s *setup) EventBusResolver() func() (cqrs.EventBus, bool) {
+	return func() (cqrs.EventBus, bool) {
+		return s.EventBus(), s.EventBus() != nil
+	}
+}
+
+func (s *setup) EventPublisherResolver() func() (cqrs.EventPublisher, bool) {
+	return func() (cqrs.EventPublisher, bool) {
+		return s.EventBus(), s.EventBus() != nil
+	}
+}
+
+func (s *setup) EventSubscriberResolver() func() (cqrs.EventSubscriber, bool) {
+	return func() (cqrs.EventSubscriber, bool) {
+		return s.EventBus(), s.EventBus() != nil
+	}
 }
 
 func (s *setup) CommandBus() cqrs.CommandBus {
 	return s.commandBus
 }
 
+func (s *setup) CommandBusResolver() func() (cqrs.CommandBus, bool) {
+	return func() (cqrs.CommandBus, bool) {
+		return s.CommandBus(), s.CommandBus() != nil
+	}
+}
+
 func (s *setup) SnapshotRepository() cqrs.SnapshotRepository {
 	return s.snapshotRepo
 }
 
+func (s *setup) SnapshotRepositoryResolver() func() (cqrs.SnapshotRepository, bool) {
+	return func() (cqrs.SnapshotRepository, bool) {
+		return s.SnapshotRepository(), s.SnapshotRepository() != nil
+	}
+}
+
 func (s *setup) AggregateRepository() cqrs.AggregateRepository {
 	return s.aggregateRepo
+}
+
+func (s *setup) AggregateRepositoryResolver() func() (cqrs.AggregateRepository, bool) {
+	return func() (cqrs.AggregateRepository, bool) {
+		return s.AggregateRepository(), s.AggregateRepository() != nil
+	}
 }
 
 func (s *setup) RegisterAggregate(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {

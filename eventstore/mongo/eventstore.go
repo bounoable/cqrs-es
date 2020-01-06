@@ -65,6 +65,13 @@ func Publisher(publisher cqrs.EventPublisher) Option {
 	}
 }
 
+// ResolvePublisher ...
+func ResolvePublisher(resolve func() cqrs.EventPublisher) Option {
+	return func(cfg *Config) {
+		cfg.Publisher = resolve()
+	}
+}
+
 // Database ...
 func Database(name string) Option {
 	return func(cfg *Config) {
@@ -146,7 +153,14 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 // WithEventStoreFactory ...
 func WithEventStoreFactory(options ...Option) setup.Option {
 	return setup.WithEventStoreFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventStore, error) {
-		options = append([]Option{Publisher(s.EventBus())}, options...)
+		options = append([]Option{ResolvePublisher(func() cqrs.EventPublisher {
+			pub, ok := s.EventPublisherResolver()()
+			if !ok {
+				return nil
+			}
+
+			return pub
+		})}, options...)
 		return NewEventStore(ctx, s.EventConfig(), options...)
 	})
 }
