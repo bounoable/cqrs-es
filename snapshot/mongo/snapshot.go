@@ -253,7 +253,7 @@ func (r *snapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateT
 }
 
 func createIndexes(ctx context.Context, db *mongo.Database) error {
-	_, err := db.Collection("events").Indexes().CreateMany(ctx, []mongo.IndexModel{
+	_, err := db.Collection("snapshots").Indexes().CreateMany(ctx, []mongo.IndexModel{
 		{Keys: bson.D{{Key: "aggregateType", Value: 1}}},
 		{Keys: bson.D{{Key: "aggregateId", Value: 1}}},
 		{Keys: bson.D{{Key: "version", Value: 1}}},
