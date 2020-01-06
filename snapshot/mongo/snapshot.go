@@ -22,6 +22,7 @@ const (
 type Config struct {
 	URI           string
 	Database      string
+	CreateIndexes bool
 	ClientOptions []*options.ClientOptions
 }
 
@@ -51,6 +52,13 @@ func Database(name string) Option {
 func URI(uri string) Option {
 	return func(cfg *Config) {
 		cfg.URI = uri
+	}
+}
+
+// CreateIndexes ...
+func CreateIndexes() Option {
+	return func(cfg *Config) {
+		cfg.CreateIndexes = true
 	}
 }
 
@@ -100,8 +108,19 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 		}
 	}
 
+	db := client.Database(cfg.Database)
+
+	if cfg.CreateIndexes {
+		if err := createIndexes(ctx, db); err != nil {
+			return nil, cqrs.SnapshotError{
+				Err:       err,
+				StoreName: "mongo",
+			}
+		}
+	}
+
 	return &snapshotRepository{
-		db:              client.Database(cfg.Database),
+		db:              db,
 		aggregateConfig: aggregateConfig,
 	}, nil
 }
@@ -229,4 +248,14 @@ func (r *snapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateT
 	}
 
 	return aggregate, nil
+}
+
+func createIndexes(ctx context.Context, db *mongo.Database) error {
+	_, err := db.Collection("events").Indexes().CreateMany(ctx, []mongo.IndexModel{
+		{Keys: bson.D{{Key: "aggregateType", Value: 1}}},
+		{Keys: bson.D{{Key: "aggregateId", Value: 1}}},
+		{Keys: bson.D{{Key: "version", Value: 1}}},
+	})
+
+	return err
 }

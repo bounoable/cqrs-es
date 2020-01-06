@@ -135,14 +135,14 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 	clientOptions := append([]*options.ClientOptions{options.Client().ApplyURI(cfg.URI)}, cfg.ClientOptions...)
 	client, err := mongo.Connect(ctx, clientOptions...)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	db := client.Database(cfg.Database)
 
 	if cfg.CreateIndexes {
 		if err := createIndexes(ctx, db); err != nil {
-			return nil, wrapError(err)
+			return nil, err
 		}
 	}
 
@@ -181,7 +181,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 
 		var buf bytes.Buffer
 		if err := gob.NewEncoder(&buf).Encode(e.Data()); err != nil {
-			return wrapError(err)
+			return err
 		}
 
 		dbevent := &dbEvent{
@@ -213,7 +213,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 
 			return ctx.CommitTransaction(ctx)
 		}); err != nil {
-			return wrapError(err)
+			return err
 		}
 	} else {
 		if err := s.saveDocs(ctx, aggregateType, aggregateID, originalVersion, docs); err != nil {
@@ -222,7 +222,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 	}
 
 	if err := s.publish(context.Background(), events...); err != nil {
-		return wrapError(err)
+		return err
 	}
 
 	return nil
@@ -283,7 +283,7 @@ func (s *eventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType,
 
 	evt, err := s.toCQRSEvent(dbevent)
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	return evt, nil
@@ -304,19 +304,19 @@ func (s *eventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType
 	}, options.Find().SetSort(bson.D{{Key: "version", Value: 1}}))
 
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	var dbevents []dbEvent
 	if err := cur.All(ctx, &dbevents); err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
-			return nil, wrapError(err)
+			return nil, err
 		}
 		events[i] = evt
 	}
@@ -331,19 +331,19 @@ func (s *eventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateT
 	}, options.Find().SetSort(bson.D{{Key: "version", Value: 1}}))
 
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	var dbevents []dbEvent
 	if err := cur.All(ctx, &dbevents); err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
-			return nil, wrapError(err)
+			return nil, err
 		}
 		events[i] = evt
 	}
@@ -361,19 +361,19 @@ func (s *eventStore) FetchFrom(ctx context.Context, aggregateType cqrs.Aggregate
 	}, options.Find().SetSort(bson.D{{Key: "version", Value: 1}}))
 
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	var dbevents []dbEvent
 	if err := cur.All(ctx, &dbevents); err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
-			return nil, wrapError(err)
+			return nil, err
 		}
 		events[i] = evt
 	}
@@ -391,19 +391,19 @@ func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateTy
 	}, options.Find().SetSort(bson.D{{Key: "version", Value: 1}}))
 
 	if err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	var dbevents []dbEvent
 	if err := cur.All(ctx, &dbevents); err != nil {
-		return nil, wrapError(err)
+		return nil, err
 	}
 
 	events := make([]cqrs.Event, len(dbevents))
 	for i, dbevent := range dbevents {
 		evt, err := s.toCQRSEvent(dbevent)
 		if err != nil {
-			return nil, wrapError(err)
+			return nil, err
 		}
 		events[i] = evt
 	}
@@ -432,10 +432,6 @@ type dbEvent struct {
 	AggregateType cqrs.AggregateType `bson:"aggregateType"`
 	AggregateID   uuid.UUID          `bson:"aggregateId"`
 	Version       int                `bson:"version"`
-}
-
-func wrapError(err error) error {
-	return wrapError(err)
 }
 
 func createIndexes(ctx context.Context, db *mongo.Database) error {
