@@ -195,15 +195,17 @@ func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-ch
 		}
 
 		wg.Add(1)
-
 		go func() {
+			defer wg.Done()
 			for {
 				select {
 				case <-ctx.Done():
 					pushAllEvents(events, typevents)
-					wg.Done()
 					return
-				case event := <-typevents:
+				case event, ok := <-typevents:
+					if !ok {
+						return
+					}
 					events <- event
 				}
 			}
