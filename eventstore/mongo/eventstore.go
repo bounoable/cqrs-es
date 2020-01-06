@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"os"
+	"reflect"
 	"time"
 
 	"github.com/bounoable/cqrs-es"
@@ -422,6 +423,8 @@ func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 	if err := gob.NewDecoder(r).Decode(data); err != nil {
 		return nil, err
 	}
+
+	data = reflect.ValueOf(data).Elem().Interface()
 
 	return cqrs.NewAggregateEventWithTime(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
 }
