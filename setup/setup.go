@@ -117,7 +117,7 @@ func NewWithConfigs(
 		}
 		s.commandBus = bus
 	} else {
-		s.commandBus = cqrs.NewCommandBus(s.logger)
+		s.commandBus = cqrs.NewCommandBusWithConfig(s.commandConfig, s.logger)
 	}
 
 	if s.eventBusFactory != nil {
