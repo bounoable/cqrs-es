@@ -30,6 +30,7 @@ type Config struct {
 type Option func(*Config)
 
 type snapshotRepository struct {
+	config          Config
 	db              *mongo.Database
 	aggregateConfig cqrs.AggregateConfig
 }
@@ -120,6 +121,7 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 	}
 
 	return &snapshotRepository{
+		config:          cfg,
 		db:              db,
 		aggregateConfig: aggregateConfig,
 	}, nil

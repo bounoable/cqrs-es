@@ -147,6 +147,7 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 	}
 
 	return &eventStore{
+		config:   cfg,
 		db:       db,
 		eventCfg: eventCfg,
 	}, nil
