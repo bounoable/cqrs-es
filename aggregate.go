@@ -24,7 +24,7 @@ type Aggregate interface {
 	OriginalVersion() int
 	CurrentVersion() int
 	Changes() []Event
-	TrackChanges(...Event)
+	TrackChange(...Event)
 	ApplyEvent(Event) error
 }
 
@@ -114,7 +114,7 @@ func ApplyEvent(aggregate Aggregate, track bool, event Event) error {
 	}
 
 	if track {
-		aggregate.TrackChanges(event)
+		aggregate.TrackChange(event)
 	}
 
 	return nil

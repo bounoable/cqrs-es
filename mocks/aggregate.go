@@ -104,32 +104,20 @@ func (mr *MockAggregateMockRecorder) Changes() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Changes", reflect.TypeOf((*MockAggregate)(nil).Changes))
 }
 
-// TrackChanges mocks base method
-func (m *MockAggregate) TrackChanges(arg0 ...cqrs_es.Event) {
+// TrackChange mocks base method
+func (m *MockAggregate) TrackChange(arg0 ...cqrs_es.Event) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
-	m.ctrl.Call(m, "TrackChanges", varargs...)
+	m.ctrl.Call(m, "TrackChange", varargs...)
 }
 
-// TrackChanges indicates an expected call of TrackChanges
-func (mr *MockAggregateMockRecorder) TrackChanges(arg0 ...interface{}) *gomock.Call {
+// TrackChange indicates an expected call of TrackChange
+func (mr *MockAggregateMockRecorder) TrackChange(arg0 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackChanges", reflect.TypeOf((*MockAggregate)(nil).TrackChanges), arg0...)
-}
-
-// FlushChanges mocks base method
-func (m *MockAggregate) FlushChanges() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "FlushChanges")
-}
-
-// FlushChanges indicates an expected call of FlushChanges
-func (mr *MockAggregateMockRecorder) FlushChanges() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FlushChanges", reflect.TypeOf((*MockAggregate)(nil).FlushChanges))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackChange", reflect.TypeOf((*MockAggregate)(nil).TrackChange), arg0...)
 }
 
 // ApplyEvent mocks base method
