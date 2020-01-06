@@ -52,11 +52,11 @@ type Setup interface {
 	SetSnapshotRepositoryFactory(SnapshotRepositoryFactory)
 	SetAggregateRepositoryFactory(AggregateRepositoryFactory)
 
-	// EventStore() cqrs.EventStore
-	// EventBus() cqrs.EventBus
-	// CommandBus() cqrs.CommandBus
-	// SnapshotRepository() cqrs.SnapshotRepository
-	// AggregateRepository() cqrs.AggregateRepository
+	EventStore() cqrs.EventStore
+	EventBus() cqrs.EventBus
+	CommandBus() cqrs.CommandBus
+	SnapshotRepository() cqrs.SnapshotRepository
+	AggregateRepository() cqrs.AggregateRepository
 
 	EventStoreResolver() func() (cqrs.EventStore, bool)
 	EventBusResolver() func() (cqrs.EventBus, bool)
