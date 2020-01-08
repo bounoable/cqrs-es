@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"sync"
 	"time"
 
@@ -41,10 +42,13 @@ type Config struct {
 type EventBusOption func(*Config)
 
 type eventBus struct {
-	cfg      Config
-	eventCfg cqrs.EventConfig
-	sc       stan.Conn
-	logger   *log.Logger
+	cfg         Config
+	eventCfg    cqrs.EventConfig
+	sc          stan.Conn
+	handlersMux sync.RWMutex
+	handlers    map[cqrs.EventType][]chan cqrs.Event
+	subsMux     sync.RWMutex
+	subs        map[cqrs.EventType]struct{}
 }
 
 type eventMessage struct {
@@ -271,6 +275,16 @@ func pushAllEvents(target chan<- cqrs.Event, source <-chan cqrs.Event) {
 }
 
 func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cqrs.Event, error) {
+	handler := make(chan cqrs.Event, b.cfg.BufferSize)
+	b.ensureHandler(typ, handler)
+
+	b.subsMux.RLock()
+	if _, ok := b.subs[typ]; ok {
+		b.subsMux.RUnlock()
+		return handler, nil
+	}
+	b.subsMux.RUnlock()
+
 	subject := b.cfg.subject(typ)
 	msgs := make(chan *stan.Msg, b.cfg.BufferSize)
 
@@ -289,57 +303,114 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 		return nil, fmt.Errorf("stan eventbus: %w", err)
 	}
 
-	events := make(chan cqrs.Event, b.cfg.BufferSize)
 	handleDone := make(chan struct{})
+	go b.handleMessages(msgs, handleDone)
 
-	go b.handleMessages(msgs, events, handleDone)
+	go func() {
+		<-handleDone
+		b.handlersMux.Lock()
+		defer b.handlersMux.Unlock()
+
+		handlers, ok := b.handlers[typ]
+		if !ok {
+			return
+		}
+
+		for _, handler := range handlers {
+			close(handler)
+		}
+
+		delete(b.handlers, typ)
+	}()
+
 	go func() {
 		<-ctx.Done()
-		if err := sub.Close(); err != nil && b.logger != nil {
-			b.logger.Println(fmt.Errorf("stan eventbus: %w", err))
+		if err := sub.Close(); err != nil && b.cfg.Logger != nil {
+			b.cfg.Logger.Println(fmt.Errorf("stan eventbus: %w", err))
 		}
 
 		close(msgs)
-		<-handleDone
-		close(events)
+
+		b.subsMux.Lock()
+		delete(b.subs, typ)
+		b.subsMux.Unlock()
 	}()
 
-	return events, nil
+	return handler, nil
 }
 
-func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, events chan<- cqrs.Event, done chan<- struct{}) {
+func (b *eventBus) ensureHandler(typ cqrs.EventType, handler chan cqrs.Event) {
+	b.handlersMux.Lock()
+	defer b.handlersMux.Unlock()
+
+	handlers, ok := b.handlers[typ]
+	if !ok {
+		handlers = make([]chan cqrs.Event, 0)
+	}
+
+	b.handlers[typ] = append(handlers, handler)
+}
+
+func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, done chan<- struct{}) {
+	go func() {
+		done <- struct{}{}
+	}()
+
 	for msg := range msgs {
 		var evtmsg eventMessage
 		if err := gob.NewDecoder(bytes.NewReader(msg.Data)).Decode(&evtmsg); err != nil {
-			if b.logger != nil {
-				b.logger.Println(err)
+			if b.cfg.Logger != nil {
+				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
 		data, err := b.eventCfg.NewData(evtmsg.EventType)
 		if err != nil {
-			if b.logger != nil {
-				b.logger.Println(err)
+			if b.cfg.Logger != nil {
+				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
 		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(data); err != nil {
-			if b.logger != nil {
-				b.logger.Println(err)
+			if b.cfg.Logger != nil {
+				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
+		data = reflect.ValueOf(data).Elem().Interface()
+		var evt cqrs.Event
+
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
-			events <- cqrs.NewAggregateEventWithTime(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
+			evt = cqrs.NewAggregateEventWithTime(evtmsg.EventType, data, evtmsg.Time, evtmsg.AggregateType, evtmsg.AggregateID, evtmsg.Version)
 		} else {
-			events <- cqrs.NewEventWithTime(evtmsg.EventType, data, evtmsg.Time)
+			evt = cqrs.NewEventWithTime(evtmsg.EventType, data, evtmsg.Time)
+		}
+
+		if !b.handle(evt) {
+			return
 		}
 	}
+}
 
-	done <- struct{}{}
+func (b *eventBus) handle(evt cqrs.Event) bool {
+	b.handlersMux.RLock()
+	defer b.handlersMux.RUnlock()
+
+	handlers, ok := b.handlers[evt.Type()]
+	if !ok {
+		return false
+	}
+
+	for _, handler := range handlers {
+		go func(handler chan cqrs.Event) {
+			handler <- evt
+		}(handler)
+	}
+
+	return true
 }
 
 func (cfg Config) subject(typ cqrs.EventType) string {
