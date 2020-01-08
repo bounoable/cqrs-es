@@ -123,6 +123,8 @@ func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.Eve
 		cfg:      cfg,
 		eventCfg: eventCfg,
 		nc:       nc,
+		handlers: make(map[cqrs.EventType][]chan cqrs.Event),
+		subs:     make(map[cqrs.EventType]struct{}),
 	}, nil
 }
 
@@ -138,6 +140,8 @@ func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options
 		cfg:      cfg,
 		eventCfg: eventCfg,
 		nc:       nc,
+		handlers: make(map[cqrs.EventType][]chan cqrs.Event),
+		subs:     make(map[cqrs.EventType]struct{}),
 	}
 }
 
