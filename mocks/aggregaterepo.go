@@ -78,3 +78,17 @@ func (mr *MockAggregateRepositoryMockRecorder) FetchLatest(ctx, typ, id interfac
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchLatest", reflect.TypeOf((*MockAggregateRepository)(nil).FetchLatest), ctx, typ, id)
 }
+
+// Remove mocks base method
+func (m *MockAggregateRepository) Remove(ctx context.Context, aggregate cqrs_es.Aggregate) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Remove", ctx, aggregate)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Remove indicates an expected call of Remove
+func (mr *MockAggregateRepositoryMockRecorder) Remove(ctx, aggregate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockAggregateRepository)(nil).Remove), ctx, aggregate)
+}

@@ -235,6 +235,104 @@ func (mr *MockSetupMockRecorder) AggregateRepository() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateRepository", reflect.TypeOf((*MockSetup)(nil).AggregateRepository))
 }
 
+// EventStoreResolver mocks base method
+func (m *MockSetup) EventStoreResolver() func() (cqrs_es.EventStore, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventStoreResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.EventStore, bool))
+	return ret0
+}
+
+// EventStoreResolver indicates an expected call of EventStoreResolver
+func (mr *MockSetupMockRecorder) EventStoreResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventStoreResolver", reflect.TypeOf((*MockSetup)(nil).EventStoreResolver))
+}
+
+// EventBusResolver mocks base method
+func (m *MockSetup) EventBusResolver() func() (cqrs_es.EventBus, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventBusResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.EventBus, bool))
+	return ret0
+}
+
+// EventBusResolver indicates an expected call of EventBusResolver
+func (mr *MockSetupMockRecorder) EventBusResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventBusResolver", reflect.TypeOf((*MockSetup)(nil).EventBusResolver))
+}
+
+// EventPublisherResolver mocks base method
+func (m *MockSetup) EventPublisherResolver() func() (cqrs_es.EventPublisher, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventPublisherResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.EventPublisher, bool))
+	return ret0
+}
+
+// EventPublisherResolver indicates an expected call of EventPublisherResolver
+func (mr *MockSetupMockRecorder) EventPublisherResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventPublisherResolver", reflect.TypeOf((*MockSetup)(nil).EventPublisherResolver))
+}
+
+// EventSubscriberResolver mocks base method
+func (m *MockSetup) EventSubscriberResolver() func() (cqrs_es.EventSubscriber, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventSubscriberResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.EventSubscriber, bool))
+	return ret0
+}
+
+// EventSubscriberResolver indicates an expected call of EventSubscriberResolver
+func (mr *MockSetupMockRecorder) EventSubscriberResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventSubscriberResolver", reflect.TypeOf((*MockSetup)(nil).EventSubscriberResolver))
+}
+
+// CommandBusResolver mocks base method
+func (m *MockSetup) CommandBusResolver() func() (cqrs_es.CommandBus, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CommandBusResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.CommandBus, bool))
+	return ret0
+}
+
+// CommandBusResolver indicates an expected call of CommandBusResolver
+func (mr *MockSetupMockRecorder) CommandBusResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommandBusResolver", reflect.TypeOf((*MockSetup)(nil).CommandBusResolver))
+}
+
+// SnapshotRepositoryResolver mocks base method
+func (m *MockSetup) SnapshotRepositoryResolver() func() (cqrs_es.SnapshotRepository, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SnapshotRepositoryResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.SnapshotRepository, bool))
+	return ret0
+}
+
+// SnapshotRepositoryResolver indicates an expected call of SnapshotRepositoryResolver
+func (mr *MockSetupMockRecorder) SnapshotRepositoryResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SnapshotRepositoryResolver", reflect.TypeOf((*MockSetup)(nil).SnapshotRepositoryResolver))
+}
+
+// AggregateRepositoryResolver mocks base method
+func (m *MockSetup) AggregateRepositoryResolver() func() (cqrs_es.AggregateRepository, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateRepositoryResolver")
+	ret0, _ := ret[0].(func() (cqrs_es.AggregateRepository, bool))
+	return ret0
+}
+
+// AggregateRepositoryResolver indicates an expected call of AggregateRepositoryResolver
+func (mr *MockSetupMockRecorder) AggregateRepositoryResolver() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateRepositoryResolver", reflect.TypeOf((*MockSetup)(nil).AggregateRepositoryResolver))
+}
+
 // RegisterAggregate mocks base method
 func (m *MockSetup) RegisterAggregate(arg0 cqrs_es.AggregateType, arg1 cqrs_es.AggregateFactory) {
 	m.ctrl.T.Helper()

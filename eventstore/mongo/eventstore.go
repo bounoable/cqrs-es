@@ -413,6 +413,14 @@ func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateTy
 	return events, nil
 }
 
+func (s *eventStore) RemoveAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) error {
+	_, err := s.db.Collection("events").DeleteMany(ctx, bson.D{
+		{Key: "aggregateType", Value: aggregateType},
+		{Key: "aggregateId", Value: aggregateID},
+	})
+	return err
+}
+
 func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 	data, err := s.eventCfg.NewData(evt.EventType)
 	if err != nil {

@@ -17,6 +17,7 @@ type EventStore interface {
 	FetchAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) ([]Event, error)
 	FetchFrom(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int) ([]Event, error)
 	FetchTo(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, to int) ([]Event, error)
+	RemoveAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) error
 }
 
 // EventStoreError ...

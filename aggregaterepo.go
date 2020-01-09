@@ -14,6 +14,7 @@ type AggregateRepository interface {
 	Save(ctx context.Context, aggregate Aggregate) error
 	Fetch(ctx context.Context, typ AggregateType, id uuid.UUID, version int) (Aggregate, error)
 	FetchLatest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
+	Remove(ctx context.Context, aggregate Aggregate) error
 }
 
 // AggregateRepositoryOption ...
@@ -139,6 +140,10 @@ func (r *aggregateRepository) FetchLatest(ctx context.Context, typ AggregateType
 	r.checkDue(aggregate, len(events))
 
 	return aggregate, nil
+}
+
+func (r *aggregateRepository) Remove(ctx context.Context, aggregate Aggregate) error {
+	return r.eventStore.RemoveAll(ctx, aggregate.AggregateType(), aggregate.AggregateID())
 }
 
 func (r *aggregateRepository) checkDue(aggregate Aggregate, events int) {

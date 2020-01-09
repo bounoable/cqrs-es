@@ -128,3 +128,17 @@ func (mr *MockEventStoreMockRecorder) FetchTo(ctx, aggregateType, aggregateID, t
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchTo", reflect.TypeOf((*MockEventStore)(nil).FetchTo), ctx, aggregateType, aggregateID, to)
 }
+
+// RemoveAll mocks base method
+func (m *MockEventStore) RemoveAll(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveAll", ctx, aggregateType, aggregateID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveAll indicates an expected call of RemoveAll
+func (mr *MockEventStoreMockRecorder) RemoveAll(ctx, aggregateType, aggregateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAll", reflect.TypeOf((*MockEventStore)(nil).RemoveAll), ctx, aggregateType, aggregateID)
+}
