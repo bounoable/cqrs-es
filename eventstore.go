@@ -37,6 +37,8 @@ func (err EventStoreError) Unwrap() error {
 
 // OptimisticConcurrencyError ...
 type OptimisticConcurrencyError struct {
+	AggregateType   AggregateType
+	AggregateID     uuid.UUID
 	LatestVersion   int
 	ProvidedVersion int
 }

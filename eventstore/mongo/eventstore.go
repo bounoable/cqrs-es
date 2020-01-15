@@ -192,7 +192,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 			Time:          e.Time(),
 			AggregateType: aggregateType,
 			AggregateID:   aggregateID,
-			Version:       originalVersion + i + 1,
+			Version:       e.Version(),
 		}
 
 		dbEvents[i] = dbevent
@@ -259,6 +259,8 @@ func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateT
 
 	if latestVersion != originalVersion {
 		return cqrs.OptimisticConcurrencyError{
+			AggregateType:   aggregateType,
+			AggregateID:     aggregateID,
 			LatestVersion:   latest.Version,
 			ProvidedVersion: originalVersion,
 		}
