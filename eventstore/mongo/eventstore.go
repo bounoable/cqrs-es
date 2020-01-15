@@ -172,7 +172,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 
 	dbEvents := make([]*dbEvent, len(events))
 	for i, e := range events {
-		if e.AggregateType() != aggregateType || e.AggregateID() != aggregateID {
+		if e.AggregateType() != aggregateType || e.AggregateID().String() != aggregateID.String() {
 			return InconsistentEventError{
 				ExpectedAggregateType: aggregateType,
 				ProvidedAggregateType: e.AggregateType(),
