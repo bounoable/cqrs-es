@@ -44,5 +44,11 @@ type OptimisticConcurrencyError struct {
 }
 
 func (err OptimisticConcurrencyError) Error() string {
-	return fmt.Sprintf("optimistic concurrency: latest version is %v, provided version is %v", err.LatestVersion, err.ProvidedVersion)
+	return fmt.Sprintf(
+		"optimistic concurrency (%s:%s): latest version is %v, provided version is %v",
+		err.AggregateType,
+		err.AggregateID,
+		err.LatestVersion,
+		err.ProvidedVersion,
+	)
 }
