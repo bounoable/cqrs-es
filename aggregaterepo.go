@@ -73,6 +73,8 @@ func (r *aggregateRepository) Save(ctx context.Context, aggregate Aggregate) err
 		return err
 	}
 
+	aggregate.FlushChanges()
+
 	if r.snapshots == nil || !r.snapshotDue(aggregate) {
 		return nil
 	}

@@ -23,9 +23,9 @@ type Aggregate interface {
 	AggregateType() AggregateType
 	OriginalVersion() int
 	CurrentVersion() int
-	SetVersion(int)
 	Changes() []Event
 	TrackChange(...Event)
+	FlushChanges()
 	ApplyEvent(Event) error
 }
 
@@ -66,11 +66,6 @@ func (a *BaseAggregate) CurrentVersion() int {
 	return a.Version + len(a.changes)
 }
 
-// SetVersion sets the current version of the aggregate.
-func (a *BaseAggregate) SetVersion(v int) {
-	a.Version = v
-}
-
 // Changes returns the applied events.
 func (a *BaseAggregate) Changes() []Event {
 	return a.changes
@@ -81,7 +76,7 @@ func (a *BaseAggregate) TrackChange(events ...Event) {
 	a.changes = append(a.changes, events...)
 }
 
-// FlushChanges ...
+// FlushChanges sets the original version to the current version and clears the changes.
 func (a *BaseAggregate) FlushChanges() {
 	a.Version = a.CurrentVersion()
 	a.changes = nil
@@ -99,11 +94,11 @@ func (a *BaseAggregate) NewEvent(typ EventType, data EventData) Event {
 
 // ApplyHistory ...
 func ApplyHistory(aggregate Aggregate, events ...Event) error {
-	if err := ApplyEvents(aggregate, false, events...); err != nil {
+	if err := ApplyEvents(aggregate, true, events...); err != nil {
 		return err
 	}
 
-	aggregate.SetVersion(aggregate.CurrentVersion() + len(events))
+	aggregate.FlushChanges()
 
 	return nil
 }

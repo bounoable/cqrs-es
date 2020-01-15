@@ -120,6 +120,18 @@ func (mr *MockAggregateMockRecorder) TrackChange(arg0 ...interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackChange", reflect.TypeOf((*MockAggregate)(nil).TrackChange), arg0...)
 }
 
+// FlushChanges mocks base method
+func (m *MockAggregate) FlushChanges() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "FlushChanges")
+}
+
+// FlushChanges indicates an expected call of FlushChanges
+func (mr *MockAggregateMockRecorder) FlushChanges() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FlushChanges", reflect.TypeOf((*MockAggregate)(nil).FlushChanges))
+}
+
 // ApplyEvent mocks base method
 func (m *MockAggregate) ApplyEvent(arg0 cqrs_es.Event) error {
 	m.ctrl.T.Helper()

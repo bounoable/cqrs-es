@@ -63,6 +63,7 @@ func TestSaveAggregate(t *testing.T) {
 
 	aggregate.EXPECT().OriginalVersion().Return(5)
 	aggregate.EXPECT().Changes().Return(changes)
+	aggregate.EXPECT().FlushChanges()
 
 	eventStore.EXPECT().Save(ctx, 5, gomock.Any()).Return(nil)
 
@@ -96,7 +97,10 @@ func TestFetchAggregateWithoutSnapshot(t *testing.T) {
 
 	for _, change := range changes {
 		aggregate.EXPECT().ApplyEvent(change).Return(nil)
+		aggregate.EXPECT().TrackChange(change)
 	}
+
+	aggregate.EXPECT().FlushChanges()
 
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
 	assert.Nil(t, err)
@@ -132,7 +136,10 @@ func TestFetchAggregateWithSnapshot(t *testing.T) {
 
 	for _, change := range changes {
 		snapAggregate.EXPECT().ApplyEvent(change).Return(nil)
+		snapAggregate.EXPECT().TrackChange(change)
 	}
+
+	snapAggregate.EXPECT().FlushChanges()
 
 	a, err := repo.Fetch(ctx, aggregateType, aggregateID, version)
 	assert.Nil(t, err)
@@ -164,7 +171,10 @@ func TestFetchLatestAggregateWithoutSnapshot(t *testing.T) {
 
 	for _, change := range changes {
 		aggregate.EXPECT().ApplyEvent(change).Return(nil)
+		aggregate.EXPECT().TrackChange(change)
 	}
+
+	aggregate.EXPECT().FlushChanges()
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
 	assert.Nil(t, err)
@@ -199,7 +209,10 @@ func TestFetchLatestAggregateWithSnapshot(t *testing.T) {
 
 	for _, change := range changes {
 		snapAggregate.EXPECT().ApplyEvent(change).Return(nil)
+		snapAggregate.EXPECT().TrackChange(change)
 	}
+
+	snapAggregate.EXPECT().FlushChanges()
 
 	a, err := repo.FetchLatest(ctx, aggregateType, aggregateID)
 	assert.Nil(t, err)
