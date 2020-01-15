@@ -245,6 +245,7 @@ func (s *eventStore) publish(ctx context.Context, events ...cqrs.Event) error {
 }
 
 func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, docs []interface{}) error {
+	fmt.Println(fmt.Sprintf("saving %s:%s, org: %d", aggregateType, aggregateID, originalVersion))
 	res := s.db.Collection("events").FindOne(ctx, bson.M{
 		"aggregateType": aggregateType,
 		"aggregateId":   aggregateID,
