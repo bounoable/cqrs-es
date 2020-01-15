@@ -250,19 +250,15 @@ func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateT
 		"aggregateId":   aggregateID,
 	}, options.FindOne().SetSort(bson.D{{Key: "version", Value: -1}}))
 
-	latestVersion := -1
-
 	var latest dbEvent
 	if err := res.Decode(&latest); err == nil {
-		latestVersion = latest.Version
-	}
-
-	if latestVersion != originalVersion {
-		return cqrs.OptimisticConcurrencyError{
-			AggregateType:   aggregateType,
-			AggregateID:     aggregateID,
-			LatestVersion:   latest.Version,
-			ProvidedVersion: originalVersion,
+		if latest.Version != originalVersion {
+			return cqrs.OptimisticConcurrencyError{
+				AggregateType:   aggregateType,
+				AggregateID:     aggregateID,
+				LatestVersion:   latest.Version,
+				ProvidedVersion: originalVersion,
+			}
 		}
 	}
 
