@@ -190,10 +190,6 @@ func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 }
 
 func (b *eventBus) Subscribe(ctx context.Context, types ...cqrs.EventType) (<-chan cqrs.Event, error) {
-	if len(types) == 1 {
-		return b.subscribe(ctx, types[0])
-	}
-
 	events := make(chan cqrs.Event, b.cfg.BufferSize*len(types))
 	var wg sync.WaitGroup
 
@@ -284,15 +280,19 @@ func (b *eventBus) subscribe(ctx context.Context, typ cqrs.EventType) (<-chan cq
 
 	go func() {
 		<-ctx.Done()
-		if err := sub.Drain(); err != nil && b.cfg.Logger != nil {
-			b.cfg.Logger.Println(fmt.Errorf("nats eventbus: %w", err))
+
+		// Remove channel from handlers. Drain the subscription if no handlers left
+		if !b.removeHandler(typ, handler) {
+			if err := sub.Drain(); err != nil && b.cfg.Logger != nil {
+				b.cfg.Logger.Println(fmt.Errorf("nats eventbus: %w", err))
+			}
+
+			close(msgs)
+
+			b.subsMux.Lock()
+			delete(b.subs, typ)
+			b.subsMux.Unlock()
 		}
-
-		close(msgs)
-
-		b.subsMux.Lock()
-		delete(b.subs, typ)
-		b.subsMux.Unlock()
 	}()
 
 	return handler, nil
@@ -308,6 +308,31 @@ func (b *eventBus) ensureHandler(typ cqrs.EventType, handler chan cqrs.Event) {
 	}
 
 	b.handlers[typ] = append(handlers, handler)
+}
+
+// returns whether there are any handlers left for the given typ.
+func (b *eventBus) removeHandler(typ cqrs.EventType, handler chan cqrs.Event) bool {
+	b.handlersMux.RLock()
+	handlers, ok := b.handlers[typ]
+	b.handlersMux.RUnlock()
+
+	if !ok || len(handlers) == 0 {
+		return false
+	}
+
+	newHandlers := make([]chan cqrs.Event, 0, len(handlers)-1)
+
+	for _, ch := range handlers {
+		if ch != handler {
+			newHandlers = append(newHandlers, ch)
+		}
+	}
+
+	b.handlersMux.Lock()
+	b.handlers[typ] = newHandlers
+	b.handlersMux.Unlock()
+
+	return len(newHandlers) > 0
 }
 
 func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, done chan<- struct{}) {
