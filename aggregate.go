@@ -126,3 +126,7 @@ func ApplyEvent(aggregate Aggregate, track bool, event Event) error {
 
 	return nil
 }
+
+func (t AggregateType) String() string {
+	return string(t)
+}

@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
-	"fmt"
 	"os"
 	"reflect"
 	"time"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/eventstore"
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -41,24 +41,6 @@ type eventStore struct {
 	eventCfg  cqrs.EventConfig
 	db        *mongo.Database
 	publisher cqrs.EventPublisher
-}
-
-// InconsistentEventError ...
-type InconsistentEventError struct {
-	ExpectedAggregateType cqrs.AggregateType
-	ProvidedAggregateType cqrs.AggregateType
-	ExpectedAggregateID   uuid.UUID
-	ProvidedAggregateID   uuid.UUID
-}
-
-func (err InconsistentEventError) Error() string {
-	return fmt.Sprintf(
-		"inconsistent event: expected '%s:%s', got '%s:%s'",
-		err.ExpectedAggregateType,
-		err.ExpectedAggregateID,
-		err.ProvidedAggregateType,
-		err.ProvidedAggregateID,
-	)
 }
 
 // Publisher ...
@@ -167,20 +149,12 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		return nil
 	}
 
-	aggregateType := events[0].AggregateType()
-	aggregateID := events[0].AggregateID()
+	if err := eventstore.ValidateEvents(events, originalVersion); err != nil {
+		return err
+	}
 
 	dbEvents := make([]*dbEvent, len(events))
 	for i, e := range events {
-		if e.AggregateType() != aggregateType || e.AggregateID().String() != aggregateID.String() {
-			return InconsistentEventError{
-				ExpectedAggregateType: aggregateType,
-				ProvidedAggregateType: e.AggregateType(),
-				ExpectedAggregateID:   aggregateID,
-				ProvidedAggregateID:   e.AggregateID(),
-			}
-		}
-
 		var buf bytes.Buffer
 		if err := gob.NewEncoder(&buf).Encode(e.Data()); err != nil {
 			return err
@@ -190,8 +164,8 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 			EventType:     e.Type(),
 			EventData:     buf.Bytes(),
 			Time:          e.Time(),
-			AggregateType: aggregateType,
-			AggregateID:   aggregateID,
+			AggregateType: e.AggregateType(),
+			AggregateID:   e.AggregateID(),
 			Version:       e.Version(),
 		}
 
@@ -209,7 +183,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 				return err
 			}
 
-			if err := s.saveDocs(ctx, aggregateType, aggregateID, originalVersion, docs); err != nil {
+			if err := s.saveDocs(ctx, events[0].AggregateType(), events[0].AggregateID(), originalVersion, docs); err != nil {
 				return err
 			}
 
@@ -218,7 +192,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 			return err
 		}
 	} else {
-		if err := s.saveDocs(ctx, aggregateType, aggregateID, originalVersion, docs); err != nil {
+		if err := s.saveDocs(ctx, events[0].AggregateType(), events[0].AggregateID(), originalVersion, docs); err != nil {
 			return err
 		}
 	}
@@ -426,11 +400,11 @@ func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 	}
 
 	r := bytes.NewReader(evt.EventData)
-	if err := gob.NewDecoder(r).Decode(data); err != nil {
+	if err := gob.NewDecoder(r).Decode(reflect.ValueOf(data).Addr().Interface()); err != nil {
 		return nil, err
 	}
 
-	data = reflect.ValueOf(data).Elem().Interface()
+	// data = reflect.ValueOf(data).Elem().Interface()
 
 	return cqrs.NewAggregateEventWithTime(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
 }

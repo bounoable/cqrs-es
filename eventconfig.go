@@ -15,7 +15,7 @@ type EventDataFactory func() EventData
 type EventConfig interface {
 	Register(EventType, EventData)
 	// NewData creates an EventData instance for EventType.
-	// The returned object is a struct.
+	// The returned object is a non-pointer struct.
 	NewData(EventType) (EventData, error)
 	Factories() map[EventType]EventDataFactory
 }
@@ -52,7 +52,7 @@ func (cfg *eventConfig) Register(typ EventType, proto EventData) {
 	}
 
 	cfg.RegisterFactory(typ, func() EventData {
-		return reflect.New(refval).Interface()
+		return reflect.New(refval).Elem().Interface()
 	})
 }
 
