@@ -26,10 +26,10 @@ func ValidateEvents(events []cqrs.Event, originalVersion int) error {
 			}
 		}
 
-		if evt.Version() != originalVersion+i {
+		if evt.Version() != originalVersion+i+1 {
 			return InconsistentVersionError{
 				OriginalVersion: originalVersion,
-				ExpectedVersion: originalVersion + 1,
+				ExpectedVersion: originalVersion + i + 1,
 				ProvidedVersion: evt.Version(),
 			}
 		}
