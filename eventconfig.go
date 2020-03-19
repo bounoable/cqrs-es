@@ -67,6 +67,10 @@ func (cfg *eventConfig) NewData(typ EventType) (EventData, error) {
 }
 
 func (cfg *eventConfig) Protos() map[EventType]EventData {
+	if cfg == nil {
+		return map[EventType]EventData{}
+	}
+
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 

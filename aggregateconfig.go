@@ -61,6 +61,10 @@ func (cfg *aggregateConfig) New(typ AggregateType, id uuid.UUID) (Aggregate, err
 }
 
 func (cfg *aggregateConfig) Factories() map[AggregateType]AggregateFactory {
+	if cfg == nil {
+		return map[AggregateType]AggregateFactory{}
+	}
+
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 

@@ -47,6 +47,18 @@ func (mr *MockContainerMockRecorder) AggregateConfig() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateConfig", reflect.TypeOf((*MockContainer)(nil).AggregateConfig))
 }
 
+// SetAggregateConfig mocks base method
+func (m *MockContainer) SetAggregateConfig(arg0 cqrs_es.AggregateConfig) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetAggregateConfig", arg0)
+}
+
+// SetAggregateConfig indicates an expected call of SetAggregateConfig
+func (mr *MockContainerMockRecorder) SetAggregateConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAggregateConfig", reflect.TypeOf((*MockContainer)(nil).SetAggregateConfig), arg0)
+}
+
 // EventConfig mocks base method
 func (m *MockContainer) EventConfig() cqrs_es.EventConfig {
 	m.ctrl.T.Helper()
@@ -59,6 +71,18 @@ func (m *MockContainer) EventConfig() cqrs_es.EventConfig {
 func (mr *MockContainerMockRecorder) EventConfig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventConfig", reflect.TypeOf((*MockContainer)(nil).EventConfig))
+}
+
+// SetEventConfig mocks base method
+func (m *MockContainer) SetEventConfig(arg0 cqrs_es.EventConfig) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetEventConfig", arg0)
+}
+
+// SetEventConfig indicates an expected call of SetEventConfig
+func (mr *MockContainerMockRecorder) SetEventConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEventConfig", reflect.TypeOf((*MockContainer)(nil).SetEventConfig), arg0)
 }
 
 // CommandConfig mocks base method
@@ -75,6 +99,18 @@ func (mr *MockContainerMockRecorder) CommandConfig() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommandConfig", reflect.TypeOf((*MockContainer)(nil).CommandConfig))
 }
 
+// SetCommandConfig mocks base method
+func (m *MockContainer) SetCommandConfig(arg0 cqrs_es.CommandConfig) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetCommandConfig", arg0)
+}
+
+// SetCommandConfig indicates an expected call of SetCommandConfig
+func (mr *MockContainerMockRecorder) SetCommandConfig(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCommandConfig", reflect.TypeOf((*MockContainer)(nil).SetCommandConfig), arg0)
+}
+
 // EventBus mocks base method
 func (m *MockContainer) EventBus() cqrs_es.EventBus {
 	m.ctrl.T.Helper()
@@ -87,6 +123,46 @@ func (m *MockContainer) EventBus() cqrs_es.EventBus {
 func (mr *MockContainerMockRecorder) EventBus() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventBus", reflect.TypeOf((*MockContainer)(nil).EventBus))
+}
+
+// EventPublisher mocks base method
+func (m *MockContainer) EventPublisher() cqrs_es.EventPublisher {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventPublisher")
+	ret0, _ := ret[0].(cqrs_es.EventPublisher)
+	return ret0
+}
+
+// EventPublisher indicates an expected call of EventPublisher
+func (mr *MockContainerMockRecorder) EventPublisher() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventPublisher", reflect.TypeOf((*MockContainer)(nil).EventPublisher))
+}
+
+// EventSubscriber mocks base method
+func (m *MockContainer) EventSubscriber() cqrs_es.EventSubscriber {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventSubscriber")
+	ret0, _ := ret[0].(cqrs_es.EventSubscriber)
+	return ret0
+}
+
+// EventSubscriber indicates an expected call of EventSubscriber
+func (mr *MockContainerMockRecorder) EventSubscriber() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventSubscriber", reflect.TypeOf((*MockContainer)(nil).EventSubscriber))
+}
+
+// SetEventBus mocks base method
+func (m *MockContainer) SetEventBus(arg0 cqrs_es.EventBus) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetEventBus", arg0)
+}
+
+// SetEventBus indicates an expected call of SetEventBus
+func (mr *MockContainerMockRecorder) SetEventBus(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEventBus", reflect.TypeOf((*MockContainer)(nil).SetEventBus), arg0)
 }
 
 // EventStore mocks base method
@@ -103,6 +179,18 @@ func (mr *MockContainerMockRecorder) EventStore() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventStore", reflect.TypeOf((*MockContainer)(nil).EventStore))
 }
 
+// SetEventStore mocks base method
+func (m *MockContainer) SetEventStore(arg0 cqrs_es.EventStore) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetEventStore", arg0)
+}
+
+// SetEventStore indicates an expected call of SetEventStore
+func (mr *MockContainerMockRecorder) SetEventStore(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEventStore", reflect.TypeOf((*MockContainer)(nil).SetEventStore), arg0)
+}
+
 // CommandBus mocks base method
 func (m *MockContainer) CommandBus() cqrs_es.CommandBus {
 	m.ctrl.T.Helper()
@@ -115,6 +203,18 @@ func (m *MockContainer) CommandBus() cqrs_es.CommandBus {
 func (mr *MockContainerMockRecorder) CommandBus() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommandBus", reflect.TypeOf((*MockContainer)(nil).CommandBus))
+}
+
+// SetCommandBus mocks base method
+func (m *MockContainer) SetCommandBus(arg0 cqrs_es.CommandBus) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetCommandBus", arg0)
+}
+
+// SetCommandBus indicates an expected call of SetCommandBus
+func (mr *MockContainerMockRecorder) SetCommandBus(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCommandBus", reflect.TypeOf((*MockContainer)(nil).SetCommandBus), arg0)
 }
 
 // Snapshots mocks base method
@@ -131,6 +231,18 @@ func (mr *MockContainerMockRecorder) Snapshots() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Snapshots", reflect.TypeOf((*MockContainer)(nil).Snapshots))
 }
 
+// SetSnapshots mocks base method
+func (m *MockContainer) SetSnapshots(arg0 cqrs_es.SnapshotRepository) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetSnapshots", arg0)
+}
+
+// SetSnapshots indicates an expected call of SetSnapshots
+func (mr *MockContainerMockRecorder) SetSnapshots(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetSnapshots", reflect.TypeOf((*MockContainer)(nil).SetSnapshots), arg0)
+}
+
 // Aggregates mocks base method
 func (m *MockContainer) Aggregates() cqrs_es.AggregateRepository {
 	m.ctrl.T.Helper()
@@ -143,4 +255,16 @@ func (m *MockContainer) Aggregates() cqrs_es.AggregateRepository {
 func (mr *MockContainerMockRecorder) Aggregates() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Aggregates", reflect.TypeOf((*MockContainer)(nil).Aggregates))
+}
+
+// SetAggregates mocks base method
+func (m *MockContainer) SetAggregates(arg0 cqrs_es.AggregateRepository) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetAggregates", arg0)
+}
+
+// SetAggregates indicates an expected call of SetAggregates
+func (mr *MockContainerMockRecorder) SetAggregates(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAggregates", reflect.TypeOf((*MockContainer)(nil).SetAggregates), arg0)
 }

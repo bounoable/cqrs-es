@@ -129,8 +129,8 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 
 // WithSnapshotRepositoryFactory ...
 func WithSnapshotRepositoryFactory(options ...Option) setup.Option {
-	return setup.WithSnapshotRepositoryFactory(func(ctx context.Context, s setup.Setup) (cqrs.SnapshotRepository, error) {
-		return NewSnapshotRepository(ctx, s.AggregateConfig(), options...)
+	return setup.WithSnapshotRepositoryFactory(func(ctx context.Context, c cqrs.Container) (cqrs.SnapshotRepository, error) {
+		return NewSnapshotRepository(ctx, c.AggregateConfig(), options...)
 	})
 }
 

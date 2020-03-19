@@ -27,7 +27,7 @@ type Config struct {
 	URI              string
 	Database         string
 	Publisher        cqrs.EventPublisher
-	ResolvePublisher func() (cqrs.EventPublisher, bool)
+	ResolvePublisher func() cqrs.EventPublisher
 	Transactions     bool
 	CreateIndexes    bool
 	ClientOptions    []*options.ClientOptions
@@ -51,7 +51,7 @@ func Publisher(publisher cqrs.EventPublisher) Option {
 }
 
 // ResolvePublisher ...
-func ResolvePublisher(resolve func() (cqrs.EventPublisher, bool)) Option {
+func ResolvePublisher(resolve func() cqrs.EventPublisher) Option {
 	return func(cfg *Config) {
 		cfg.ResolvePublisher = resolve
 	}
@@ -138,9 +138,9 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 
 // WithEventStoreFactory ...
 func WithEventStoreFactory(options ...Option) setup.Option {
-	return setup.WithEventStoreFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventStore, error) {
-		options = append([]Option{ResolvePublisher(s.EventPublisherResolver())}, options...)
-		return NewEventStore(ctx, s.EventConfig(), options...)
+	return setup.WithEventStoreFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventStore, error) {
+		options = append([]Option{ResolvePublisher(c.EventPublisher)}, options...)
+		return NewEventStore(ctx, c.EventConfig(), options...)
 	})
 }
 
@@ -206,7 +206,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 
 func (s *eventStore) publish(ctx context.Context, events ...cqrs.Event) error {
 	if s.publisher == nil && s.config.ResolvePublisher != nil {
-		if pub, ok := s.config.ResolvePublisher(); ok {
+		if pub := s.config.ResolvePublisher(); pub != nil {
 			s.publisher = pub
 		}
 	}

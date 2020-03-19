@@ -146,15 +146,15 @@ func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options
 
 // WithEventBusFactory ...
 func WithEventBusFactory(options ...EventBusOption) setup.Option {
-	return setup.WithEventBusFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventBus, error) {
-		return NewEventBus(s.EventConfig(), options...)
+	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
+		return NewEventBus(c.EventConfig(), options...)
 	})
 }
 
 // WithEventBusFactoryWithConnection ...
 func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption) setup.Option {
-	return setup.WithEventBusFactory(func(ctx context.Context, s setup.Setup) (cqrs.EventBus, error) {
-		return NewEventBusWithConnection(nc, s.EventConfig(), options...), nil
+	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
+		return NewEventBusWithConnection(nc, c.EventConfig(), options...), nil
 	})
 }
 

@@ -2,24 +2,34 @@ package cqrs
 
 //go:generate mockgen -source=container.go -destination=./mocks/container.go
 
-import (
-	"log"
-)
-
 // Container ...
 type Container interface {
 	AggregateConfig() AggregateConfig
+	SetAggregateConfig(AggregateConfig)
 	EventConfig() EventConfig
+	SetEventConfig(EventConfig)
 	CommandConfig() CommandConfig
+	SetCommandConfig(CommandConfig)
 	EventBus() EventBus
+	EventPublisher() EventPublisher
+	EventSubscriber() EventSubscriber
+	SetEventBus(EventBus)
 	EventStore() EventStore
+	SetEventStore(EventStore)
 	CommandBus() CommandBus
+	SetCommandBus(CommandBus)
 	Snapshots() SnapshotRepository
+	SetSnapshots(SnapshotRepository)
 	Aggregates() AggregateRepository
+	SetAggregates(AggregateRepository)
+}
+
+// NewContainer ...
+func NewContainer() Container {
+	return &container{}
 }
 
 type container struct {
-	logger          *log.Logger
 	aggregateConfig AggregateConfig
 	eventConfig     EventConfig
 	commandConfig   CommandConfig
@@ -30,63 +40,74 @@ type container struct {
 	aggregates      AggregateRepository
 }
 
-// New ...
-func New(
-	logger *log.Logger,
-	aggregateConfig AggregateConfig,
-	eventConfig EventConfig,
-	commandConfig CommandConfig,
-	eventBus EventBus,
-	eventStore EventStore,
-	commandBus CommandBus,
-	snapshots SnapshotRepository,
-	aggregates AggregateRepository,
-) Container {
-	return &container{
-		logger:          logger,
-		aggregateConfig: aggregateConfig,
-		eventConfig:     eventConfig,
-		commandConfig:   commandConfig,
-		eventBus:        eventBus,
-		eventStore:      eventStore,
-		commandBus:      commandBus,
-		snapshots:       snapshots,
-		aggregates:      aggregates,
-	}
-}
-
-func (c *container) SetLogger(logger *log.Logger) {
-	c.logger = logger
-}
-
 func (c *container) AggregateConfig() AggregateConfig {
 	return c.aggregateConfig
+}
+
+func (c *container) SetAggregateConfig(cfg AggregateConfig) {
+	c.aggregateConfig = cfg
 }
 
 func (c *container) EventConfig() EventConfig {
 	return c.eventConfig
 }
 
+func (c *container) SetEventConfig(cfg EventConfig) {
+	c.eventConfig = cfg
+}
+
 func (c *container) CommandConfig() CommandConfig {
 	return c.commandConfig
+}
+
+func (c *container) SetCommandConfig(cfg CommandConfig) {
+	c.commandConfig = cfg
 }
 
 func (c *container) EventBus() EventBus {
 	return c.eventBus
 }
 
+func (c *container) EventPublisher() EventPublisher {
+	return c.eventBus
+}
+
+func (c *container) EventSubscriber() EventSubscriber {
+	return c.eventBus
+}
+
+func (c *container) SetEventBus(cfg EventBus) {
+	c.eventBus = cfg
+}
+
 func (c *container) EventStore() EventStore {
 	return c.eventStore
+}
+
+func (c *container) SetEventStore(store EventStore) {
+	c.eventStore = store
 }
 
 func (c *container) CommandBus() CommandBus {
 	return c.commandBus
 }
 
+func (c *container) SetCommandBus(bus CommandBus) {
+	c.commandBus = bus
+}
+
 func (c *container) Snapshots() SnapshotRepository {
 	return c.snapshots
 }
 
+func (c *container) SetSnapshots(repo SnapshotRepository) {
+	c.snapshots = repo
+}
+
 func (c *container) Aggregates() AggregateRepository {
 	return c.aggregates
+}
+
+func (c *container) SetAggregates(repo AggregateRepository) {
+	c.aggregates = repo
 }
