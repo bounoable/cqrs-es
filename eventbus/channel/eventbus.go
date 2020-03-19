@@ -29,16 +29,20 @@ func BufferSize(size int) Option {
 }
 
 // NewEventBus ...
-func NewEventBus(options ...Option) cqrs.EventBus {
+func NewEventBus(ctx context.Context, options ...Option) cqrs.EventBus {
 	var cfg config
 	for _, opt := range options {
 		opt(&cfg)
 	}
 
-	return &eventBus{
+	bus := &eventBus{
 		events:      make(chan cqrs.Event, cfg.BufferSize),
 		subscribers: make(map[cqrs.EventType][]chan cqrs.Event),
 	}
+
+	go bus.start(ctx)
+
+	return bus
 }
 
 func (b *eventBus) Publish(ctx context.Context, events ...cqrs.Event) error {

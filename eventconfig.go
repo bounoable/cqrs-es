@@ -3,13 +3,10 @@ package cqrs
 //go:generate mockgen -source=eventconfig.go -destination=./mocks/eventconfig.go
 
 import (
+	"encoding/gob"
 	"fmt"
-	"reflect"
 	"sync"
 )
-
-// EventDataFactory ...
-type EventDataFactory func() EventData
 
 // EventConfig is the configuration for the events.
 type EventConfig interface {
@@ -17,12 +14,13 @@ type EventConfig interface {
 	// NewData creates an EventData instance for EventType.
 	// The returned object is a non-pointer struct.
 	NewData(EventType) (EventData, error)
-	Factories() map[EventType]EventDataFactory
+	Protos() map[EventType]EventData
 }
 
 type eventConfig struct {
-	mux       sync.RWMutex
-	factories map[EventType]EventDataFactory
+	mux sync.RWMutex
+	// factories map[EventType]EventDataFactory
+	protos map[EventType]EventData
 }
 
 // UnregisteredEventError is raised when an event type is not registered.
@@ -37,7 +35,7 @@ func (err UnregisteredEventError) Error() string {
 // NewEventConfig returns a new event config.
 func NewEventConfig() EventConfig {
 	return &eventConfig{
-		factories: make(map[EventType]EventDataFactory),
+		protos: make(map[EventType]EventData),
 	}
 }
 
@@ -46,46 +44,34 @@ func (cfg *eventConfig) Register(typ EventType, proto EventData) {
 		panic("eventconfig: proto cannot be nil")
 	}
 
-	refval := reflect.TypeOf(proto)
-	for refval.Kind() == reflect.Ptr {
-		refval = refval.Elem()
-	}
-
-	cfg.RegisterFactory(typ, func() EventData {
-		return reflect.New(refval).Elem().Interface()
-	})
-}
-
-func (cfg *eventConfig) RegisterFactory(typ EventType, factory EventDataFactory) {
-	if factory == nil {
-		panic("eventconfig: factory cannot be nil")
-	}
+	gob.Register(proto)
 
 	cfg.mux.Lock()
 	defer cfg.mux.Unlock()
-	cfg.factories[typ] = factory
+
+	cfg.protos[typ] = proto
 }
 
 func (cfg *eventConfig) NewData(typ EventType) (EventData, error) {
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 
-	factory, ok := cfg.factories[typ]
+	data, ok := cfg.protos[typ]
 	if !ok {
 		return nil, UnregisteredEventError{
 			EventType: typ,
 		}
 	}
 
-	return factory(), nil
+	return data, nil
 }
 
-func (cfg *eventConfig) Factories() map[EventType]EventDataFactory {
+func (cfg *eventConfig) Protos() map[EventType]EventData {
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 
-	m := make(map[EventType]EventDataFactory)
-	for k, v := range cfg.factories {
+	m := make(map[EventType]EventData)
+	for k, v := range cfg.protos {
 		m[k] = v
 	}
 

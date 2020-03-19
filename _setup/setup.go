@@ -1,4 +1,4 @@
-package setup
+package _setup
 
 //go:generate mockgen -source=setup.go -destination=../mocks/setup/setup.go
 
@@ -416,7 +416,7 @@ func applyGlobalConfigs(aggregates cqrs.AggregateConfig, events cqrs.EventConfig
 		aggregates.Register(k, v)
 	}
 
-	for k, v := range globalEventConfig.Factories() {
-		events.Register(k, v())
+	for k, v := range globalEventConfig.Protos() {
+		events.Register(k, v)
 	}
 }

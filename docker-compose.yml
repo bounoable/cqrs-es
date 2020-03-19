@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  library:
+    image: golang:1.14
+    depends_on:
+      - nats
+    environment:
+      NATS_URL: nats://nats:4222
+      STAN_URL: nats://nats_streaming:4222
+    volumes:
+      - .:/cqrs
+    working_dir: /cqrs
+  
+  nats:
+    image: nats
+  
+  nats_streaming:
+    image: nats-streaming

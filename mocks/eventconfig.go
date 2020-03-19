@@ -60,16 +60,16 @@ func (mr *MockEventConfigMockRecorder) NewData(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewData", reflect.TypeOf((*MockEventConfig)(nil).NewData), arg0)
 }
 
-// Factories mocks base method
-func (m *MockEventConfig) Factories() map[cqrs_es.EventType]cqrs_es.EventDataFactory {
+// Protos mocks base method
+func (m *MockEventConfig) Protos() map[cqrs_es.EventType]cqrs_es.EventData {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Factories")
-	ret0, _ := ret[0].(map[cqrs_es.EventType]cqrs_es.EventDataFactory)
+	ret := m.ctrl.Call(m, "Protos")
+	ret0, _ := ret[0].(map[cqrs_es.EventType]cqrs_es.EventData)
 	return ret0
 }
 
-// Factories indicates an expected call of Factories
-func (mr *MockEventConfigMockRecorder) Factories() *gomock.Call {
+// Protos indicates an expected call of Protos
+func (mr *MockEventConfigMockRecorder) Protos() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Factories", reflect.TypeOf((*MockEventConfig)(nil).Factories))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Protos", reflect.TypeOf((*MockEventConfig)(nil).Protos))
 }

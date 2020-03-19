@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"reflect"
 	"sync"
 	"time"
 
@@ -139,7 +138,7 @@ func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.Eve
 	}
 
 	if cfg.URL == "" {
-		cfg.URL = os.Getenv("NATS_URL")
+		cfg.URL = os.Getenv("STAN_URL")
 	}
 
 	if cfg.URL == "" {
@@ -207,8 +206,9 @@ func WithEventBusFactoryWithNATSConnection(nc *nats.Conn, options ...EventBusOpt
 
 func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 	for _, e := range events {
+		data := e.Data()
 		var dataBuf bytes.Buffer
-		if err := gob.NewEncoder(&dataBuf).Encode(e.Data()); err != nil {
+		if err := gob.NewEncoder(&dataBuf).Encode(&data); err != nil {
 			return err
 		}
 
@@ -385,7 +385,7 @@ func (b *eventBus) removeHandler(typ cqrs.EventType, handler chan cqrs.Event) bo
 }
 
 func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, done chan<- struct{}) {
-	go func() {
+	defer func() {
 		done <- struct{}{}
 	}()
 
@@ -406,14 +406,13 @@ func (b *eventBus) handleMessages(msgs <-chan *stan.Msg, done chan<- struct{}) {
 			continue
 		}
 
-		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(data); err != nil {
+		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(&data); err != nil {
 			if b.cfg.Logger != nil {
 				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
-		data = reflect.ValueOf(data).Elem().Interface()
 		var evt cqrs.Event
 
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {

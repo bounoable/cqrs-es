@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"reflect"
 	"sync"
 	"time"
 
@@ -161,8 +160,9 @@ func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption)
 
 func (b *eventBus) Publish(_ context.Context, events ...cqrs.Event) error {
 	for _, e := range events {
+		data := e.Data()
 		var dataBuf bytes.Buffer
-		if err := gob.NewEncoder(&dataBuf).Encode(e.Data()); err != nil {
+		if err := gob.NewEncoder(&dataBuf).Encode(&data); err != nil {
 			return err
 		}
 
@@ -357,14 +357,13 @@ func (b *eventBus) handleMessages(msgs <-chan *nats.Msg, done chan<- struct{}) {
 			continue
 		}
 
-		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(data); err != nil {
+		if err := gob.NewDecoder(bytes.NewReader(evtmsg.EventData)).Decode(&data); err != nil {
 			if b.cfg.Logger != nil {
 				b.cfg.Logger.Println(err)
 			}
 			continue
 		}
 
-		data = reflect.ValueOf(data).Elem().Interface()
 		var evt cqrs.Event
 
 		if evtmsg.AggregateType != cqrs.AggregateType("") && evtmsg.AggregateID != uuid.Nil {
