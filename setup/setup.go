@@ -177,7 +177,7 @@ func (s *Setup) NewContainer(ctx context.Context) (cqrs.Container, error) {
 	var snapshotRepo cqrs.SnapshotRepository
 	var aggregateRepo cqrs.AggregateRepository
 
-	container := cqrs.NewContainer()
+	container := cqrs.NewContainer(s.aggregateConfig, s.eventConfig, s.commandConfig)
 
 	if s.eventBusFactory != nil {
 		if eventBus, err = s.eventBusFactory(ctx, container); err != nil {

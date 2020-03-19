@@ -25,8 +25,12 @@ type Container interface {
 }
 
 // NewContainer ...
-func NewContainer() Container {
-	return &container{}
+func NewContainer(aggregates AggregateConfig, events EventConfig, commands CommandConfig) Container {
+	return &container{
+		aggregateConfig: aggregates,
+		eventConfig:     events,
+		commandConfig:   commands,
+	}
 }
 
 type container struct {
