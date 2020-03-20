@@ -11,13 +11,24 @@ import (
 type OnceOption func(*onceConfig)
 
 type onceConfig struct {
-	timeout time.Duration
+	timeout  time.Duration
+	matchers []Matcher
 }
+
+// Matcher ...
+type Matcher func(cqrs.Event) bool
 
 // OnceTimeout ...
 func OnceTimeout(d time.Duration) OnceOption {
 	return func(cfg *onceConfig) {
 		cfg.timeout = d
+	}
+}
+
+// OnceMatch ...
+func OnceMatch(matchers ...Matcher) OnceOption {
+	return func(cfg *onceConfig) {
+		cfg.matchers = matchers
 	}
 }
 
@@ -43,16 +54,29 @@ func Once(ctx context.Context, bus cqrs.EventBus, typ cqrs.EventType, opts ...On
 
 	ch := make(chan cqrs.Event, 1)
 	go func() {
-		defer close(ch)
 		defer cancel()
-		select {
-		case <-ctx.Done():
-			return
-		case evt, ok := <-events:
-			if !ok {
+		defer close(ch)
+		for {
+			select {
+			case <-ctx.Done():
 				return
+			case evt, ok := <-events:
+				if !ok {
+					return
+				}
+
+				if len(cfg.matchers) == 0 {
+					ch <- evt
+					return
+				}
+
+				for _, matcher := range cfg.matchers {
+					if matcher(evt) {
+						ch <- evt
+						return
+					}
+				}
 			}
-			ch <- evt
 		}
 	}()
 
