@@ -104,11 +104,19 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 	}
 
 	if cfg.URI == "" {
+		cfg.URI = os.Getenv("MONGO_URI")
+	}
+
+	if cfg.URI == "" {
 		cfg.URI = DefaultURI
 	}
 
 	if cfg.Database == "" {
 		cfg.Database = os.Getenv("MONGO_EVENTS_DB")
+	}
+
+	if cfg.Database == "" {
+		cfg.Database = os.Getenv("MONGO_DB")
 	}
 
 	if cfg.Database == "" {
