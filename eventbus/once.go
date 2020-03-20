@@ -12,11 +12,8 @@ type OnceOption func(*onceConfig)
 
 type onceConfig struct {
 	timeout  time.Duration
-	matchers []Matcher
+	matchers []cqrs.Matcher
 }
-
-// Matcher ...
-type Matcher func(cqrs.Event) bool
 
 // OnceTimeout ...
 func OnceTimeout(d time.Duration) OnceOption {
@@ -26,7 +23,7 @@ func OnceTimeout(d time.Duration) OnceOption {
 }
 
 // OnceMatch ...
-func OnceMatch(matchers ...Matcher) OnceOption {
+func OnceMatch(matchers ...cqrs.Matcher) OnceOption {
 	return func(cfg *onceConfig) {
 		cfg.matchers = matchers
 	}
