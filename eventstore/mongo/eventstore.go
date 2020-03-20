@@ -162,8 +162,9 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 
 	dbEvents := make([]*dbEvent, len(events))
 	for i, e := range events {
+		data := e.Data()
 		var buf bytes.Buffer
-		if err := gob.NewEncoder(&buf).Encode(e.Data()); err != nil {
+		if err := gob.NewEncoder(&buf).Encode(&data); err != nil {
 			return err
 		}
 
