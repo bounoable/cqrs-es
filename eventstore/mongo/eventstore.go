@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/gob"
 	"os"
-	"reflect"
 	"time"
 
 	"github.com/bounoable/cqrs-es"
@@ -407,12 +406,9 @@ func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 		return nil, err
 	}
 
-	r := bytes.NewReader(evt.EventData)
-	if err := gob.NewDecoder(r).Decode(reflect.ValueOf(data).Addr().Interface()); err != nil {
+	if err := gob.NewDecoder(bytes.NewReader(evt.EventData)).Decode(&data); err != nil {
 		return nil, err
 	}
-
-	// data = reflect.ValueOf(data).Elem().Interface()
 
 	return cqrs.NewAggregateEventWithTime(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
 }
