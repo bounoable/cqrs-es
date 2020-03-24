@@ -263,6 +263,21 @@ func (mr *MockAggregateRepositoryMockRecorder) Fetch(ctx, typ, id, version inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fetch", reflect.TypeOf((*MockAggregateRepository)(nil).Fetch), ctx, typ, id, version)
 }
 
+// FetchWithBase mocks base method
+func (m *MockAggregateRepository) FetchWithBase(ctx context.Context, aggregate cqrs_es.Aggregate, version int) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchWithBase", ctx, aggregate, version)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchWithBase indicates an expected call of FetchWithBase
+func (mr *MockAggregateRepositoryMockRecorder) FetchWithBase(ctx, aggregate, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchWithBase", reflect.TypeOf((*MockAggregateRepository)(nil).FetchWithBase), ctx, aggregate, version)
+}
+
 // FetchLatest mocks base method
 func (m *MockAggregateRepository) FetchLatest(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
@@ -276,6 +291,21 @@ func (m *MockAggregateRepository) FetchLatest(ctx context.Context, typ cqrs_es.A
 func (mr *MockAggregateRepositoryMockRecorder) FetchLatest(ctx, typ, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchLatest", reflect.TypeOf((*MockAggregateRepository)(nil).FetchLatest), ctx, typ, id)
+}
+
+// FetchLatestWithBase mocks base method
+func (m *MockAggregateRepository) FetchLatestWithBase(ctx context.Context, aggregate cqrs_es.Aggregate) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchLatestWithBase", ctx, aggregate)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchLatestWithBase indicates an expected call of FetchLatestWithBase
+func (mr *MockAggregateRepositoryMockRecorder) FetchLatestWithBase(ctx, aggregate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchLatestWithBase", reflect.TypeOf((*MockAggregateRepository)(nil).FetchLatestWithBase), ctx, aggregate)
 }
 
 // Remove mocks base method
@@ -372,4 +402,32 @@ func (m *MockSnapshotRepository) MaxVersion(ctx context.Context, typ cqrs_es.Agg
 func (mr *MockSnapshotRepositoryMockRecorder) MaxVersion(ctx, typ, id, maxVersion interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxVersion", reflect.TypeOf((*MockSnapshotRepository)(nil).MaxVersion), ctx, typ, id, maxVersion)
+}
+
+// Remove mocks base method
+func (m *MockSnapshotRepository) Remove(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, version int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Remove", ctx, typ, id, version)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Remove indicates an expected call of Remove
+func (mr *MockSnapshotRepositoryMockRecorder) Remove(ctx, typ, id, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockSnapshotRepository)(nil).Remove), ctx, typ, id, version)
+}
+
+// RemoveAll mocks base method
+func (m *MockSnapshotRepository) RemoveAll(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveAll", ctx, typ, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveAll indicates an expected call of RemoveAll
+func (mr *MockSnapshotRepositoryMockRecorder) RemoveAll(ctx, typ, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAll", reflect.TypeOf((*MockSnapshotRepository)(nil).RemoveAll), ctx, typ, id)
 }
