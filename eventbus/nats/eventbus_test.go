@@ -17,7 +17,7 @@ func TestEventBus(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	bus, err := nats.NewEventBus(eventbus.TestEventConfig, nats.Logger(log.New(os.Stderr, "", 0)))
+	bus, err := nats.EventBus(eventbus.TestEventConfig, nats.Logger(log.New(os.Stderr, "", 0)))
 	assert.Nil(t, err)
 
 	eventbus.TestPublish(ctx, t, bus)

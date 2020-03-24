@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	globalAggregateConfig = aggregate.NewConfig()
-	globalEventConfig     = event.NewConfig()
+	globalAggregateConfig = aggregate.Config()
+	globalEventConfig     = event.Config()
 )
 
 // Aggregate registers a cqrs.AggregateType globally.
@@ -128,7 +128,7 @@ func New(opts ...Option) *Setup {
 	s := Setup{
 		aggregateConfig: baseAggregateConfig(),
 		eventConfig:     baseEventConfig(),
-		commandConfig:   command.NewConfig(),
+		commandConfig:   command.Config(),
 	}
 
 	for _, opt := range opts {
@@ -139,7 +139,7 @@ func New(opts ...Option) *Setup {
 }
 
 func baseAggregateConfig() cqrs.AggregateConfig {
-	cfg := aggregate.NewConfig()
+	cfg := aggregate.Config()
 	for typ, fac := range globalAggregateConfig.Factories() {
 		cfg.Register(typ, fac)
 	}
@@ -147,7 +147,7 @@ func baseAggregateConfig() cqrs.AggregateConfig {
 }
 
 func baseEventConfig() cqrs.EventConfig {
-	cfg := event.NewConfig()
+	cfg := event.Config()
 	for typ, proto := range globalEventConfig.Protos() {
 		cfg.Register(typ, proto)
 	}
@@ -162,8 +162,8 @@ func (s *Setup) Command(h cqrs.CommandHandler, types ...cqrs.CommandType) *Setup
 	return s
 }
 
-// NewContainer initializes the components and returns a cqrs.Container.
-func (s *Setup) NewContainer(ctx context.Context) (cqrs.Container, error) {
+// Container initializes the components and returns a cqrs.Container.
+func (s *Setup) Container(ctx context.Context) (cqrs.Container, error) {
 	var err error
 	var eventBus cqrs.EventBus
 	var commandBus cqrs.CommandBus
@@ -208,7 +208,7 @@ func (s *Setup) NewContainer(ctx context.Context) (cqrs.Container, error) {
 	}
 
 	if aggregateRepo == nil && eventStore != nil {
-		aggregateRepo = aggregate.NewRepository(eventStore, s.aggregateConfig)
+		aggregateRepo = aggregate.Repository(eventStore, s.aggregateConfig)
 	}
 
 	if aggregateRepo != nil {
@@ -216,7 +216,7 @@ func (s *Setup) NewContainer(ctx context.Context) (cqrs.Container, error) {
 	}
 
 	if commandBus == nil {
-		commandBus = command.NewBusWithConfig(s.commandConfig)
+		commandBus = command.BusWithConfig(s.commandConfig)
 	}
 
 	container.SetCommandBus(commandBus)

@@ -3,7 +3,6 @@ package aggregate
 //go:generate mockgen -source=snapshot.go -destination=../mocks/aggregate/snapshot.go
 
 import (
-	"fmt"
 	"sync"
 
 	cqrs "github.com/bounoable/cqrs-es"
@@ -29,8 +28,8 @@ func SnapshotInterval(typ cqrs.AggregateType, every int) SnapshotOption {
 	}
 }
 
-// NewSnapshotConfig ...
-func NewSnapshotConfig(options ...SnapshotOption) SnapshotConfig {
+// ConfigureSnapshots ...
+func ConfigureSnapshots(options ...SnapshotOption) SnapshotConfig {
 	var cfg snapshotConfig
 	for _, opt := range options {
 		opt(&cfg)
@@ -49,19 +48,4 @@ func (cfg *snapshotConfig) IsDue(aggregate cqrs.Aggregate) bool {
 	}
 
 	return interval > 0 && len(aggregate.Changes()) >= interval
-}
-
-// SnapshotError ...
-type SnapshotError struct {
-	Err       error
-	StoreName string
-}
-
-func (err SnapshotError) Error() string {
-	return fmt.Sprintf("%s snapshot: %s", err.StoreName, err.Err)
-}
-
-// Unwrap ...
-func (err SnapshotError) Unwrap() error {
-	return err.Err
 }

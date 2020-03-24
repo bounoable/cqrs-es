@@ -14,7 +14,7 @@ import (
 func TestNewBase(t *testing.T) {
 	typ := cqrs.AggregateType("test")
 	id := uuid.New()
-	a := aggregate.NewBase(typ, id)
+	a := aggregate.Base(typ, id)
 
 	assert.Equal(t, typ, a.AggregateType())
 	assert.Equal(t, id, a.AggregateID())
@@ -26,7 +26,7 @@ func TestTrackChange(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	a := aggregate.NewBase(cqrs.AggregateType("test"), uuid.New())
+	a := aggregate.Base(cqrs.AggregateType("test"), uuid.New())
 	events := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
@@ -41,7 +41,7 @@ func TestFlushChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	a := aggregate.NewBase(cqrs.AggregateType("test"), uuid.New())
+	a := aggregate.Base(cqrs.AggregateType("test"), uuid.New())
 	events := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),

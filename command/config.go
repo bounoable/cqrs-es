@@ -21,8 +21,8 @@ func (err UnregisteredError) Error() string {
 	return fmt.Sprintf("unregistered command handler '%s'", err.CommandType)
 }
 
-// NewConfig returns a new command configuration.
-func NewConfig() cqrs.CommandConfig {
+// Config returns a new command configuration.
+func Config() cqrs.CommandConfig {
 	return &config{
 		handlers: make(map[cqrs.CommandType]cqrs.CommandHandler),
 	}

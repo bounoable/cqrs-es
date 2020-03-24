@@ -11,10 +11,11 @@ import (
 type repository struct {
 	eventStore   cqrs.EventStore
 	aggregateCfg cqrs.AggregateConfig
+	snapshots    cqrs.SnapshotRepository
 }
 
-// NewRepository ...
-func NewRepository(eventStore cqrs.EventStore, aggregateCfg cqrs.AggregateConfig) cqrs.AggregateRepository {
+// Repository ...
+func Repository(eventStore cqrs.EventStore, aggregateCfg cqrs.AggregateConfig) cqrs.AggregateRepository {
 	if eventStore == nil {
 		panic("nil event store")
 	}
@@ -52,15 +53,6 @@ func (r repository) Fetch(ctx context.Context, typ cqrs.AggregateType, id uuid.U
 	return r.FetchWithBase(ctx, aggregate, version)
 }
 
-func (r repository) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
-	aggregate, err := r.aggregateCfg.New(typ, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.FetchLatestWithBase(ctx, aggregate)
-}
-
 func (r repository) FetchWithBase(ctx context.Context, aggregate cqrs.Aggregate, version int) (cqrs.Aggregate, error) {
 	if version < aggregate.CurrentVersion() {
 		return nil, IllegalVersionError{
@@ -82,6 +74,15 @@ func (r repository) FetchWithBase(ctx context.Context, aggregate cqrs.Aggregate,
 	}
 
 	return aggregate, nil
+}
+
+func (r repository) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
+	aggregate, err := r.aggregateCfg.New(typ, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.FetchLatestWithBase(ctx, aggregate)
 }
 
 func (r repository) FetchLatestWithBase(ctx context.Context, aggregate cqrs.Aggregate) (cqrs.Aggregate, error) {
@@ -116,4 +117,71 @@ func (err IllegalVersionError) Error() string {
 
 func (err IllegalVersionError) Unwrap() error {
 	return err.Err
+}
+
+type snapshotter struct {
+	cqrs.AggregateRepository
+	cfg       SnapshotConfig
+	snapshots cqrs.SnapshotRepository
+}
+
+// Snapshotter ...
+func Snapshotter(aggregates cqrs.AggregateRepository, cfg SnapshotConfig, snapshots cqrs.SnapshotRepository) cqrs.AggregateRepository {
+	if aggregates == nil {
+		panic("nil aggregate repository")
+	}
+
+	if cfg == nil {
+		panic("nil snapshot config")
+	}
+
+	if snapshots == nil {
+		panic("nil snapshot repository")
+	}
+
+	return snapshotter{
+		AggregateRepository: aggregates,
+		cfg:                 cfg,
+		snapshots:           snapshots,
+	}
+}
+
+func (s snapshotter) Save(ctx context.Context, aggregate cqrs.Aggregate) error {
+	if err := s.AggregateRepository.Save(ctx, aggregate); err != nil {
+		return err
+	}
+
+	if s.cfg.IsDue(aggregate) {
+		return s.snapshots.Save(ctx, aggregate)
+	}
+
+	return nil
+}
+
+func (s snapshotter) Fetch(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, version int) (cqrs.Aggregate, error) {
+	aggregate, err := s.snapshots.MaxVersion(ctx, typ, id, version)
+	if err != nil {
+		if aggregate, err = s.AggregateRepository.Fetch(ctx, typ, id, version); err != nil {
+			return nil, err
+		}
+	}
+
+	return s.FetchWithBase(ctx, aggregate, version)
+}
+
+func (s snapshotter) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
+	aggregate, err := s.snapshots.Latest(ctx, typ, id)
+	if err != nil {
+		return s.AggregateRepository.FetchLatest(ctx, typ, id)
+	}
+
+	return s.FetchLatestWithBase(ctx, aggregate)
+}
+
+func (s snapshotter) Remove(ctx context.Context, aggregate cqrs.Aggregate) error {
+	if err := s.AggregateRepository.Remove(ctx, aggregate); err != nil {
+		return err
+	}
+
+	return s.snapshots.RemoveAll(ctx, aggregate.AggregateType(), aggregate.AggregateID())
 }

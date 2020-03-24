@@ -16,7 +16,7 @@ func TestRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	cfg := event.NewConfig()
+	cfg := event.Config()
 	typ := cqrs.EventType("test")
 
 	ed, err := cfg.NewData(typ)

@@ -10,13 +10,13 @@ type bus struct {
 	config cqrs.CommandConfig
 }
 
-// NewBus returns a new CommandBus.
-func NewBus() cqrs.CommandBus {
-	return NewBusWithConfig(NewConfig())
+// Bus returns a new CommandBus.
+func Bus() cqrs.CommandBus {
+	return BusWithConfig(Config())
 }
 
-// NewBusWithConfig ...
-func NewBusWithConfig(config cqrs.CommandConfig) cqrs.CommandBus {
+// BusWithConfig ...
+func BusWithConfig(config cqrs.CommandConfig) cqrs.CommandBus {
 	return &bus{
 		config: config,
 	}

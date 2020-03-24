@@ -12,8 +12,8 @@ type BaseCommand struct {
 	aggregateID   uuid.UUID
 }
 
-// NewBase returns a new BaseCommand.
-func NewBase(typ cqrs.CommandType, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) BaseCommand {
+// Base returns a new BaseCommand.
+func Base(typ cqrs.CommandType, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) BaseCommand {
 	return BaseCommand{
 		typ:           typ,
 		aggregateType: aggregateType,

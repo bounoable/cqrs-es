@@ -22,8 +22,8 @@ func (err UnregisteredError) Error() string {
 	return fmt.Sprintf("unregistered event '%s'", err.EventType)
 }
 
-// NewConfig returns a new event config.
-func NewConfig() cqrs.EventConfig {
+// Config returns a new event config.
+func Config() cqrs.EventConfig {
 	return &config{
 		protos: make(map[cqrs.EventType]cqrs.EventData),
 	}

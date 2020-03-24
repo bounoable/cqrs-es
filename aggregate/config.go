@@ -18,8 +18,8 @@ type UnregisteredError struct {
 	AggregateType cqrs.AggregateType
 }
 
-// NewConfig ...
-func NewConfig() cqrs.AggregateConfig {
+// Config ...
+func Config() cqrs.AggregateConfig {
 	return &config{
 		factories: make(map[cqrs.AggregateType]cqrs.AggregateFactory),
 	}

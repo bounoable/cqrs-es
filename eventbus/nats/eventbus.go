@@ -98,8 +98,8 @@ func ConnectOptions(options ...nats.Option) EventBusOption {
 	}
 }
 
-// NewEventBus ...
-func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
+// EventBus ...
+func EventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
 	cfg := defaultConfig
 
 	for _, opt := range options {
@@ -128,8 +128,8 @@ func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.Eve
 	}, nil
 }
 
-// NewEventBusWithConnection returns a new NATS event bus.
-func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) cqrs.EventBus {
+// EventBusWithConnection returns a new NATS event bus.
+func EventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) cqrs.EventBus {
 	cfg := defaultConfig
 
 	for _, opt := range options {
@@ -148,14 +148,14 @@ func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options
 // WithEventBusFactory ...
 func WithEventBusFactory(options ...EventBusOption) setup.Option {
 	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
-		return NewEventBus(c.EventConfig(), options...)
+		return EventBus(c.EventConfig(), options...)
 	})
 }
 
 // WithEventBusFactoryWithConnection ...
 func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption) setup.Option {
 	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
-		return NewEventBusWithConnection(nc, c.EventConfig(), options...), nil
+		return EventBusWithConnection(nc, c.EventConfig(), options...), nil
 	})
 }
 

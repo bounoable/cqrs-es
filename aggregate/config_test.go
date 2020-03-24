@@ -13,7 +13,7 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	cfg := aggregate.NewConfig()
+	cfg := aggregate.Config()
 	assert.Len(t, cfg.Factories(), 0)
 }
 
@@ -21,7 +21,7 @@ func TestRegisterAggregate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	cfg := aggregate.NewConfig()
+	cfg := aggregate.Config()
 	typ := cqrs.AggregateType("test")
 	id := uuid.New()
 

@@ -25,8 +25,8 @@ func EventPublisher(eventPub cqrs.EventPublisher) Option {
 	}
 }
 
-// NewEventStore ...
-func NewEventStore(opts ...Option) cqrs.EventStore {
+// EventStore ...
+func EventStore(opts ...Option) cqrs.EventStore {
 	s := &eventStore{
 		events: make(map[cqrs.AggregateType]map[uuid.UUID][]cqrs.Event),
 	}

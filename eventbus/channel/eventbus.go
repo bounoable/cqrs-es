@@ -28,8 +28,8 @@ func BufferSize(size int) Option {
 	}
 }
 
-// NewEventBus ...
-func NewEventBus(ctx context.Context, options ...Option) cqrs.EventBus {
+// EventBus ...
+func EventBus(ctx context.Context, options ...Option) cqrs.EventBus {
 	var cfg config
 	for _, opt := range options {
 		opt(&cfg)

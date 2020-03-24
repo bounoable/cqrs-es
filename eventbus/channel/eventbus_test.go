@@ -10,7 +10,7 @@ import (
 
 func TestPublish(t *testing.T) {
 	ctx := context.Background()
-	bus := channel.NewEventBus(ctx)
+	bus := channel.EventBus(ctx)
 
 	eventbus.TestPublish(ctx, t, bus)
 }

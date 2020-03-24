@@ -16,8 +16,8 @@ type BaseAggregate struct {
 	changes []cqrs.Event
 }
 
-// NewBase returns a new BaseAggregate.
-func NewBase(typ cqrs.AggregateType, id uuid.UUID) *BaseAggregate {
+// Base returns a new BaseAggregate.
+func Base(typ cqrs.AggregateType, id uuid.UUID) *BaseAggregate {
 	return &BaseAggregate{
 		ID:      id,
 		Type:    typ,

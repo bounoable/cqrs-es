@@ -11,7 +11,7 @@ import (
 )
 
 func TestOnce(t *testing.T) {
-	bus := channel.NewEventBus(context.Background(), channel.BufferSize(3))
+	bus := channel.EventBus(context.Background(), channel.BufferSize(3))
 
 	ctx := context.Background()
 	ch, err := eventbus.Once(ctx, bus, eventbus.TestEventType)

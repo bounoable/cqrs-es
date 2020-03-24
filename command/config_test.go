@@ -16,7 +16,7 @@ func TestRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	cfg := command.NewConfig()
+	cfg := command.Config()
 
 	typ := cqrs.CommandType("test")
 	handler := mock_cqrs.NewMockCommandHandler(ctrl)

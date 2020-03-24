@@ -16,7 +16,7 @@ func TestDispatch(t *testing.T) {
 	defer ctrl.Finish()
 
 	cfg := mock_cqrs.NewMockCommandConfig(ctrl)
-	bus := command.NewBusWithConfig(cfg)
+	bus := command.BusWithConfig(cfg)
 
 	ctx := context.Background()
 	cmd := mock_cqrs.NewMockCommand(ctrl)

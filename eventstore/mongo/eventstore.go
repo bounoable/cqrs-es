@@ -91,8 +91,8 @@ func ClientOptions(options ...*options.ClientOptions) Option {
 	}
 }
 
-// NewEventStore ...
-func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Option) (cqrs.EventStore, error) {
+// EventStore ...
+func EventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Option) (cqrs.EventStore, error) {
 	var cfg Config
 	for _, opt := range opts {
 		opt(&cfg)
@@ -147,7 +147,7 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 func WithEventStoreFactory(options ...Option) setup.Option {
 	return setup.WithEventStoreFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventStore, error) {
 		options = append([]Option{ResolvePublisher(c.EventPublisher)}, options...)
-		return NewEventStore(ctx, c.EventConfig(), options...)
+		return EventStore(ctx, c.EventConfig(), options...)
 	})
 }
 

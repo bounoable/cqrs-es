@@ -32,7 +32,7 @@ type Option func(*Config)
 
 type snapshotRepository struct {
 	config          Config
-	db              *mongo.Database
+	col             *mongo.Collection
 	aggregateConfig cqrs.AggregateConfig
 }
 
@@ -71,11 +71,11 @@ func ClientOptions(options ...*options.ClientOptions) Option {
 	}
 }
 
-// NewSnapshotRepository ...
-func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateConfig, opts ...Option) (cqrs.SnapshotRepository, error) {
+// SnapshotRepository ...
+func SnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateConfig, opts ...Option) (cqrs.SnapshotRepository, error) {
 	if aggregateConfig == nil {
 		return nil, aggregate.SnapshotError{
-			Err:       errors.New("aggregate config cannot be nil"),
+			Err:       errors.New("nil aggregate config"),
 			StoreName: "mongo",
 		}
 	}
@@ -123,7 +123,7 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 
 	return &snapshotRepository{
 		config:          cfg,
-		db:              db,
+		col:             db.Collection("snapshots"),
 		aggregateConfig: aggregateConfig,
 	}, nil
 }
@@ -131,7 +131,7 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateCo
 // WithSnapshotRepositoryFactory ...
 func WithSnapshotRepositoryFactory(options ...Option) setup.Option {
 	return setup.WithSnapshotRepositoryFactory(func(ctx context.Context, c cqrs.Container) (cqrs.SnapshotRepository, error) {
-		return NewSnapshotRepository(ctx, c.AggregateConfig(), options...)
+		return SnapshotRepository(ctx, c.AggregateConfig(), options...)
 	})
 }
 
@@ -151,7 +151,7 @@ func (r *snapshotRepository) Save(ctx context.Context, agg cqrs.Aggregate) error
 		Data:          data,
 	}
 
-	if _, err := r.db.Collection("snapshots").ReplaceOne(ctx, bson.M{
+	if _, err := r.col.ReplaceOne(ctx, bson.M{
 		"aggregateType": snap.AggregateType,
 		"aggregateId":   snap.AggregateID,
 		"version":       snap.Version,
@@ -163,7 +163,7 @@ func (r *snapshotRepository) Save(ctx context.Context, agg cqrs.Aggregate) error
 }
 
 func (r *snapshotRepository) Find(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, version int) (cqrs.Aggregate, error) {
-	res := r.db.Collection("snapshots").FindOne(ctx, bson.M{
+	res := r.col.FindOne(ctx, bson.M{
 		"aggregateType": typ,
 		"aggregateId":   id,
 		"version":       version,
@@ -193,7 +193,7 @@ func (r *snapshotRepository) Find(ctx context.Context, typ cqrs.AggregateType, i
 }
 
 func (r *snapshotRepository) Latest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
-	res := r.db.Collection("snapshots").FindOne(ctx, bson.M{
+	res := r.col.FindOne(ctx, bson.M{
 		"aggregateType": typ,
 		"aggregateId":   id,
 	}, options.FindOne().SetSort(bson.D{{Key: "version", Value: -1}}))
@@ -222,7 +222,7 @@ func (r *snapshotRepository) Latest(ctx context.Context, typ cqrs.AggregateType,
 }
 
 func (r *snapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, maxVersion int) (cqrs.Aggregate, error) {
-	res := r.db.Collection("snapshots").FindOne(ctx, bson.D{
+	res := r.col.FindOne(ctx, bson.D{
 		{Key: "aggregateType", Value: typ},
 		{Key: "aggregateId", Value: id},
 		{Key: "version", Value: bson.D{
@@ -251,6 +251,16 @@ func (r *snapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateT
 	}
 
 	return agg, nil
+}
+
+func (r *snapshotRepository) Remove(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, version int) error {
+	_, err := r.col.DeleteOne(ctx, bson.M{"aggregateType": typ, "aggregateId": id, "version": version})
+	return err
+}
+
+func (r *snapshotRepository) RemoveAll(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) error {
+	_, err := r.col.DeleteMany(ctx, bson.M{"aggregateType": typ, "aggregateId": id})
+	return err
 }
 
 func createIndexes(ctx context.Context, db *mongo.Database) error {

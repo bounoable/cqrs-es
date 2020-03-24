@@ -20,7 +20,7 @@ const (
 
 var (
 	// TestEventConfig is the EventConfig used for testing.
-	TestEventConfig = event.NewConfig()
+	TestEventConfig = event.Config()
 )
 
 func init() {

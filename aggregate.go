@@ -41,8 +41,8 @@ type AggregateConfig interface {
 type AggregateRepository interface {
 	Save(ctx context.Context, aggregate Aggregate) error
 	Fetch(ctx context.Context, typ AggregateType, id uuid.UUID, version int) (Aggregate, error)
-	FetchLatest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
 	FetchWithBase(ctx context.Context, aggregate Aggregate, version int) (Aggregate, error)
+	FetchLatest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
 	FetchLatestWithBase(ctx context.Context, aggregate Aggregate) (Aggregate, error)
 	Remove(ctx context.Context, aggregate Aggregate) error
 }
@@ -53,4 +53,6 @@ type SnapshotRepository interface {
 	Find(ctx context.Context, typ AggregateType, id uuid.UUID, version int) (Aggregate, error)
 	Latest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
 	MaxVersion(ctx context.Context, typ AggregateType, id uuid.UUID, maxVersion int) (Aggregate, error)
+	Remove(ctx context.Context, typ AggregateType, id uuid.UUID, version int) error
+	RemoveAll(ctx context.Context, typ AggregateType, id uuid.UUID) error
 }

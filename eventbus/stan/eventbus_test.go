@@ -17,7 +17,7 @@ func TestEventBus(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	bus, err := stan.NewEventBus(eventbus.TestEventConfig, stan.Logger(log.New(os.Stderr, "", 0)), stan.ClusterID("test-cluster"), stan.ClientID("cqrs-test"))
+	bus, err := stan.EventBus(eventbus.TestEventConfig, stan.Logger(log.New(os.Stderr, "", 0)), stan.ClusterID("test-cluster"), stan.ClientID("cqrs-test"))
 	assert.Nil(t, err)
 
 	eventbus.TestPublish(ctx, t, bus)

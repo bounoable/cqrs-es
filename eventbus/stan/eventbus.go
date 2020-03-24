@@ -130,8 +130,8 @@ func SubscriptionOptions(options ...stan.SubscriptionOption) EventBusOption {
 	}
 }
 
-// NewEventBus ...
-func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
+// EventBus ...
+func EventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
 	cfg := defaultConfig
 
 	for _, opt := range options {
@@ -161,8 +161,8 @@ func NewEventBus(eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.Eve
 	}, nil
 }
 
-// NewEventBusWithConnection returns a new NATS streaming event bus.
-func NewEventBusWithConnection(sc stan.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) cqrs.EventBus {
+// EventBusWithConnection returns a new NATS streaming event bus.
+func EventBusWithConnection(sc stan.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) cqrs.EventBus {
 	cfg := defaultConfig
 
 	for _, opt := range options {
@@ -178,30 +178,30 @@ func NewEventBusWithConnection(sc stan.Conn, eventCfg cqrs.EventConfig, options 
 	}
 }
 
-// NewEventBusWithNATSConnection returns a NATS streaming events bus.
-func NewEventBusWithNATSConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
+// EventBusWithNATSConnection returns a NATS streaming events bus.
+func EventBusWithNATSConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options ...EventBusOption) (cqrs.EventBus, error) {
 	options = append([]EventBusOption{ConnectOptions(stan.NatsConn(nc))})
-	return NewEventBus(eventCfg, options...)
+	return EventBus(eventCfg, options...)
 }
 
 // WithEventBusFactory ...
 func WithEventBusFactory(options ...EventBusOption) setup.Option {
 	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
-		return NewEventBus(c.EventConfig(), options...)
+		return EventBus(c.EventConfig(), options...)
 	})
 }
 
 // WithEventBusFactoryWithConnection ...
 func WithEventBusFactoryWithConnection(sc stan.Conn, options ...EventBusOption) setup.Option {
 	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
-		return NewEventBusWithConnection(sc, c.EventConfig(), options...), nil
+		return EventBusWithConnection(sc, c.EventConfig(), options...), nil
 	})
 }
 
 // WithEventBusFactoryWithNATSConnection ...
 func WithEventBusFactoryWithNATSConnection(nc *nats.Conn, options ...EventBusOption) setup.Option {
 	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
-		return NewEventBusWithNATSConnection(nc, c.EventConfig(), options...)
+		return EventBusWithNATSConnection(nc, c.EventConfig(), options...)
 	})
 }
 
