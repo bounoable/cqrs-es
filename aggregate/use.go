@@ -21,7 +21,11 @@ func Use(
 		return nil, err
 	}
 
-	return aggregate, use(ctx, aggregate)
+	if err = use(ctx, aggregate); err != nil {
+		return aggregate, err
+	}
+
+	return aggregate, repo.Save(ctx, aggregate)
 }
 
 // UseLatest ...
@@ -37,5 +41,9 @@ func UseLatest(
 		return nil, err
 	}
 
-	return aggregate, use(ctx, aggregate)
+	if err = use(ctx, aggregate); err != nil {
+		return aggregate, err
+	}
+
+	return aggregate, repo.Save(ctx, aggregate)
 }

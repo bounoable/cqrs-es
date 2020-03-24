@@ -55,6 +55,28 @@ func TestUse__useError(t *testing.T) {
 	assert.Equal(t, mockAggregate, agg)
 }
 
+func TestUse__saveError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+	id := uuid.New()
+	version := 5
+	saveErr := errors.New("save error")
+	mockAggregate := mock_cqrs.NewMockAggregate(ctrl)
+
+	repo := mock_cqrs.NewMockAggregateRepository(ctrl)
+	repo.EXPECT().Fetch(ctx, cqrs.AggregateType("testagg"), id, version).Return(mockAggregate, nil)
+	repo.EXPECT().Save(ctx, mockAggregate).Return(saveErr)
+
+	agg, err := aggregate.Use(ctx, repo, "testagg", id, version, func(ctx context.Context, agg cqrs.Aggregate) error {
+		return nil
+	})
+
+	assert.True(t, errors.Is(err, saveErr))
+	assert.Equal(t, mockAggregate, agg)
+}
+
 func TestUse__noError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -66,6 +88,7 @@ func TestUse__noError(t *testing.T) {
 
 	repo := mock_cqrs.NewMockAggregateRepository(ctrl)
 	repo.EXPECT().Fetch(ctx, cqrs.AggregateType("testagg"), id, version).Return(mockAggregate, nil)
+	repo.EXPECT().Save(ctx, mockAggregate).Return(nil)
 
 	agg, err := aggregate.Use(ctx, repo, "testagg", id, version, func(ctx context.Context, agg cqrs.Aggregate) error {
 		return nil
@@ -115,6 +138,27 @@ func TestUseLatest__useError(t *testing.T) {
 	assert.Equal(t, mockAggregate, agg)
 }
 
+func TestUseLatest__saveError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+	id := uuid.New()
+	mockAggregate := mock_cqrs.NewMockAggregate(ctrl)
+	saveErr := errors.New("save error")
+
+	repo := mock_cqrs.NewMockAggregateRepository(ctrl)
+	repo.EXPECT().FetchLatest(ctx, cqrs.AggregateType("testagg"), id).Return(mockAggregate, nil)
+	repo.EXPECT().Save(ctx, mockAggregate).Return(saveErr)
+
+	agg, err := aggregate.UseLatest(ctx, repo, "testagg", id, func(ctx context.Context, agg cqrs.Aggregate) error {
+		return nil
+	})
+
+	assert.True(t, errors.Is(err, saveErr))
+	assert.Equal(t, mockAggregate, agg)
+}
+
 func TestUseLatest__noError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -125,6 +169,7 @@ func TestUseLatest__noError(t *testing.T) {
 
 	repo := mock_cqrs.NewMockAggregateRepository(ctrl)
 	repo.EXPECT().FetchLatest(ctx, cqrs.AggregateType("testagg"), id).Return(mockAggregate, nil)
+	repo.EXPECT().Save(ctx, mockAggregate).Return(nil)
 
 	agg, err := aggregate.UseLatest(ctx, repo, "testagg", id, func(ctx context.Context, agg cqrs.Aggregate) error {
 		return nil
