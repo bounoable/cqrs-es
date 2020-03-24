@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/aggregate"
 	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ import (
 func TestNewBaseAggregate(t *testing.T) {
 	typ := cqrs.AggregateType("test")
 	id := uuid.New()
-	a := cqrs.NewBaseAggregate(typ, id)
+	a := aggregate.NewBase(typ, id)
 
 	assert.Equal(t, typ, a.AggregateType())
 	assert.Equal(t, id, a.AggregateID())
@@ -25,7 +26,7 @@ func TestTrackChange(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	a := cqrs.NewBaseAggregate(cqrs.AggregateType("test"), uuid.New())
+	a := aggregate.NewBase(cqrs.AggregateType("test"), uuid.New())
 	events := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),
@@ -40,7 +41,7 @@ func TestFlushChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	a := cqrs.NewBaseAggregate(cqrs.AggregateType("test"), uuid.New())
+	a := aggregate.NewBase(cqrs.AggregateType("test"), uuid.New())
 	events := []cqrs.Event{
 		mock_cqrs.NewMockEvent(ctrl),
 		mock_cqrs.NewMockEvent(ctrl),

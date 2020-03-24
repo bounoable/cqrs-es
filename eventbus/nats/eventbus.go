@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/container"
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
@@ -146,14 +147,14 @@ func NewEventBusWithConnection(nc *nats.Conn, eventCfg cqrs.EventConfig, options
 
 // WithEventBusFactory ...
 func WithEventBusFactory(options ...EventBusOption) setup.Option {
-	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
+	return setup.WithEventBusFactory(func(ctx context.Context, c container.Container) (cqrs.EventBus, error) {
 		return NewEventBus(c.EventConfig(), options...)
 	})
 }
 
 // WithEventBusFactoryWithConnection ...
 func WithEventBusFactoryWithConnection(nc *nats.Conn, options ...EventBusOption) setup.Option {
-	return setup.WithEventBusFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventBus, error) {
+	return setup.WithEventBusFactory(func(ctx context.Context, c container.Container) (cqrs.EventBus, error) {
 		return NewEventBusWithConnection(nc, c.EventConfig(), options...), nil
 	})
 }

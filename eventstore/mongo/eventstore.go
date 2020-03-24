@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/container"
 	"github.com/bounoable/cqrs-es/eventstore"
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
@@ -145,7 +146,7 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 
 // WithEventStoreFactory ...
 func WithEventStoreFactory(options ...Option) setup.Option {
-	return setup.WithEventStoreFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventStore, error) {
+	return setup.WithEventStoreFactory(func(ctx context.Context, c container.Container) (cqrs.EventStore, error) {
 		options = append([]Option{ResolvePublisher(c.EventPublisher)}, options...)
 		return NewEventStore(ctx, c.EventConfig(), options...)
 	})
