@@ -15,34 +15,3 @@ type Command interface {
 	AggregateType() AggregateType
 	AggregateID() uuid.UUID
 }
-
-// BaseCommand is the base implementation of a command.
-type BaseCommand struct {
-	typ           CommandType
-	aggregateType AggregateType
-	aggregateID   uuid.UUID
-}
-
-// NewBaseCommand returns a new BaseCommand.
-func NewBaseCommand(typ CommandType, aggregateType AggregateType, aggregateID uuid.UUID) BaseCommand {
-	return BaseCommand{
-		typ:           typ,
-		aggregateType: aggregateType,
-		aggregateID:   aggregateID,
-	}
-}
-
-// CommandType ...
-func (cmd BaseCommand) CommandType() CommandType {
-	return cmd.typ
-}
-
-// AggregateType ...
-func (cmd BaseCommand) AggregateType() AggregateType {
-	return cmd.aggregateType
-}
-
-// AggregateID ...
-func (cmd BaseCommand) AggregateID() uuid.UUID {
-	return cmd.aggregateID
-}
