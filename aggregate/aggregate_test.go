@@ -1,4 +1,4 @@
-package cqrs_test
+package aggregate_test
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewBaseAggregate(t *testing.T) {
+func TestNewBase(t *testing.T) {
 	typ := cqrs.AggregateType("test")
 	id := uuid.New()
 	a := aggregate.NewBase(typ, id)
