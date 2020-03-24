@@ -32,6 +32,7 @@ type Setup struct {
 	aggregateConfig cqrs.AggregateConfig
 	eventConfig     cqrs.EventConfig
 	commandConfig   cqrs.CommandConfig
+	snapshotConfig  aggregate.SnapshotConfig
 
 	eventStoreFactory    EventStoreFactory
 	eventBusFactory      EventBusFactory
@@ -113,6 +114,13 @@ func WithCommandBusFactory(f CommandBusFactory) Option {
 func WithSnapshotRepositoryFactory(f SnapshotRepositoryFactory) Option {
 	return func(s *Setup) {
 		s.snapshotRepoFactory = f
+	}
+}
+
+// WithSnapshotConfig adds a snapshot config to the setup.
+func WithSnapshotConfig(cfg aggregate.SnapshotConfig) Option {
+	return func(s *Setup) {
+		s.snapshotConfig = cfg
 	}
 }
 
@@ -209,6 +217,10 @@ func (s *Setup) Container(ctx context.Context) (cqrs.Container, error) {
 
 	if aggregateRepo == nil && eventStore != nil {
 		aggregateRepo = aggregate.Repository(eventStore, s.aggregateConfig)
+
+		if snapshotRepo != nil && s.snapshotConfig != nil {
+			aggregateRepo = aggregate.Snapshotter(aggregateRepo, s.snapshotConfig, snapshotRepo)
+		}
 	}
 
 	if aggregateRepo != nil {
