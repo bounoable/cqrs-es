@@ -4,9 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/command"
-	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	mock_command "github.com/bounoable/cqrs-es/mocks/command"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -20,8 +18,8 @@ func TestDispatch(t *testing.T) {
 	bus := command.NewBusWithConfig(cfg)
 
 	ctx := context.Background()
-	cmd := mock_cqrs.NewMockCommand(ctrl)
-	cmdType := cqrs.CommandType("test")
+	cmd := mock_command.NewMockCommand(ctrl)
+	cmdType := command.Type("test")
 	cmdHandler := mock_command.NewMockHandler(ctrl)
 
 	cmd.EXPECT().CommandType().Return(cmdType)

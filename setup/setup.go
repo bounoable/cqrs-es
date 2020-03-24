@@ -47,7 +47,7 @@ type EventStoreFactory func(context.Context, container.Container) (cqrs.EventSto
 type EventBusFactory func(context.Context, container.Container) (cqrs.EventBus, error)
 
 // CommandBusFactory ...
-type CommandBusFactory func(context.Context, container.Container) (cqrs.CommandBus, error)
+type CommandBusFactory func(context.Context, container.Container) (command.Bus, error)
 
 // SnapshotRepositoryFactory ...
 type SnapshotRepositoryFactory func(context.Context, container.Container) (cqrs.SnapshotRepository, error)
@@ -154,8 +154,8 @@ func baseEventConfig() cqrs.EventConfig {
 	return cfg
 }
 
-// Command configures the command.Handler for multiple cqrs.CommandTypes.
-func (s *Setup) Command(h command.Handler, types ...cqrs.CommandType) *Setup {
+// Command configures the command.Handler for multiple command.Types.
+func (s *Setup) Command(h command.Handler, types ...command.Type) *Setup {
 	for _, typ := range types {
 		s.commandConfig.Register(typ, h)
 	}
@@ -166,7 +166,7 @@ func (s *Setup) Command(h command.Handler, types ...cqrs.CommandType) *Setup {
 func (s *Setup) NewContainer(ctx context.Context) (container.Container, error) {
 	var err error
 	var eventBus cqrs.EventBus
-	var commandBus cqrs.CommandBus
+	var commandBus command.Bus
 	var eventStore cqrs.EventStore
 	var snapshotRepo cqrs.SnapshotRepository
 	var aggregateRepo aggregate.Repository

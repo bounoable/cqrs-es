@@ -6,7 +6,6 @@ package mock_command
 
 import (
 	context "context"
-	cqrs_es "github.com/bounoable/cqrs-es"
 	command "github.com/bounoable/cqrs-es/command"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
@@ -36,7 +35,7 @@ func (m *MockConfig) EXPECT() *MockConfigMockRecorder {
 }
 
 // Register mocks base method
-func (m *MockConfig) Register(arg0 cqrs_es.CommandType, arg1 command.Handler) {
+func (m *MockConfig) Register(arg0 command.Type, arg1 command.Handler) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Register", arg0, arg1)
 }
@@ -48,7 +47,7 @@ func (mr *MockConfigMockRecorder) Register(arg0, arg1 interface{}) *gomock.Call 
 }
 
 // Handler mocks base method
-func (m *MockConfig) Handler(arg0 cqrs_es.CommandType) (command.Handler, error) {
+func (m *MockConfig) Handler(arg0 command.Type) (command.Handler, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Handler", arg0)
 	ret0, _ := ret[0].(command.Handler)
@@ -63,10 +62,10 @@ func (mr *MockConfigMockRecorder) Handler(arg0 interface{}) *gomock.Call {
 }
 
 // Handlers mocks base method
-func (m *MockConfig) Handlers() map[cqrs_es.CommandType]command.Handler {
+func (m *MockConfig) Handlers() map[command.Type]command.Handler {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Handlers")
-	ret0, _ := ret[0].(map[cqrs_es.CommandType]command.Handler)
+	ret0, _ := ret[0].(map[command.Type]command.Handler)
 	return ret0
 }
 
@@ -100,7 +99,7 @@ func (m *MockHandler) EXPECT() *MockHandlerMockRecorder {
 }
 
 // HandleCommand mocks base method
-func (m *MockHandler) HandleCommand(arg0 context.Context, arg1 cqrs_es.Command) error {
+func (m *MockHandler) HandleCommand(arg0 context.Context, arg1 command.Command) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "HandleCommand", arg0, arg1)
 	ret0, _ := ret[0].(error)

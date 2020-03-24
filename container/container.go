@@ -22,8 +22,8 @@ type Container interface {
 	SetEventBus(cqrs.EventBus)
 	EventStore() cqrs.EventStore
 	SetEventStore(cqrs.EventStore)
-	CommandBus() cqrs.CommandBus
-	SetCommandBus(cqrs.CommandBus)
+	CommandBus() command.Bus
+	SetCommandBus(command.Bus)
 	Snapshots() cqrs.SnapshotRepository
 	SetSnapshots(cqrs.SnapshotRepository)
 	Aggregates() aggregate.Repository
@@ -45,7 +45,7 @@ type container struct {
 	commandConfig   command.Config
 	eventBus        cqrs.EventBus
 	eventStore      cqrs.EventStore
-	commandBus      cqrs.CommandBus
+	commandBus      command.Bus
 	snapshots       cqrs.SnapshotRepository
 	aggregates      aggregate.Repository
 }
@@ -98,11 +98,11 @@ func (c *container) SetEventStore(store cqrs.EventStore) {
 	c.eventStore = store
 }
 
-func (c *container) CommandBus() cqrs.CommandBus {
+func (c *container) CommandBus() command.Bus {
 	return c.commandBus
 }
 
-func (c *container) SetCommandBus(bus cqrs.CommandBus) {
+func (c *container) SetCommandBus(bus command.Bus) {
 	c.commandBus = bus
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewBase(t *testing.T) {
-	typ := cqrs.CommandType("test")
+	typ := command.Type("test")
 	aggregateType := cqrs.AggregateType("test")
 	aggregateID := uuid.New()
 	cmd := command.NewBase(typ, aggregateType, aggregateID)

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bounoable/cqrs-es"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bounoable/cqrs-es/command"
@@ -18,7 +17,7 @@ func TestRegister(t *testing.T) {
 
 	cfg := command.NewConfig()
 
-	typ := cqrs.CommandType("test")
+	typ := command.Type("test")
 	handler := mock_command.NewMockHandler(ctrl)
 
 	h, err := cfg.Handler(typ)

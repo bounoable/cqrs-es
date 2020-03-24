@@ -194,10 +194,10 @@ func (mr *MockContainerMockRecorder) SetEventStore(arg0 interface{}) *gomock.Cal
 }
 
 // CommandBus mocks base method
-func (m *MockContainer) CommandBus() cqrs_es.CommandBus {
+func (m *MockContainer) CommandBus() command.Bus {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CommandBus")
-	ret0, _ := ret[0].(cqrs_es.CommandBus)
+	ret0, _ := ret[0].(command.Bus)
 	return ret0
 }
 
@@ -208,7 +208,7 @@ func (mr *MockContainerMockRecorder) CommandBus() *gomock.Call {
 }
 
 // SetCommandBus mocks base method
-func (m *MockContainer) SetCommandBus(arg0 cqrs_es.CommandBus) {
+func (m *MockContainer) SetCommandBus(arg0 command.Bus) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCommandBus", arg0)
 }
