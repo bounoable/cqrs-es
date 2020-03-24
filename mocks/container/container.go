@@ -7,6 +7,7 @@ package mock_container
 import (
 	cqrs_es "github.com/bounoable/cqrs-es"
 	aggregate "github.com/bounoable/cqrs-es/aggregate"
+	command "github.com/bounoable/cqrs-es/command"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -87,10 +88,10 @@ func (mr *MockContainerMockRecorder) SetEventConfig(arg0 interface{}) *gomock.Ca
 }
 
 // CommandConfig mocks base method
-func (m *MockContainer) CommandConfig() cqrs_es.CommandConfig {
+func (m *MockContainer) CommandConfig() command.Config {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CommandConfig")
-	ret0, _ := ret[0].(cqrs_es.CommandConfig)
+	ret0, _ := ret[0].(command.Config)
 	return ret0
 }
 
@@ -101,7 +102,7 @@ func (mr *MockContainerMockRecorder) CommandConfig() *gomock.Call {
 }
 
 // SetCommandConfig mocks base method
-func (m *MockContainer) SetCommandConfig(arg0 cqrs_es.CommandConfig) {
+func (m *MockContainer) SetCommandConfig(arg0 command.Config) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCommandConfig", arg0)
 }

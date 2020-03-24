@@ -31,7 +31,7 @@ type Setup struct {
 
 	aggregateConfig aggregate.Config
 	eventConfig     cqrs.EventConfig
-	commandConfig   cqrs.CommandConfig
+	commandConfig   command.Config
 
 	eventStoreFactory    EventStoreFactory
 	eventBusFactory      EventBusFactory
@@ -128,7 +128,7 @@ func New(opts ...Option) *Setup {
 	s := Setup{
 		aggregateConfig: baseAggregateConfig(),
 		eventConfig:     baseEventConfig(),
-		commandConfig:   cqrs.NewCommandConfig(),
+		commandConfig:   command.NewConfig(),
 	}
 
 	for _, opt := range opts {
@@ -154,8 +154,8 @@ func baseEventConfig() cqrs.EventConfig {
 	return cfg
 }
 
-// Command configures the cqrs.CommandHandler for multiple cqrs.CommandTypes.
-func (s *Setup) Command(h cqrs.CommandHandler, types ...cqrs.CommandType) *Setup {
+// Command configures the command.Handler for multiple cqrs.CommandTypes.
+func (s *Setup) Command(h command.Handler, types ...cqrs.CommandType) *Setup {
 	for _, typ := range types {
 		s.commandConfig.Register(typ, h)
 	}

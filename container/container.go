@@ -3,6 +3,7 @@ package container
 import (
 	cqrs "github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/aggregate"
+	"github.com/bounoable/cqrs-es/command"
 )
 
 //go:generate mockgen -source=container.go -destination=../mocks/container/container.go
@@ -13,8 +14,8 @@ type Container interface {
 	SetAggregateConfig(aggregate.Config)
 	EventConfig() cqrs.EventConfig
 	SetEventConfig(cqrs.EventConfig)
-	CommandConfig() cqrs.CommandConfig
-	SetCommandConfig(cqrs.CommandConfig)
+	CommandConfig() command.Config
+	SetCommandConfig(command.Config)
 	EventBus() cqrs.EventBus
 	EventPublisher() cqrs.EventPublisher
 	EventSubscriber() cqrs.EventSubscriber
@@ -30,7 +31,7 @@ type Container interface {
 }
 
 // New ...
-func New(aggregates aggregate.Config, events cqrs.EventConfig, commands cqrs.CommandConfig) Container {
+func New(aggregates aggregate.Config, events cqrs.EventConfig, commands command.Config) Container {
 	return &container{
 		aggregateConfig: aggregates,
 		eventConfig:     events,
@@ -41,7 +42,7 @@ func New(aggregates aggregate.Config, events cqrs.EventConfig, commands cqrs.Com
 type container struct {
 	aggregateConfig aggregate.Config
 	eventConfig     cqrs.EventConfig
-	commandConfig   cqrs.CommandConfig
+	commandConfig   command.Config
 	eventBus        cqrs.EventBus
 	eventStore      cqrs.EventStore
 	commandBus      cqrs.CommandBus
@@ -65,11 +66,11 @@ func (c *container) SetEventConfig(cfg cqrs.EventConfig) {
 	c.eventConfig = cfg
 }
 
-func (c *container) CommandConfig() cqrs.CommandConfig {
+func (c *container) CommandConfig() command.Config {
 	return c.commandConfig
 }
 
-func (c *container) SetCommandConfig(cfg cqrs.CommandConfig) {
+func (c *container) SetCommandConfig(cfg command.Config) {
 	c.commandConfig = cfg
 }
 

@@ -1,4 +1,4 @@
-package cqrs_test
+package command_test
 
 import (
 	"errors"
@@ -7,21 +7,22 @@ import (
 	"github.com/bounoable/cqrs-es"
 	"github.com/stretchr/testify/assert"
 
-	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
+	"github.com/bounoable/cqrs-es/command"
+	mock_command "github.com/bounoable/cqrs-es/mocks/command"
 	"github.com/golang/mock/gomock"
 )
 
-func TestRegisterCommand(t *testing.T) {
+func TestRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	cfg := cqrs.NewCommandConfig()
+	cfg := command.NewConfig()
 
 	typ := cqrs.CommandType("test")
-	handler := mock_cqrs.NewMockCommandHandler(ctrl)
+	handler := mock_command.NewMockHandler(ctrl)
 
 	h, err := cfg.Handler(typ)
-	assert.True(t, errors.Is(cqrs.UnregisteredCommandError{
+	assert.True(t, errors.Is(command.UnregisteredError{
 		CommandType: typ,
 	}, err))
 	assert.Nil(t, h)

@@ -7,16 +7,16 @@ import (
 )
 
 type bus struct {
-	config cqrs.CommandConfig
+	config Config
 }
 
 // NewBus returns a new CommandBus.
 func NewBus() cqrs.CommandBus {
-	return NewBusWithConfig(cqrs.NewCommandConfig())
+	return NewBusWithConfig(NewConfig())
 }
 
 // NewBusWithConfig ...
-func NewBusWithConfig(config cqrs.CommandConfig) cqrs.CommandBus {
+func NewBusWithConfig(config Config) cqrs.CommandBus {
 	return &bus{
 		config: config,
 	}
