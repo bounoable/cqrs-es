@@ -1,4 +1,4 @@
-package eventstore
+package event
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// ValidateEvents validates events.
-func ValidateEvents(events []cqrs.Event, originalVersion int) error {
+// Validate validates events.
+func Validate(events []cqrs.Event, originalVersion int) error {
 	if len(events) == 0 {
 		return nil
 	}

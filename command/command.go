@@ -1,31 +1,19 @@
 package command
 
-//go:generate mockgen -source=command.go -destination=../mocks/command/command.go
-
 import (
-	cqrs "github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
 )
 
-// Type is a command type.
-type Type string
-
-// Command is a command.
-type Command interface {
-	CommandType() Type
-	AggregateType() cqrs.AggregateType
-	AggregateID() uuid.UUID
-}
-
 // BaseCommand is the base implementation of a command.
 type BaseCommand struct {
-	typ           Type
+	typ           cqrs.CommandType
 	aggregateType cqrs.AggregateType
 	aggregateID   uuid.UUID
 }
 
 // NewBase returns a new BaseCommand.
-func NewBase(typ Type, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) BaseCommand {
+func NewBase(typ cqrs.CommandType, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) BaseCommand {
 	return BaseCommand{
 		typ:           typ,
 		aggregateType: aggregateType,
@@ -34,7 +22,7 @@ func NewBase(typ Type, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) 
 }
 
 // CommandType ...
-func (cmd BaseCommand) CommandType() Type {
+func (cmd BaseCommand) CommandType() cqrs.CommandType {
 	return cmd.typ
 }
 

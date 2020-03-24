@@ -1,33 +1,28 @@
 package command
 
-//go:generate mockgen -source=bus.go -destination=../mocks/command/bus.go
-
 import (
 	"context"
+
+	cqrs "github.com/bounoable/cqrs-es"
 )
 
-// Bus is the command bus.
-type Bus interface {
-	Dispatch(context.Context, Command) error
-}
-
 type bus struct {
-	config Config
+	config cqrs.CommandConfig
 }
 
 // NewBus returns a new CommandBus.
-func NewBus() Bus {
+func NewBus() cqrs.CommandBus {
 	return NewBusWithConfig(NewConfig())
 }
 
 // NewBusWithConfig ...
-func NewBusWithConfig(config Config) Bus {
+func NewBusWithConfig(config cqrs.CommandConfig) cqrs.CommandBus {
 	return &bus{
 		config: config,
 	}
 }
 
-func (b *bus) Dispatch(ctx context.Context, cmd Command) error {
+func (b *bus) Dispatch(ctx context.Context, cmd cqrs.Command) error {
 	handler, err := b.config.Handler(cmd.CommandType())
 	if err != nil {
 		return err

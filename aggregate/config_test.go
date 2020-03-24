@@ -31,7 +31,7 @@ func TestRegisterAggregate(t *testing.T) {
 	}, err))
 
 	agg := mock_cqrs.NewMockAggregate(ctrl)
-	factory := aggregate.Factory(func(id uuid.UUID) cqrs.Aggregate {
+	factory := cqrs.AggregateFactory(func(id uuid.UUID) cqrs.Aggregate {
 		return agg
 	})
 

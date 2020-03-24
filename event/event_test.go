@@ -1,25 +1,26 @@
-package cqrs_test
+package event_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/event"
 	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 )
 
-func TestNewEventWithTime(t *testing.T) {
+func TestNewWithTime(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	typ := cqrs.EventType("test")
 	data := mock_cqrs.NewMockEventData(ctrl)
 	time := time.Now()
-	e := cqrs.NewEventWithTime(typ, data, time)
+	e := event.NewWithTime(typ, data, time)
 
 	assert.Equal(t, typ, e.Type())
 	assert.Equal(t, data, e.Data())
@@ -29,7 +30,7 @@ func TestNewEventWithTime(t *testing.T) {
 	assert.Equal(t, -1, e.Version())
 }
 
-func TestNewAggregateEventWithTime(t *testing.T) {
+func TestNewAggregateWithTime(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -39,7 +40,7 @@ func TestNewAggregateEventWithTime(t *testing.T) {
 	aggregateType := cqrs.AggregateType("test")
 	aggregateID := uuid.New()
 	version := 5
-	e := cqrs.NewAggregateEventWithTime(typ, data, time, aggregateType, aggregateID, 5)
+	e := event.NewAggregateEventWithTime(typ, data, time, aggregateType, aggregateID, 5)
 
 	assert.Equal(t, typ, e.Type())
 	assert.Equal(t, data, e.Data())

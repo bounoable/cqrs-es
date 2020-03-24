@@ -1,26 +1,17 @@
-package cqrs
+package aggregate
 
-//go:generate mockgen -source=snapshot.go -destination=./mocks/snapshot.go
+//go:generate mockgen -source=snapshot.go -destination=../mocks/aggregate/snapshot.go
 
 import (
-	"context"
 	"fmt"
 	"sync"
 
-	"github.com/google/uuid"
+	cqrs "github.com/bounoable/cqrs-es"
 )
-
-// SnapshotRepository ...
-type SnapshotRepository interface {
-	Save(ctx context.Context, snap Aggregate) error
-	Find(ctx context.Context, typ AggregateType, id uuid.UUID, version int) (Aggregate, error)
-	Latest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
-	MaxVersion(ctx context.Context, typ AggregateType, id uuid.UUID, maxVersion int) (Aggregate, error)
-}
 
 // SnapshotConfig ...
 type SnapshotConfig interface {
-	IsDue(Aggregate) bool
+	IsDue(cqrs.Aggregate) bool
 }
 
 // SnapshotOption ...
@@ -28,7 +19,7 @@ type SnapshotOption func(*snapshotConfig)
 
 type snapshotConfig struct {
 	mux       sync.RWMutex
-	intervals map[AggregateType]int
+	intervals map[cqrs.AggregateType]int
 }
 
 // SnapshotError ...
@@ -47,7 +38,7 @@ func (err SnapshotError) Unwrap() error {
 }
 
 // SnapshotInterval ...
-func SnapshotInterval(typ AggregateType, every int) SnapshotOption {
+func SnapshotInterval(typ cqrs.AggregateType, every int) SnapshotOption {
 	return func(cfg *snapshotConfig) {
 		cfg.intervals[typ] = every
 	}
@@ -63,7 +54,7 @@ func NewSnapshotConfig(options ...SnapshotOption) SnapshotConfig {
 	return &cfg
 }
 
-func (cfg *snapshotConfig) IsDue(aggregate Aggregate) bool {
+func (cfg *snapshotConfig) IsDue(aggregate cqrs.Aggregate) bool {
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 

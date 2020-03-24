@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/bounoable/cqrs-es"
-	"github.com/bounoable/cqrs-es/eventstore"
+	"github.com/bounoable/cqrs-es/event"
 	"github.com/google/uuid"
 )
 
@@ -43,7 +43,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		return nil
 	}
 
-	if err := eventstore.ValidateEvents(events, originalVersion); err != nil {
+	if err := event.Validate(events, originalVersion); err != nil {
 		return err
 	}
 
@@ -73,7 +73,7 @@ func (s *eventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType,
 		}
 	}
 
-	return nil, eventstore.EventNotFoundError{
+	return nil, event.NotFoundError{
 		AggregateType: aggregateType,
 		AggregateID:   aggregateID,
 		Version:       version,

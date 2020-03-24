@@ -3,6 +3,7 @@ package cqrs
 //go:generate mockgen -source=event.go -destination=./mocks/event.go
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,71 +26,45 @@ type Event interface {
 	Version() int
 }
 
-type event struct {
-	typ           EventType
-	data          EventData
-	time          time.Time
-	aggregateType AggregateType
-	aggregateID   uuid.UUID
-	version       int
-}
-
-// NewEvent creates a new event with time set to time.Now().
-func NewEvent(typ EventType, data EventData) Event {
-	return NewEventWithTime(typ, data, time.Now())
-}
-
-// NewEventWithTime creates a new event.
-func NewEventWithTime(typ EventType, data EventData, time time.Time) Event {
-	return &event{
-		typ:     typ,
-		data:    data,
-		time:    time,
-		version: -1,
-	}
-}
-
-// NewAggregateEvent creates a new aggregate event with time set to time.Now().
-func NewAggregateEvent(typ EventType, data EventData, aggregateType AggregateType, aggregateID uuid.UUID, version int) Event {
-	return NewAggregateEventWithTime(typ, data, time.Now(), aggregateType, aggregateID, version)
-}
-
-// NewAggregateEventWithTime creates a new aggregate event.
-func NewAggregateEventWithTime(typ EventType, data EventData, time time.Time, aggregateType AggregateType, aggregateID uuid.UUID, version int) Event {
-	return &event{
-		typ:           typ,
-		data:          data,
-		time:          time,
-		aggregateType: aggregateType,
-		aggregateID:   aggregateID,
-		version:       version,
-	}
-}
-
-func (e *event) Type() EventType {
-	return e.typ
-}
-
-func (e *event) Data() EventData {
-	return e.data
-}
-
-func (e *event) Time() time.Time {
-	return e.time
-}
-
-func (e *event) AggregateType() AggregateType {
-	return e.aggregateType
-}
-
-func (e *event) AggregateID() uuid.UUID {
-	return e.aggregateID
-}
-
-func (e *event) Version() int {
-	return e.version
-}
-
 func (t EventType) String() string {
 	return string(t)
+}
+
+// EventPublisher publishes events.
+type EventPublisher interface {
+	Publish(ctx context.Context, events ...Event) error
+}
+
+// EventSubscriber subscribes to events.
+type EventSubscriber interface {
+	Subscribe(ctx context.Context, types ...EventType) (<-chan Event, error)
+}
+
+// EventBus is the event bus.
+type EventBus interface {
+	EventPublisher
+	EventSubscriber
+}
+
+// EventConfig is the configuration for the events.
+type EventConfig interface {
+	Register(EventType, EventData)
+	// NewData creates an EventData instance for EventType.
+	// The returned object has to be a non-pointer struct.
+	NewData(EventType) (EventData, error)
+	Protos() map[EventType]EventData
+}
+
+// EventMatcher ...
+type EventMatcher func(Event) bool
+
+// EventStore stores events in a database.
+type EventStore interface {
+	Save(ctx context.Context, originalVersion int, events ...Event) error
+	Find(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, version int) (Event, error)
+	Fetch(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int, to int) ([]Event, error)
+	FetchAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) ([]Event, error)
+	FetchFrom(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int) ([]Event, error)
+	FetchTo(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, to int) ([]Event, error)
+	RemoveAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) error
 }

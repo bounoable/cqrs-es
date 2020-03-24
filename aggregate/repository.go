@@ -1,7 +1,5 @@
 package aggregate
 
-//go:generate mockgen -source=repository.go -destination=../mocks/aggregate/repository.go
-
 import (
 	"context"
 
@@ -9,21 +7,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// Repository ...
-type Repository interface {
-	Save(ctx context.Context, aggregate cqrs.Aggregate) error
-	Fetch(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, version int) (cqrs.Aggregate, error)
-	FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error)
-	Remove(ctx context.Context, aggregate cqrs.Aggregate) error
-}
-
 type repository struct {
 	eventStore   cqrs.EventStore
-	aggregateCfg Config
+	aggregateCfg cqrs.AggregateConfig
 }
 
 // NewRepository ...
-func NewRepository(eventStore cqrs.EventStore, aggregateCfg Config) Repository {
+func NewRepository(eventStore cqrs.EventStore, aggregateCfg cqrs.AggregateConfig) cqrs.AggregateRepository {
 	if eventStore == nil {
 		panic("nil event store")
 	}

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/event"
 	"github.com/google/uuid"
 )
 
@@ -62,12 +63,12 @@ func (a *BaseAggregate) FlushChanges() {
 
 // NewEventWithTime ...
 func (a *BaseAggregate) NewEventWithTime(typ cqrs.EventType, data cqrs.EventData, time time.Time) cqrs.Event {
-	return cqrs.NewAggregateEventWithTime(typ, data, time, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
+	return event.NewAggregateEventWithTime(typ, data, time, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
 }
 
 // NewEvent ...
 func (a *BaseAggregate) NewEvent(typ cqrs.EventType, data cqrs.EventData) cqrs.Event {
-	return cqrs.NewAggregateEvent(typ, data, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
+	return event.NewAggregateEvent(typ, data, a.AggregateType(), a.AggregateID(), a.CurrentVersion()+1)
 }
 
 // ApplyHistory ...

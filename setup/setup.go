@@ -7,16 +7,16 @@ import (
 	"github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/aggregate"
 	"github.com/bounoable/cqrs-es/command"
-	"github.com/bounoable/cqrs-es/container"
+	"github.com/bounoable/cqrs-es/event"
 )
 
 var (
 	globalAggregateConfig = aggregate.NewConfig()
-	globalEventConfig     = cqrs.NewEventConfig()
+	globalEventConfig     = event.NewConfig()
 )
 
 // Aggregate registers a cqrs.AggregateType globally.
-func Aggregate(typ cqrs.AggregateType, factory aggregate.Factory) {
+func Aggregate(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {
 	globalAggregateConfig.Register(typ, factory)
 }
 
@@ -29,9 +29,9 @@ func Event(typ cqrs.EventType, proto cqrs.EventData) {
 type Setup struct {
 	logger *log.Logger
 
-	aggregateConfig aggregate.Config
+	aggregateConfig cqrs.AggregateConfig
 	eventConfig     cqrs.EventConfig
-	commandConfig   command.Config
+	commandConfig   cqrs.CommandConfig
 
 	eventStoreFactory    EventStoreFactory
 	eventBusFactory      EventBusFactory
@@ -41,19 +41,19 @@ type Setup struct {
 }
 
 // EventStoreFactory ...
-type EventStoreFactory func(context.Context, container.Container) (cqrs.EventStore, error)
+type EventStoreFactory func(context.Context, cqrs.Container) (cqrs.EventStore, error)
 
 // EventBusFactory ...
-type EventBusFactory func(context.Context, container.Container) (cqrs.EventBus, error)
+type EventBusFactory func(context.Context, cqrs.Container) (cqrs.EventBus, error)
 
 // CommandBusFactory ...
-type CommandBusFactory func(context.Context, container.Container) (command.Bus, error)
+type CommandBusFactory func(context.Context, cqrs.Container) (cqrs.CommandBus, error)
 
 // SnapshotRepositoryFactory ...
-type SnapshotRepositoryFactory func(context.Context, container.Container) (cqrs.SnapshotRepository, error)
+type SnapshotRepositoryFactory func(context.Context, cqrs.Container) (cqrs.SnapshotRepository, error)
 
 // AggregateRepositoryFactory ...
-type AggregateRepositoryFactory func(context.Context, container.Container) (aggregate.Repository, error)
+type AggregateRepositoryFactory func(context.Context, cqrs.Container) (cqrs.AggregateRepository, error)
 
 // Option is a setup option.
 type Option func(*Setup)
@@ -70,8 +70,8 @@ func Logger(logger *log.Logger) Option {
 	return WithLogger(logger)
 }
 
-// WithAggregateConfig adds a aggregate.Config to the setup.
-func WithAggregateConfig(cfg aggregate.Config) Option {
+// WithAggregateConfig adds a cqrs.AggregateConfig to the setup.
+func WithAggregateConfig(cfg cqrs.AggregateConfig) Option {
 	return func(s *Setup) {
 		for typ, fac := range cfg.Factories() {
 			s.aggregateConfig.Register(typ, fac)
@@ -138,7 +138,7 @@ func New(opts ...Option) *Setup {
 	return &s
 }
 
-func baseAggregateConfig() aggregate.Config {
+func baseAggregateConfig() cqrs.AggregateConfig {
 	cfg := aggregate.NewConfig()
 	for typ, fac := range globalAggregateConfig.Factories() {
 		cfg.Register(typ, fac)
@@ -147,31 +147,31 @@ func baseAggregateConfig() aggregate.Config {
 }
 
 func baseEventConfig() cqrs.EventConfig {
-	cfg := cqrs.NewEventConfig()
+	cfg := event.NewConfig()
 	for typ, proto := range globalEventConfig.Protos() {
 		cfg.Register(typ, proto)
 	}
 	return cfg
 }
 
-// Command configures the command.Handler for multiple command.Types.
-func (s *Setup) Command(h command.Handler, types ...command.Type) *Setup {
+// Command configures the cqrs.CommandHandler for multiple cqrs.CommandTypes.
+func (s *Setup) Command(h cqrs.CommandHandler, types ...cqrs.CommandType) *Setup {
 	for _, typ := range types {
 		s.commandConfig.Register(typ, h)
 	}
 	return s
 }
 
-// NewContainer initializes the components and returns a container.Container.
-func (s *Setup) NewContainer(ctx context.Context) (container.Container, error) {
+// NewContainer initializes the components and returns a cqrs.Container.
+func (s *Setup) NewContainer(ctx context.Context) (cqrs.Container, error) {
 	var err error
 	var eventBus cqrs.EventBus
-	var commandBus command.Bus
+	var commandBus cqrs.CommandBus
 	var eventStore cqrs.EventStore
 	var snapshotRepo cqrs.SnapshotRepository
-	var aggregateRepo aggregate.Repository
+	var aggregateRepo cqrs.AggregateRepository
 
-	container := container.New(s.aggregateConfig, s.eventConfig, s.commandConfig)
+	container := cqrs.NewContainer(s.aggregateConfig, s.eventConfig, s.commandConfig)
 
 	if s.eventBusFactory != nil {
 		if eventBus, err = s.eventBusFactory(ctx, container); err != nil {

@@ -1,7 +1,5 @@
 package aggregate
 
-//go:generate mockgen -source=config.go -destination=../mocks/aggregate/config.go
-
 import (
 	"fmt"
 	"sync"
@@ -10,19 +8,9 @@ import (
 	"github.com/google/uuid"
 )
 
-// Factory ...
-type Factory func(uuid.UUID) cqrs.Aggregate
-
-// Config ...
-type Config interface {
-	Register(cqrs.AggregateType, Factory)
-	New(cqrs.AggregateType, uuid.UUID) (cqrs.Aggregate, error)
-	Factories() map[cqrs.AggregateType]Factory
-}
-
 type config struct {
 	mux       sync.RWMutex
-	factories map[cqrs.AggregateType]Factory
+	factories map[cqrs.AggregateType]cqrs.AggregateFactory
 }
 
 // UnregisteredError is raised when an event type is not registered.
@@ -31,13 +19,13 @@ type UnregisteredError struct {
 }
 
 // NewConfig ...
-func NewConfig() Config {
+func NewConfig() cqrs.AggregateConfig {
 	return &config{
-		factories: make(map[cqrs.AggregateType]Factory),
+		factories: make(map[cqrs.AggregateType]cqrs.AggregateFactory),
 	}
 }
 
-func (cfg *config) Register(typ cqrs.AggregateType, factory Factory) {
+func (cfg *config) Register(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {
 	if factory == nil {
 		panic("nil factory")
 	}
@@ -61,15 +49,15 @@ func (cfg *config) New(typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, er
 	return factory(id), nil
 }
 
-func (cfg *config) Factories() map[cqrs.AggregateType]Factory {
+func (cfg *config) Factories() map[cqrs.AggregateType]cqrs.AggregateFactory {
 	if cfg == nil {
-		return map[cqrs.AggregateType]Factory{}
+		return map[cqrs.AggregateType]cqrs.AggregateFactory{}
 	}
 
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 
-	m := make(map[cqrs.AggregateType]Factory)
+	m := make(map[cqrs.AggregateType]cqrs.AggregateFactory)
 	for k, v := range cfg.factories {
 		m[k] = v
 	}

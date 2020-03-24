@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/bounoable/cqrs-es"
-	"github.com/bounoable/cqrs-es/container"
-	"github.com/bounoable/cqrs-es/eventstore"
+	"github.com/bounoable/cqrs-es/event"
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -146,7 +145,7 @@ func NewEventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Optio
 
 // WithEventStoreFactory ...
 func WithEventStoreFactory(options ...Option) setup.Option {
-	return setup.WithEventStoreFactory(func(ctx context.Context, c container.Container) (cqrs.EventStore, error) {
+	return setup.WithEventStoreFactory(func(ctx context.Context, c cqrs.Container) (cqrs.EventStore, error) {
 		options = append([]Option{ResolvePublisher(c.EventPublisher)}, options...)
 		return NewEventStore(ctx, c.EventConfig(), options...)
 	})
@@ -157,7 +156,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		return nil
 	}
 
-	if err := eventstore.ValidateEvents(events, originalVersion); err != nil {
+	if err := event.Validate(events, originalVersion); err != nil {
 		return err
 	}
 
@@ -236,7 +235,7 @@ func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateT
 	var latest dbEvent
 	if err := res.Decode(&latest); err == nil {
 		if latest.Version != originalVersion {
-			return cqrs.OptimisticConcurrencyError{
+			return event.OptimisticConcurrencyError{
 				AggregateType:   aggregateType,
 				AggregateID:     aggregateID,
 				LatestVersion:   latest.Version,
@@ -412,7 +411,7 @@ func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {
 		return nil, err
 	}
 
-	return cqrs.NewAggregateEventWithTime(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
+	return event.NewAggregateEventWithTime(evt.EventType, data, evt.Time, evt.AggregateType, evt.AggregateID, evt.Version), nil
 }
 
 type dbEvent struct {

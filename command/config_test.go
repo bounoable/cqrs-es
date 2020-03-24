@@ -6,8 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	cqrs "github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/command"
-	mock_command "github.com/bounoable/cqrs-es/mocks/command"
+	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 )
 
@@ -17,8 +18,8 @@ func TestRegister(t *testing.T) {
 
 	cfg := command.NewConfig()
 
-	typ := command.Type("test")
-	handler := mock_command.NewMockHandler(ctrl)
+	typ := cqrs.CommandType("test")
+	handler := mock_cqrs.NewMockCommandHandler(ctrl)
 
 	h, err := cfg.Handler(typ)
 	assert.True(t, errors.Is(command.UnregisteredError{

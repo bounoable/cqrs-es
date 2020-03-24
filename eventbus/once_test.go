@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/event"
 	"github.com/bounoable/cqrs-es/eventbus"
 	"github.com/bounoable/cqrs-es/eventbus/channel"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +18,7 @@ func TestOnce(t *testing.T) {
 	assert.Nil(t, err)
 
 	data := eventbus.TestEventData{A: 8, B: "test", C: true}
-	err = bus.Publish(ctx, cqrs.NewEvent(eventbus.TestEventType, data))
+	err = bus.Publish(ctx, event.New(eventbus.TestEventType, data))
 	assert.Nil(t, err)
 
 	evt := <-ch

@@ -1,33 +1,20 @@
 package command
 
-//go:generate mockgen -source=config.go -destination=../mocks/command/config.go
-
 import (
-	"context"
 	"fmt"
 	"sync"
+
+	cqrs "github.com/bounoable/cqrs-es"
 )
-
-// Config ...
-type Config interface {
-	Register(Type, Handler)
-	Handler(Type) (Handler, error)
-	Handlers() map[Type]Handler
-}
-
-// Handler handles commands.
-type Handler interface {
-	HandleCommand(context.Context, Command) error
-}
 
 type config struct {
 	mux      sync.RWMutex
-	handlers map[Type]Handler
+	handlers map[cqrs.CommandType]cqrs.CommandHandler
 }
 
 // UnregisteredError is raised when a command type is not registered.
 type UnregisteredError struct {
-	CommandType Type
+	CommandType cqrs.CommandType
 }
 
 func (err UnregisteredError) Error() string {
@@ -35,19 +22,19 @@ func (err UnregisteredError) Error() string {
 }
 
 // NewConfig returns a new command configuration.
-func NewConfig() Config {
+func NewConfig() cqrs.CommandConfig {
 	return &config{
-		handlers: make(map[Type]Handler),
+		handlers: make(map[cqrs.CommandType]cqrs.CommandHandler),
 	}
 }
 
-func (cfg *config) Register(typ Type, handler Handler) {
+func (cfg *config) Register(typ cqrs.CommandType, handler cqrs.CommandHandler) {
 	cfg.mux.Lock()
 	defer cfg.mux.Unlock()
 	cfg.handlers[typ] = handler
 }
 
-func (cfg *config) Handler(typ Type) (Handler, error) {
+func (cfg *config) Handler(typ cqrs.CommandType) (cqrs.CommandHandler, error) {
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 
@@ -61,11 +48,11 @@ func (cfg *config) Handler(typ Type) (Handler, error) {
 	return handler, nil
 }
 
-func (cfg *config) Handlers() map[Type]Handler {
+func (cfg *config) Handlers() map[cqrs.CommandType]cqrs.CommandHandler {
 	cfg.mux.RLock()
 	defer cfg.mux.RUnlock()
 
-	m := make(map[Type]Handler)
+	m := make(map[cqrs.CommandType]cqrs.CommandHandler)
 	for k, v := range cfg.handlers {
 		m[k] = v
 	}

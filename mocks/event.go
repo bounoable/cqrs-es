@@ -5,6 +5,7 @@
 package mock_cqrs
 
 import (
+	context "context"
 	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
@@ -140,4 +141,346 @@ func (m *MockEvent) Version() int {
 func (mr *MockEventMockRecorder) Version() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Version", reflect.TypeOf((*MockEvent)(nil).Version))
+}
+
+// MockEventPublisher is a mock of EventPublisher interface
+type MockEventPublisher struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventPublisherMockRecorder
+}
+
+// MockEventPublisherMockRecorder is the mock recorder for MockEventPublisher
+type MockEventPublisherMockRecorder struct {
+	mock *MockEventPublisher
+}
+
+// NewMockEventPublisher creates a new mock instance
+func NewMockEventPublisher(ctrl *gomock.Controller) *MockEventPublisher {
+	mock := &MockEventPublisher{ctrl: ctrl}
+	mock.recorder = &MockEventPublisherMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventPublisher) EXPECT() *MockEventPublisherMockRecorder {
+	return m.recorder
+}
+
+// Publish mocks base method
+func (m *MockEventPublisher) Publish(ctx context.Context, events ...cqrs_es.Event) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range events {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Publish", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Publish indicates an expected call of Publish
+func (mr *MockEventPublisherMockRecorder) Publish(ctx interface{}, events ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, events...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockEventPublisher)(nil).Publish), varargs...)
+}
+
+// MockEventSubscriber is a mock of EventSubscriber interface
+type MockEventSubscriber struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventSubscriberMockRecorder
+}
+
+// MockEventSubscriberMockRecorder is the mock recorder for MockEventSubscriber
+type MockEventSubscriberMockRecorder struct {
+	mock *MockEventSubscriber
+}
+
+// NewMockEventSubscriber creates a new mock instance
+func NewMockEventSubscriber(ctrl *gomock.Controller) *MockEventSubscriber {
+	mock := &MockEventSubscriber{ctrl: ctrl}
+	mock.recorder = &MockEventSubscriberMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventSubscriber) EXPECT() *MockEventSubscriberMockRecorder {
+	return m.recorder
+}
+
+// Subscribe mocks base method
+func (m *MockEventSubscriber) Subscribe(ctx context.Context, types ...cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range types {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Subscribe", varargs...)
+	ret0, _ := ret[0].(<-chan cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Subscribe indicates an expected call of Subscribe
+func (mr *MockEventSubscriberMockRecorder) Subscribe(ctx interface{}, types ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, types...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventSubscriber)(nil).Subscribe), varargs...)
+}
+
+// MockEventBus is a mock of EventBus interface
+type MockEventBus struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventBusMockRecorder
+}
+
+// MockEventBusMockRecorder is the mock recorder for MockEventBus
+type MockEventBusMockRecorder struct {
+	mock *MockEventBus
+}
+
+// NewMockEventBus creates a new mock instance
+func NewMockEventBus(ctrl *gomock.Controller) *MockEventBus {
+	mock := &MockEventBus{ctrl: ctrl}
+	mock.recorder = &MockEventBusMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventBus) EXPECT() *MockEventBusMockRecorder {
+	return m.recorder
+}
+
+// Publish mocks base method
+func (m *MockEventBus) Publish(ctx context.Context, events ...cqrs_es.Event) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range events {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Publish", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Publish indicates an expected call of Publish
+func (mr *MockEventBusMockRecorder) Publish(ctx interface{}, events ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, events...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockEventBus)(nil).Publish), varargs...)
+}
+
+// Subscribe mocks base method
+func (m *MockEventBus) Subscribe(ctx context.Context, types ...cqrs_es.EventType) (<-chan cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range types {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Subscribe", varargs...)
+	ret0, _ := ret[0].(<-chan cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Subscribe indicates an expected call of Subscribe
+func (mr *MockEventBusMockRecorder) Subscribe(ctx interface{}, types ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, types...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockEventBus)(nil).Subscribe), varargs...)
+}
+
+// MockEventConfig is a mock of EventConfig interface
+type MockEventConfig struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventConfigMockRecorder
+}
+
+// MockEventConfigMockRecorder is the mock recorder for MockEventConfig
+type MockEventConfigMockRecorder struct {
+	mock *MockEventConfig
+}
+
+// NewMockEventConfig creates a new mock instance
+func NewMockEventConfig(ctrl *gomock.Controller) *MockEventConfig {
+	mock := &MockEventConfig{ctrl: ctrl}
+	mock.recorder = &MockEventConfigMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventConfig) EXPECT() *MockEventConfigMockRecorder {
+	return m.recorder
+}
+
+// Register mocks base method
+func (m *MockEventConfig) Register(arg0 cqrs_es.EventType, arg1 cqrs_es.EventData) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Register", arg0, arg1)
+}
+
+// Register indicates an expected call of Register
+func (mr *MockEventConfigMockRecorder) Register(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockEventConfig)(nil).Register), arg0, arg1)
+}
+
+// NewData mocks base method
+func (m *MockEventConfig) NewData(arg0 cqrs_es.EventType) (cqrs_es.EventData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewData", arg0)
+	ret0, _ := ret[0].(cqrs_es.EventData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NewData indicates an expected call of NewData
+func (mr *MockEventConfigMockRecorder) NewData(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewData", reflect.TypeOf((*MockEventConfig)(nil).NewData), arg0)
+}
+
+// Protos mocks base method
+func (m *MockEventConfig) Protos() map[cqrs_es.EventType]cqrs_es.EventData {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Protos")
+	ret0, _ := ret[0].(map[cqrs_es.EventType]cqrs_es.EventData)
+	return ret0
+}
+
+// Protos indicates an expected call of Protos
+func (mr *MockEventConfigMockRecorder) Protos() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Protos", reflect.TypeOf((*MockEventConfig)(nil).Protos))
+}
+
+// MockEventStore is a mock of EventStore interface
+type MockEventStore struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventStoreMockRecorder
+}
+
+// MockEventStoreMockRecorder is the mock recorder for MockEventStore
+type MockEventStoreMockRecorder struct {
+	mock *MockEventStore
+}
+
+// NewMockEventStore creates a new mock instance
+func NewMockEventStore(ctrl *gomock.Controller) *MockEventStore {
+	mock := &MockEventStore{ctrl: ctrl}
+	mock.recorder = &MockEventStoreMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventStore) EXPECT() *MockEventStoreMockRecorder {
+	return m.recorder
+}
+
+// Save mocks base method
+func (m *MockEventStore) Save(ctx context.Context, originalVersion int, events ...cqrs_es.Event) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, originalVersion}
+	for _, a := range events {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Save", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Save indicates an expected call of Save
+func (mr *MockEventStoreMockRecorder) Save(ctx, originalVersion interface{}, events ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, originalVersion}, events...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockEventStore)(nil).Save), varargs...)
+}
+
+// Find mocks base method
+func (m *MockEventStore) Find(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, version int) (cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Find", ctx, aggregateType, aggregateID, version)
+	ret0, _ := ret[0].(cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Find indicates an expected call of Find
+func (mr *MockEventStoreMockRecorder) Find(ctx, aggregateType, aggregateID, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockEventStore)(nil).Find), ctx, aggregateType, aggregateID, version)
+}
+
+// Fetch mocks base method
+func (m *MockEventStore) Fetch(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, from, to int) ([]cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Fetch", ctx, aggregateType, aggregateID, from, to)
+	ret0, _ := ret[0].([]cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Fetch indicates an expected call of Fetch
+func (mr *MockEventStoreMockRecorder) Fetch(ctx, aggregateType, aggregateID, from, to interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fetch", reflect.TypeOf((*MockEventStore)(nil).Fetch), ctx, aggregateType, aggregateID, from, to)
+}
+
+// FetchAll mocks base method
+func (m *MockEventStore) FetchAll(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID) ([]cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchAll", ctx, aggregateType, aggregateID)
+	ret0, _ := ret[0].([]cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchAll indicates an expected call of FetchAll
+func (mr *MockEventStoreMockRecorder) FetchAll(ctx, aggregateType, aggregateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAll", reflect.TypeOf((*MockEventStore)(nil).FetchAll), ctx, aggregateType, aggregateID)
+}
+
+// FetchFrom mocks base method
+func (m *MockEventStore) FetchFrom(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchFrom", ctx, aggregateType, aggregateID, from)
+	ret0, _ := ret[0].([]cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchFrom indicates an expected call of FetchFrom
+func (mr *MockEventStoreMockRecorder) FetchFrom(ctx, aggregateType, aggregateID, from interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchFrom", reflect.TypeOf((*MockEventStore)(nil).FetchFrom), ctx, aggregateType, aggregateID, from)
+}
+
+// FetchTo mocks base method
+func (m *MockEventStore) FetchTo(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs_es.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchTo", ctx, aggregateType, aggregateID, to)
+	ret0, _ := ret[0].([]cqrs_es.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchTo indicates an expected call of FetchTo
+func (mr *MockEventStoreMockRecorder) FetchTo(ctx, aggregateType, aggregateID, to interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchTo", reflect.TypeOf((*MockEventStore)(nil).FetchTo), ctx, aggregateType, aggregateID, to)
+}
+
+// RemoveAll mocks base method
+func (m *MockEventStore) RemoveAll(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveAll", ctx, aggregateType, aggregateID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveAll indicates an expected call of RemoveAll
+func (mr *MockEventStoreMockRecorder) RemoveAll(ctx, aggregateType, aggregateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAll", reflect.TypeOf((*MockEventStore)(nil).RemoveAll), ctx, aggregateType, aggregateID)
 }

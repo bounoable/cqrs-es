@@ -5,6 +5,7 @@
 package mock_cqrs
 
 import (
+	context "context"
 	cqrs_es "github.com/bounoable/cqrs-es"
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
@@ -144,4 +145,231 @@ func (m *MockAggregate) ApplyEvent(arg0 cqrs_es.Event) error {
 func (mr *MockAggregateMockRecorder) ApplyEvent(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyEvent", reflect.TypeOf((*MockAggregate)(nil).ApplyEvent), arg0)
+}
+
+// MockAggregateConfig is a mock of AggregateConfig interface
+type MockAggregateConfig struct {
+	ctrl     *gomock.Controller
+	recorder *MockAggregateConfigMockRecorder
+}
+
+// MockAggregateConfigMockRecorder is the mock recorder for MockAggregateConfig
+type MockAggregateConfigMockRecorder struct {
+	mock *MockAggregateConfig
+}
+
+// NewMockAggregateConfig creates a new mock instance
+func NewMockAggregateConfig(ctrl *gomock.Controller) *MockAggregateConfig {
+	mock := &MockAggregateConfig{ctrl: ctrl}
+	mock.recorder = &MockAggregateConfigMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockAggregateConfig) EXPECT() *MockAggregateConfigMockRecorder {
+	return m.recorder
+}
+
+// Register mocks base method
+func (m *MockAggregateConfig) Register(arg0 cqrs_es.AggregateType, arg1 cqrs_es.AggregateFactory) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Register", arg0, arg1)
+}
+
+// Register indicates an expected call of Register
+func (mr *MockAggregateConfigMockRecorder) Register(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockAggregateConfig)(nil).Register), arg0, arg1)
+}
+
+// New mocks base method
+func (m *MockAggregateConfig) New(arg0 cqrs_es.AggregateType, arg1 uuid.UUID) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "New", arg0, arg1)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// New indicates an expected call of New
+func (mr *MockAggregateConfigMockRecorder) New(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "New", reflect.TypeOf((*MockAggregateConfig)(nil).New), arg0, arg1)
+}
+
+// Factories mocks base method
+func (m *MockAggregateConfig) Factories() map[cqrs_es.AggregateType]cqrs_es.AggregateFactory {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Factories")
+	ret0, _ := ret[0].(map[cqrs_es.AggregateType]cqrs_es.AggregateFactory)
+	return ret0
+}
+
+// Factories indicates an expected call of Factories
+func (mr *MockAggregateConfigMockRecorder) Factories() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Factories", reflect.TypeOf((*MockAggregateConfig)(nil).Factories))
+}
+
+// MockAggregateRepository is a mock of AggregateRepository interface
+type MockAggregateRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockAggregateRepositoryMockRecorder
+}
+
+// MockAggregateRepositoryMockRecorder is the mock recorder for MockAggregateRepository
+type MockAggregateRepositoryMockRecorder struct {
+	mock *MockAggregateRepository
+}
+
+// NewMockAggregateRepository creates a new mock instance
+func NewMockAggregateRepository(ctrl *gomock.Controller) *MockAggregateRepository {
+	mock := &MockAggregateRepository{ctrl: ctrl}
+	mock.recorder = &MockAggregateRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockAggregateRepository) EXPECT() *MockAggregateRepositoryMockRecorder {
+	return m.recorder
+}
+
+// Save mocks base method
+func (m *MockAggregateRepository) Save(ctx context.Context, aggregate cqrs_es.Aggregate) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Save", ctx, aggregate)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Save indicates an expected call of Save
+func (mr *MockAggregateRepositoryMockRecorder) Save(ctx, aggregate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockAggregateRepository)(nil).Save), ctx, aggregate)
+}
+
+// Fetch mocks base method
+func (m *MockAggregateRepository) Fetch(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, version int) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Fetch", ctx, typ, id, version)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Fetch indicates an expected call of Fetch
+func (mr *MockAggregateRepositoryMockRecorder) Fetch(ctx, typ, id, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fetch", reflect.TypeOf((*MockAggregateRepository)(nil).Fetch), ctx, typ, id, version)
+}
+
+// FetchLatest mocks base method
+func (m *MockAggregateRepository) FetchLatest(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchLatest", ctx, typ, id)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchLatest indicates an expected call of FetchLatest
+func (mr *MockAggregateRepositoryMockRecorder) FetchLatest(ctx, typ, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchLatest", reflect.TypeOf((*MockAggregateRepository)(nil).FetchLatest), ctx, typ, id)
+}
+
+// Remove mocks base method
+func (m *MockAggregateRepository) Remove(ctx context.Context, aggregate cqrs_es.Aggregate) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Remove", ctx, aggregate)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Remove indicates an expected call of Remove
+func (mr *MockAggregateRepositoryMockRecorder) Remove(ctx, aggregate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockAggregateRepository)(nil).Remove), ctx, aggregate)
+}
+
+// MockSnapshotRepository is a mock of SnapshotRepository interface
+type MockSnapshotRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockSnapshotRepositoryMockRecorder
+}
+
+// MockSnapshotRepositoryMockRecorder is the mock recorder for MockSnapshotRepository
+type MockSnapshotRepositoryMockRecorder struct {
+	mock *MockSnapshotRepository
+}
+
+// NewMockSnapshotRepository creates a new mock instance
+func NewMockSnapshotRepository(ctrl *gomock.Controller) *MockSnapshotRepository {
+	mock := &MockSnapshotRepository{ctrl: ctrl}
+	mock.recorder = &MockSnapshotRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockSnapshotRepository) EXPECT() *MockSnapshotRepositoryMockRecorder {
+	return m.recorder
+}
+
+// Save mocks base method
+func (m *MockSnapshotRepository) Save(ctx context.Context, snap cqrs_es.Aggregate) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Save", ctx, snap)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Save indicates an expected call of Save
+func (mr *MockSnapshotRepositoryMockRecorder) Save(ctx, snap interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockSnapshotRepository)(nil).Save), ctx, snap)
+}
+
+// Find mocks base method
+func (m *MockSnapshotRepository) Find(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, version int) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Find", ctx, typ, id, version)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Find indicates an expected call of Find
+func (mr *MockSnapshotRepositoryMockRecorder) Find(ctx, typ, id, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockSnapshotRepository)(nil).Find), ctx, typ, id, version)
+}
+
+// Latest mocks base method
+func (m *MockSnapshotRepository) Latest(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Latest", ctx, typ, id)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Latest indicates an expected call of Latest
+func (mr *MockSnapshotRepositoryMockRecorder) Latest(ctx, typ, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Latest", reflect.TypeOf((*MockSnapshotRepository)(nil).Latest), ctx, typ, id)
+}
+
+// MaxVersion mocks base method
+func (m *MockSnapshotRepository) MaxVersion(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, maxVersion int) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MaxVersion", ctx, typ, id, maxVersion)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MaxVersion indicates an expected call of MaxVersion
+func (mr *MockSnapshotRepositoryMockRecorder) MaxVersion(ctx, typ, id, maxVersion interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxVersion", reflect.TypeOf((*MockSnapshotRepository)(nil).MaxVersion), ctx, typ, id, maxVersion)
 }

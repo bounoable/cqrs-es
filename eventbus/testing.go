@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/event"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,7 +20,7 @@ const (
 
 var (
 	// TestEventConfig is the EventConfig used for testing.
-	TestEventConfig = cqrs.NewEventConfig()
+	TestEventConfig = event.NewConfig()
 )
 
 func init() {
@@ -46,7 +47,7 @@ func TestPublish(ctx context.Context, t *testing.T, bus cqrs.EventBus) {
 		B: "test",
 		C: true,
 	}
-	err = bus.Publish(ctx, cqrs.NewAggregateEvent(TestEventType, data, TestAggregateType, aggregateID, 6))
+	err = bus.Publish(ctx, event.NewAggregateEvent(TestEventType, data, TestAggregateType, aggregateID, 6))
 	assert.Nil(t, err)
 
 	select {

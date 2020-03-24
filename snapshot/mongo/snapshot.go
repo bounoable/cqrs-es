@@ -7,7 +7,6 @@ import (
 
 	"github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/aggregate"
-	"github.com/bounoable/cqrs-es/container"
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -34,7 +33,7 @@ type Option func(*Config)
 type snapshotRepository struct {
 	config          Config
 	db              *mongo.Database
-	aggregateConfig aggregate.Config
+	aggregateConfig cqrs.AggregateConfig
 }
 
 type snapshot struct {
@@ -73,9 +72,9 @@ func ClientOptions(options ...*options.ClientOptions) Option {
 }
 
 // NewSnapshotRepository ...
-func NewSnapshotRepository(ctx context.Context, aggregateConfig aggregate.Config, opts ...Option) (cqrs.SnapshotRepository, error) {
+func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateConfig, opts ...Option) (cqrs.SnapshotRepository, error) {
 	if aggregateConfig == nil {
-		return nil, cqrs.SnapshotError{
+		return nil, aggregate.SnapshotError{
 			Err:       errors.New("aggregate config cannot be nil"),
 			StoreName: "mongo",
 		}
@@ -105,7 +104,7 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig aggregate.Config
 	clientOptions := append([]*options.ClientOptions{options.Client().ApplyURI(cfg.URI)}, cfg.ClientOptions...)
 	client, err := mongo.Connect(ctx, clientOptions...)
 	if err != nil {
-		return nil, cqrs.SnapshotError{
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
@@ -115,7 +114,7 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig aggregate.Config
 
 	if cfg.CreateIndexes {
 		if err := createIndexes(ctx, db); err != nil {
-			return nil, cqrs.SnapshotError{
+			return nil, aggregate.SnapshotError{
 				Err:       err,
 				StoreName: "mongo",
 			}
@@ -131,24 +130,24 @@ func NewSnapshotRepository(ctx context.Context, aggregateConfig aggregate.Config
 
 // WithSnapshotRepositoryFactory ...
 func WithSnapshotRepositoryFactory(options ...Option) setup.Option {
-	return setup.WithSnapshotRepositoryFactory(func(ctx context.Context, c container.Container) (cqrs.SnapshotRepository, error) {
+	return setup.WithSnapshotRepositoryFactory(func(ctx context.Context, c cqrs.Container) (cqrs.SnapshotRepository, error) {
 		return NewSnapshotRepository(ctx, c.AggregateConfig(), options...)
 	})
 }
 
-func (r *snapshotRepository) Save(ctx context.Context, aggregate cqrs.Aggregate) error {
-	data, err := bson.Marshal(aggregate)
+func (r *snapshotRepository) Save(ctx context.Context, agg cqrs.Aggregate) error {
+	data, err := bson.Marshal(agg)
 	if err != nil {
-		return cqrs.SnapshotError{
+		return aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
 	snap := &snapshot{
-		AggregateType: aggregate.AggregateType(),
-		AggregateID:   aggregate.AggregateID(),
-		Version:       aggregate.CurrentVersion(),
+		AggregateType: agg.AggregateType(),
+		AggregateID:   agg.AggregateID(),
+		Version:       agg.CurrentVersion(),
 		Data:          data,
 	}
 
@@ -172,25 +171,25 @@ func (r *snapshotRepository) Find(ctx context.Context, typ cqrs.AggregateType, i
 
 	var snap snapshot
 	if err := res.Decode(&snap); err != nil {
-		return nil, cqrs.SnapshotError{
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
-	aggregate, err := r.aggregateConfig.New(snap.AggregateType, snap.AggregateID)
+	agg, err := r.aggregateConfig.New(snap.AggregateType, snap.AggregateID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := bson.Unmarshal(snap.Data, aggregate); err != nil {
-		return nil, cqrs.SnapshotError{
+	if err := bson.Unmarshal(snap.Data, agg); err != nil {
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
-	return aggregate, nil
+	return agg, nil
 }
 
 func (r *snapshotRepository) Latest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
@@ -201,25 +200,25 @@ func (r *snapshotRepository) Latest(ctx context.Context, typ cqrs.AggregateType,
 
 	var snap snapshot
 	if err := res.Decode(&snap); err != nil {
-		return nil, cqrs.SnapshotError{
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
-	aggregate, err := r.aggregateConfig.New(snap.AggregateType, snap.AggregateID)
+	agg, err := r.aggregateConfig.New(snap.AggregateType, snap.AggregateID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := bson.Unmarshal(snap.Data, aggregate); err != nil {
-		return nil, cqrs.SnapshotError{
+	if err := bson.Unmarshal(snap.Data, agg); err != nil {
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
-	return aggregate, nil
+	return agg, nil
 }
 
 func (r *snapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID, maxVersion int) (cqrs.Aggregate, error) {
@@ -233,25 +232,25 @@ func (r *snapshotRepository) MaxVersion(ctx context.Context, typ cqrs.AggregateT
 
 	var snap snapshot
 	if err := res.Decode(&snap); err != nil {
-		return nil, cqrs.SnapshotError{
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
-	aggregate, err := r.aggregateConfig.New(snap.AggregateType, snap.AggregateID)
+	agg, err := r.aggregateConfig.New(snap.AggregateType, snap.AggregateID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := bson.Unmarshal(snap.Data, aggregate); err != nil {
-		return nil, cqrs.SnapshotError{
+	if err := bson.Unmarshal(snap.Data, agg); err != nil {
+		return nil, aggregate.SnapshotError{
 			Err:       err,
 			StoreName: "mongo",
 		}
 	}
 
-	return aggregate, nil
+	return agg, nil
 }
 
 func createIndexes(ctx context.Context, db *mongo.Database) error {
