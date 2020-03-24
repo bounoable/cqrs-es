@@ -2,6 +2,7 @@ package aggregate
 
 import (
 	"context"
+	"fmt"
 
 	cqrs "github.com/bounoable/cqrs-es"
 	"github.com/google/uuid"
@@ -48,11 +49,30 @@ func (r repository) Fetch(ctx context.Context, typ cqrs.AggregateType, id uuid.U
 		return nil, err
 	}
 
-	if version == -1 {
+	return r.FetchWithBase(ctx, aggregate, version)
+}
+
+func (r repository) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
+	aggregate, err := r.aggregateCfg.New(typ, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.FetchLatestWithBase(ctx, aggregate)
+}
+
+func (r repository) FetchWithBase(ctx context.Context, aggregate cqrs.Aggregate, version int) (cqrs.Aggregate, error) {
+	if version < aggregate.CurrentVersion() {
+		return nil, IllegalVersionError{
+			Err: fmt.Errorf("version %d is below the base version %d", version, aggregate.CurrentVersion()),
+		}
+	}
+
+	if version == aggregate.CurrentVersion() {
 		return aggregate, nil
 	}
 
-	events, err := r.eventStore.Fetch(ctx, typ, id, aggregate.OriginalVersion()+1, version)
+	events, err := r.eventStore.Fetch(ctx, aggregate.AggregateType(), aggregate.AggregateID(), aggregate.CurrentVersion()+1, version)
 	if err != nil {
 		return nil, err
 	}
@@ -64,13 +84,8 @@ func (r repository) Fetch(ctx context.Context, typ cqrs.AggregateType, id uuid.U
 	return aggregate, nil
 }
 
-func (r repository) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id uuid.UUID) (cqrs.Aggregate, error) {
-	aggregate, err := r.aggregateCfg.New(typ, id)
-	if err != nil {
-		return nil, err
-	}
-
-	events, err := r.eventStore.FetchFrom(ctx, typ, id, aggregate.OriginalVersion()+1)
+func (r repository) FetchLatestWithBase(ctx context.Context, aggregate cqrs.Aggregate) (cqrs.Aggregate, error) {
+	events, err := r.eventStore.FetchFrom(ctx, aggregate.AggregateType(), aggregate.AggregateID(), aggregate.CurrentVersion()+1)
 	if err != nil {
 		return nil, err
 	}
@@ -88,4 +103,17 @@ func (r repository) FetchLatest(ctx context.Context, typ cqrs.AggregateType, id 
 
 func (r repository) Remove(ctx context.Context, aggregate cqrs.Aggregate) error {
 	return r.eventStore.RemoveAll(ctx, aggregate.AggregateType(), aggregate.AggregateID())
+}
+
+// IllegalVersionError ...
+type IllegalVersionError struct {
+	Err error
+}
+
+func (err IllegalVersionError) Error() string {
+	return err.Err.Error()
+}
+
+func (err IllegalVersionError) Unwrap() error {
+	return err.Err
 }

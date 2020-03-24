@@ -14,28 +14,13 @@ type SnapshotConfig interface {
 	IsDue(cqrs.Aggregate) bool
 }
 
-// SnapshotOption ...
-type SnapshotOption func(*snapshotConfig)
-
 type snapshotConfig struct {
 	mux       sync.RWMutex
 	intervals map[cqrs.AggregateType]int
 }
 
-// SnapshotError ...
-type SnapshotError struct {
-	Err       error
-	StoreName string
-}
-
-func (err SnapshotError) Error() string {
-	return fmt.Sprintf("%s snapshot: %s", err.StoreName, err.Err)
-}
-
-// Unwrap ...
-func (err SnapshotError) Unwrap() error {
-	return err.Err
-}
+// SnapshotOption ...
+type SnapshotOption func(*snapshotConfig)
 
 // SnapshotInterval ...
 func SnapshotInterval(typ cqrs.AggregateType, every int) SnapshotOption {
@@ -64,4 +49,19 @@ func (cfg *snapshotConfig) IsDue(aggregate cqrs.Aggregate) bool {
 	}
 
 	return interval > 0 && len(aggregate.Changes()) >= interval
+}
+
+// SnapshotError ...
+type SnapshotError struct {
+	Err       error
+	StoreName string
+}
+
+func (err SnapshotError) Error() string {
+	return fmt.Sprintf("%s snapshot: %s", err.StoreName, err.Err)
+}
+
+// Unwrap ...
+func (err SnapshotError) Unwrap() error {
+	return err.Err
 }
