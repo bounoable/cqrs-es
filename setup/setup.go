@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	globalAggregateConfig = cqrs.NewAggregateConfig()
+	globalAggregateConfig = aggregate.NewConfig()
 	globalEventConfig     = cqrs.NewEventConfig()
 )
 
 // Aggregate registers a cqrs.AggregateType globally.
-func Aggregate(typ cqrs.AggregateType, factory cqrs.AggregateFactory) {
+func Aggregate(typ cqrs.AggregateType, factory aggregate.Factory) {
 	globalAggregateConfig.Register(typ, factory)
 }
 
@@ -28,7 +28,7 @@ func Event(typ cqrs.EventType, proto cqrs.EventData) {
 type Setup struct {
 	logger *log.Logger
 
-	aggregateConfig cqrs.AggregateConfig
+	aggregateConfig aggregate.Config
 	eventConfig     cqrs.EventConfig
 	commandConfig   cqrs.CommandConfig
 
@@ -69,8 +69,8 @@ func Logger(logger *log.Logger) Option {
 	return WithLogger(logger)
 }
 
-// WithAggregateConfig adds a cqrs.AggregateConfig to the setup.
-func WithAggregateConfig(cfg cqrs.AggregateConfig) Option {
+// WithAggregateConfig adds a aggregate.Config to the setup.
+func WithAggregateConfig(cfg aggregate.Config) Option {
 	return func(s *Setup) {
 		for typ, fac := range cfg.Factories() {
 			s.aggregateConfig.Register(typ, fac)
@@ -137,8 +137,8 @@ func New(opts ...Option) *Setup {
 	return &s
 }
 
-func baseAggregateConfig() cqrs.AggregateConfig {
-	cfg := cqrs.NewAggregateConfig()
+func baseAggregateConfig() aggregate.Config {
+	cfg := aggregate.NewConfig()
 	for typ, fac := range globalAggregateConfig.Factories() {
 		cfg.Register(typ, fac)
 	}

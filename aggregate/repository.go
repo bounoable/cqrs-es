@@ -19,11 +19,11 @@ type Repository interface {
 
 type repository struct {
 	eventStore   cqrs.EventStore
-	aggregateCfg cqrs.AggregateConfig
+	aggregateCfg Config
 }
 
 // NewRepository ...
-func NewRepository(eventStore cqrs.EventStore, aggregateCfg cqrs.AggregateConfig) Repository {
+func NewRepository(eventStore cqrs.EventStore, aggregateCfg Config) Repository {
 	if eventStore == nil {
 		panic("nil event store")
 	}

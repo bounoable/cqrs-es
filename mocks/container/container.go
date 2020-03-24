@@ -35,10 +35,10 @@ func (m *MockContainer) EXPECT() *MockContainerMockRecorder {
 }
 
 // AggregateConfig mocks base method
-func (m *MockContainer) AggregateConfig() cqrs_es.AggregateConfig {
+func (m *MockContainer) AggregateConfig() aggregate.Config {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AggregateConfig")
-	ret0, _ := ret[0].(cqrs_es.AggregateConfig)
+	ret0, _ := ret[0].(aggregate.Config)
 	return ret0
 }
 
@@ -49,7 +49,7 @@ func (mr *MockContainerMockRecorder) AggregateConfig() *gomock.Call {
 }
 
 // SetAggregateConfig mocks base method
-func (m *MockContainer) SetAggregateConfig(arg0 cqrs_es.AggregateConfig) {
+func (m *MockContainer) SetAggregateConfig(arg0 aggregate.Config) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetAggregateConfig", arg0)
 }

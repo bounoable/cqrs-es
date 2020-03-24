@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/aggregate"
 	"github.com/bounoable/cqrs-es/container"
 	"github.com/bounoable/cqrs-es/setup"
 	"github.com/google/uuid"
@@ -33,7 +34,7 @@ type Option func(*Config)
 type snapshotRepository struct {
 	config          Config
 	db              *mongo.Database
-	aggregateConfig cqrs.AggregateConfig
+	aggregateConfig aggregate.Config
 }
 
 type snapshot struct {
@@ -72,7 +73,7 @@ func ClientOptions(options ...*options.ClientOptions) Option {
 }
 
 // NewSnapshotRepository ...
-func NewSnapshotRepository(ctx context.Context, aggregateConfig cqrs.AggregateConfig, opts ...Option) (cqrs.SnapshotRepository, error) {
+func NewSnapshotRepository(ctx context.Context, aggregateConfig aggregate.Config, opts ...Option) (cqrs.SnapshotRepository, error) {
 	if aggregateConfig == nil {
 		return nil, cqrs.SnapshotError{
 			Err:       errors.New("aggregate config cannot be nil"),

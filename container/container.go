@@ -9,8 +9,8 @@ import (
 
 // Container ...
 type Container interface {
-	AggregateConfig() cqrs.AggregateConfig
-	SetAggregateConfig(cqrs.AggregateConfig)
+	AggregateConfig() aggregate.Config
+	SetAggregateConfig(aggregate.Config)
 	EventConfig() cqrs.EventConfig
 	SetEventConfig(cqrs.EventConfig)
 	CommandConfig() cqrs.CommandConfig
@@ -30,7 +30,7 @@ type Container interface {
 }
 
 // New ...
-func New(aggregates cqrs.AggregateConfig, events cqrs.EventConfig, commands cqrs.CommandConfig) Container {
+func New(aggregates aggregate.Config, events cqrs.EventConfig, commands cqrs.CommandConfig) Container {
 	return &container{
 		aggregateConfig: aggregates,
 		eventConfig:     events,
@@ -39,7 +39,7 @@ func New(aggregates cqrs.AggregateConfig, events cqrs.EventConfig, commands cqrs
 }
 
 type container struct {
-	aggregateConfig cqrs.AggregateConfig
+	aggregateConfig aggregate.Config
 	eventConfig     cqrs.EventConfig
 	commandConfig   cqrs.CommandConfig
 	eventBus        cqrs.EventBus
@@ -49,11 +49,11 @@ type container struct {
 	aggregates      aggregate.Repository
 }
 
-func (c *container) AggregateConfig() cqrs.AggregateConfig {
+func (c *container) AggregateConfig() aggregate.Config {
 	return c.aggregateConfig
 }
 
-func (c *container) SetAggregateConfig(cfg cqrs.AggregateConfig) {
+func (c *container) SetAggregateConfig(cfg aggregate.Config) {
 	c.aggregateConfig = cfg
 }
 
