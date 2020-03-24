@@ -1,21 +1,22 @@
-package cqrs_test
+package command_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/bounoable/cqrs-es"
+	"github.com/bounoable/cqrs-es/command"
 	mock_cqrs "github.com/bounoable/cqrs-es/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDispatchCommand(t *testing.T) {
+func TestDispatch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	cfg := mock_cqrs.NewMockCommandConfig(ctrl)
-	bus := cqrs.NewCommandBusWithConfig(cfg, nil)
+	bus := command.NewBusWithConfig(cfg)
 
 	ctx := context.Background()
 	cmd := mock_cqrs.NewMockCommand(ctrl)

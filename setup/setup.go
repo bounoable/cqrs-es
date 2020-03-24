@@ -6,6 +6,7 @@ import (
 
 	"github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/aggregate"
+	"github.com/bounoable/cqrs-es/command"
 	"github.com/bounoable/cqrs-es/container"
 )
 
@@ -215,7 +216,7 @@ func (s *Setup) NewContainer(ctx context.Context) (container.Container, error) {
 	}
 
 	if commandBus == nil {
-		commandBus = cqrs.NewCommandBusWithConfig(s.commandConfig, s.logger)
+		commandBus = command.NewBusWithConfig(s.commandConfig)
 	}
 
 	container.SetCommandBus(commandBus)
