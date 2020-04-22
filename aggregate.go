@@ -45,6 +45,7 @@ type AggregateRepository interface {
 	FetchLatest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
 	FetchLatestWithBase(ctx context.Context, aggregate Aggregate) (Aggregate, error)
 	Remove(ctx context.Context, aggregate Aggregate) error
+	Query(ctx context.Context, query AggregateQuery) (AggregateCursor, error)
 }
 
 // SnapshotRepository ...
@@ -55,4 +56,18 @@ type SnapshotRepository interface {
 	MaxVersion(ctx context.Context, typ AggregateType, id uuid.UUID, maxVersion int) (Aggregate, error)
 	Remove(ctx context.Context, typ AggregateType, id uuid.UUID, version int) error
 	RemoveAll(ctx context.Context, typ AggregateType, id uuid.UUID) error
+}
+
+// AggregateQuery ...
+type AggregateQuery interface {
+	Types() []AggregateType
+	IDs() []uuid.UUID
+}
+
+// AggregateCursor ...
+type AggregateCursor interface {
+	Next(context.Context) bool
+	Aggregate() Aggregate
+	Err() error
+	Close(context.Context) error
 }

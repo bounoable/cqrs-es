@@ -322,6 +322,21 @@ func (mr *MockAggregateRepositoryMockRecorder) Remove(ctx, aggregate interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockAggregateRepository)(nil).Remove), ctx, aggregate)
 }
 
+// Query mocks base method
+func (m *MockAggregateRepository) Query(ctx context.Context, query cqrs_es.AggregateQuery) (cqrs_es.AggregateCursor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Query", ctx, query)
+	ret0, _ := ret[0].(cqrs_es.AggregateCursor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Query indicates an expected call of Query
+func (mr *MockAggregateRepositoryMockRecorder) Query(ctx, query interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockAggregateRepository)(nil).Query), ctx, query)
+}
+
 // MockSnapshotRepository is a mock of SnapshotRepository interface
 type MockSnapshotRepository struct {
 	ctrl     *gomock.Controller
@@ -430,4 +445,134 @@ func (m *MockSnapshotRepository) RemoveAll(ctx context.Context, typ cqrs_es.Aggr
 func (mr *MockSnapshotRepositoryMockRecorder) RemoveAll(ctx, typ, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAll", reflect.TypeOf((*MockSnapshotRepository)(nil).RemoveAll), ctx, typ, id)
+}
+
+// MockAggregateQuery is a mock of AggregateQuery interface
+type MockAggregateQuery struct {
+	ctrl     *gomock.Controller
+	recorder *MockAggregateQueryMockRecorder
+}
+
+// MockAggregateQueryMockRecorder is the mock recorder for MockAggregateQuery
+type MockAggregateQueryMockRecorder struct {
+	mock *MockAggregateQuery
+}
+
+// NewMockAggregateQuery creates a new mock instance
+func NewMockAggregateQuery(ctrl *gomock.Controller) *MockAggregateQuery {
+	mock := &MockAggregateQuery{ctrl: ctrl}
+	mock.recorder = &MockAggregateQueryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockAggregateQuery) EXPECT() *MockAggregateQueryMockRecorder {
+	return m.recorder
+}
+
+// Types mocks base method
+func (m *MockAggregateQuery) Types() []cqrs_es.AggregateType {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Types")
+	ret0, _ := ret[0].([]cqrs_es.AggregateType)
+	return ret0
+}
+
+// Types indicates an expected call of Types
+func (mr *MockAggregateQueryMockRecorder) Types() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Types", reflect.TypeOf((*MockAggregateQuery)(nil).Types))
+}
+
+// IDs mocks base method
+func (m *MockAggregateQuery) IDs() []uuid.UUID {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IDs")
+	ret0, _ := ret[0].([]uuid.UUID)
+	return ret0
+}
+
+// IDs indicates an expected call of IDs
+func (mr *MockAggregateQueryMockRecorder) IDs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IDs", reflect.TypeOf((*MockAggregateQuery)(nil).IDs))
+}
+
+// MockAggregateCursor is a mock of AggregateCursor interface
+type MockAggregateCursor struct {
+	ctrl     *gomock.Controller
+	recorder *MockAggregateCursorMockRecorder
+}
+
+// MockAggregateCursorMockRecorder is the mock recorder for MockAggregateCursor
+type MockAggregateCursorMockRecorder struct {
+	mock *MockAggregateCursor
+}
+
+// NewMockAggregateCursor creates a new mock instance
+func NewMockAggregateCursor(ctrl *gomock.Controller) *MockAggregateCursor {
+	mock := &MockAggregateCursor{ctrl: ctrl}
+	mock.recorder = &MockAggregateCursorMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockAggregateCursor) EXPECT() *MockAggregateCursorMockRecorder {
+	return m.recorder
+}
+
+// Next mocks base method
+func (m *MockAggregateCursor) Next(arg0 context.Context) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Next", arg0)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// Next indicates an expected call of Next
+func (mr *MockAggregateCursorMockRecorder) Next(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Next", reflect.TypeOf((*MockAggregateCursor)(nil).Next), arg0)
+}
+
+// Aggregate mocks base method
+func (m *MockAggregateCursor) Aggregate() cqrs_es.Aggregate {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Aggregate")
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	return ret0
+}
+
+// Aggregate indicates an expected call of Aggregate
+func (mr *MockAggregateCursorMockRecorder) Aggregate() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Aggregate", reflect.TypeOf((*MockAggregateCursor)(nil).Aggregate))
+}
+
+// Err mocks base method
+func (m *MockAggregateCursor) Err() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Err")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Err indicates an expected call of Err
+func (mr *MockAggregateCursorMockRecorder) Err() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Err", reflect.TypeOf((*MockAggregateCursor)(nil).Err))
+}
+
+// Close mocks base method
+func (m *MockAggregateCursor) Close(arg0 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close
+func (mr *MockAggregateCursorMockRecorder) Close(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockAggregateCursor)(nil).Close), arg0)
 }

@@ -484,3 +484,190 @@ func (mr *MockEventStoreMockRecorder) RemoveAll(ctx, aggregateType, aggregateID 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAll", reflect.TypeOf((*MockEventStore)(nil).RemoveAll), ctx, aggregateType, aggregateID)
 }
+
+// Query mocks base method
+func (m *MockEventStore) Query(ctx context.Context, query cqrs_es.EventQuery) (cqrs_es.EventCursor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Query", ctx, query)
+	ret0, _ := ret[0].(cqrs_es.EventCursor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Query indicates an expected call of Query
+func (mr *MockEventStoreMockRecorder) Query(ctx, query interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockEventStore)(nil).Query), ctx, query)
+}
+
+// MockEventQuery is a mock of EventQuery interface
+type MockEventQuery struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventQueryMockRecorder
+}
+
+// MockEventQueryMockRecorder is the mock recorder for MockEventQuery
+type MockEventQueryMockRecorder struct {
+	mock *MockEventQuery
+}
+
+// NewMockEventQuery creates a new mock instance
+func NewMockEventQuery(ctrl *gomock.Controller) *MockEventQuery {
+	mock := &MockEventQuery{ctrl: ctrl}
+	mock.recorder = &MockEventQueryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventQuery) EXPECT() *MockEventQueryMockRecorder {
+	return m.recorder
+}
+
+// EventTypes mocks base method
+func (m *MockEventQuery) EventTypes() []cqrs_es.EventType {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EventTypes")
+	ret0, _ := ret[0].([]cqrs_es.EventType)
+	return ret0
+}
+
+// EventTypes indicates an expected call of EventTypes
+func (mr *MockEventQueryMockRecorder) EventTypes() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EventTypes", reflect.TypeOf((*MockEventQuery)(nil).EventTypes))
+}
+
+// AggregateTypes mocks base method
+func (m *MockEventQuery) AggregateTypes() []cqrs_es.AggregateType {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateTypes")
+	ret0, _ := ret[0].([]cqrs_es.AggregateType)
+	return ret0
+}
+
+// AggregateTypes indicates an expected call of AggregateTypes
+func (mr *MockEventQueryMockRecorder) AggregateTypes() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateTypes", reflect.TypeOf((*MockEventQuery)(nil).AggregateTypes))
+}
+
+// AggregateIDs mocks base method
+func (m *MockEventQuery) AggregateIDs() []uuid.UUID {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AggregateIDs")
+	ret0, _ := ret[0].([]uuid.UUID)
+	return ret0
+}
+
+// AggregateIDs indicates an expected call of AggregateIDs
+func (mr *MockEventQueryMockRecorder) AggregateIDs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateIDs", reflect.TypeOf((*MockEventQuery)(nil).AggregateIDs))
+}
+
+// Versions mocks base method
+func (m *MockEventQuery) Versions() []int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Versions")
+	ret0, _ := ret[0].([]int)
+	return ret0
+}
+
+// Versions indicates an expected call of Versions
+func (mr *MockEventQueryMockRecorder) Versions() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Versions", reflect.TypeOf((*MockEventQuery)(nil).Versions))
+}
+
+// VersionRanges mocks base method
+func (m *MockEventQuery) VersionRanges() [][2]int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VersionRanges")
+	ret0, _ := ret[0].([][2]int)
+	return ret0
+}
+
+// VersionRanges indicates an expected call of VersionRanges
+func (mr *MockEventQueryMockRecorder) VersionRanges() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VersionRanges", reflect.TypeOf((*MockEventQuery)(nil).VersionRanges))
+}
+
+// MockEventCursor is a mock of EventCursor interface
+type MockEventCursor struct {
+	ctrl     *gomock.Controller
+	recorder *MockEventCursorMockRecorder
+}
+
+// MockEventCursorMockRecorder is the mock recorder for MockEventCursor
+type MockEventCursorMockRecorder struct {
+	mock *MockEventCursor
+}
+
+// NewMockEventCursor creates a new mock instance
+func NewMockEventCursor(ctrl *gomock.Controller) *MockEventCursor {
+	mock := &MockEventCursor{ctrl: ctrl}
+	mock.recorder = &MockEventCursorMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockEventCursor) EXPECT() *MockEventCursorMockRecorder {
+	return m.recorder
+}
+
+// Next mocks base method
+func (m *MockEventCursor) Next(arg0 context.Context) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Next", arg0)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// Next indicates an expected call of Next
+func (mr *MockEventCursorMockRecorder) Next(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Next", reflect.TypeOf((*MockEventCursor)(nil).Next), arg0)
+}
+
+// Event mocks base method
+func (m *MockEventCursor) Event() cqrs_es.Event {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Event")
+	ret0, _ := ret[0].(cqrs_es.Event)
+	return ret0
+}
+
+// Event indicates an expected call of Event
+func (mr *MockEventCursorMockRecorder) Event() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Event", reflect.TypeOf((*MockEventCursor)(nil).Event))
+}
+
+// Err mocks base method
+func (m *MockEventCursor) Err() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Err")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Err indicates an expected call of Err
+func (mr *MockEventCursorMockRecorder) Err() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Err", reflect.TypeOf((*MockEventCursor)(nil).Err))
+}
+
+// Close mocks base method
+func (m *MockEventCursor) Close(arg0 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close
+func (mr *MockEventCursorMockRecorder) Close(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockEventCursor)(nil).Close), arg0)
+}

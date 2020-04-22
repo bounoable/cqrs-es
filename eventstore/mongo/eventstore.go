@@ -39,6 +39,7 @@ type eventStore struct {
 	config    Config
 	eventCfg  cqrs.EventConfig
 	db        *mongo.Database
+	col       *mongo.Collection
 	publisher cqrs.EventPublisher
 }
 
@@ -139,6 +140,7 @@ func EventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Option) 
 	return &eventStore{
 		config:   cfg,
 		db:       db,
+		col:      db.Collection("events"),
 		eventCfg: eventCfg,
 	}, nil
 }
@@ -227,7 +229,7 @@ func (s *eventStore) publish(ctx context.Context, events ...cqrs.Event) error {
 }
 
 func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, originalVersion int, docs []interface{}) error {
-	res := s.db.Collection("events").FindOne(ctx, bson.M{
+	res := s.col.FindOne(ctx, bson.M{
 		"aggregateType": aggregateType,
 		"aggregateId":   aggregateID,
 	}, options.FindOne().SetSort(bson.D{{Key: "version", Value: -1}}))
@@ -244,7 +246,7 @@ func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateT
 		}
 	}
 
-	if _, err := s.db.Collection("events").InsertMany(ctx, docs); err != nil {
+	if _, err := s.col.InsertMany(ctx, docs); err != nil {
 		return err
 	}
 
@@ -252,7 +254,7 @@ func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateT
 }
 
 func (s *eventStore) Find(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, version int) (cqrs.Event, error) {
-	res := s.db.Collection("events").FindOne(ctx, bson.M{
+	res := s.col.FindOne(ctx, bson.M{
 		"aggregateType": aggregateType,
 		"aggregateId":   aggregateID,
 		"version":       version,
@@ -276,7 +278,7 @@ func (s *eventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType
 		return []cqrs.Event{}, nil
 	}
 
-	cur, err := s.db.Collection("events").Find(ctx, bson.D{
+	cur, err := s.col.Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
 		{Key: "version", Value: bson.D{
@@ -307,7 +309,7 @@ func (s *eventStore) Fetch(ctx context.Context, aggregateType cqrs.AggregateType
 }
 
 func (s *eventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) ([]cqrs.Event, error) {
-	cur, err := s.db.Collection("events").Find(ctx, bson.D{
+	cur, err := s.col.Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
 	}, options.Find().SetSort(bson.D{{Key: "version", Value: 1}}))
@@ -334,7 +336,7 @@ func (s *eventStore) FetchAll(ctx context.Context, aggregateType cqrs.AggregateT
 }
 
 func (s *eventStore) FetchFrom(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs.Event, error) {
-	cur, err := s.db.Collection("events").Find(ctx, bson.D{
+	cur, err := s.col.Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
 		{Key: "version", Value: bson.D{
@@ -364,7 +366,7 @@ func (s *eventStore) FetchFrom(ctx context.Context, aggregateType cqrs.Aggregate
 }
 
 func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs.Event, error) {
-	cur, err := s.db.Collection("events").Find(ctx, bson.D{
+	cur, err := s.col.Find(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
 		{Key: "version", Value: bson.D{
@@ -394,11 +396,70 @@ func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateTy
 }
 
 func (s *eventStore) RemoveAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) error {
-	_, err := s.db.Collection("events").DeleteMany(ctx, bson.D{
+	_, err := s.col.DeleteMany(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
 	})
 	return err
+}
+
+func (s *eventStore) Query(ctx context.Context, query cqrs.EventQuery) (cqrs.EventCursor, error) {
+	filter := bson.D{}
+
+	if types := query.EventTypes(); len(types) > 0 {
+		filter = append(filter, bson.E{Key: "type", Value: bson.D{
+			{Key: "$in", Value: types},
+		}})
+	}
+
+	if types := query.AggregateTypes(); len(types) > 0 {
+		filter = append(filter, bson.E{Key: "aggregateType", Value: bson.D{
+			{Key: "$in", Value: types},
+		}})
+	}
+
+	if ids := query.AggregateIDs(); len(ids) > 0 {
+		filter = append(filter, bson.E{Key: "aggregateId", Value: bson.D{
+			{Key: "$in", Value: ids},
+		}})
+	}
+
+	var versionOr []bson.D
+
+	if versions := query.Versions(); len(versions) > 0 {
+		versionOr = append(versionOr, bson.D{
+			{Key: "version", Value: bson.D{{Key: "$in", Value: versions}}},
+		})
+	}
+
+	if versionRanges := query.VersionRanges(); len(versionRanges) > 0 {
+		for _, versionRange := range versionRanges {
+			if versionRange[0] > versionRange[1] {
+				versionRange[0], versionRange[1] = versionRange[1], versionRange[0]
+			}
+
+			versionOr = append(versionOr, bson.D{
+				{Key: "version", Value: bson.D{
+					{Key: "$gte", Value: versionRange[0]},
+					{Key: "$lte", Value: versionRange[1]},
+				}},
+			})
+		}
+	}
+
+	if len(versionOr) > 0 {
+		filter = append(filter, bson.E{Key: "$or", Value: versionOr})
+	}
+
+	cur, err := s.col.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return cursor{
+		store:  s,
+		cursor: cur,
+	}, nil
 }
 
 func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {

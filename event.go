@@ -67,4 +67,22 @@ type EventStore interface {
 	FetchFrom(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int) ([]Event, error)
 	FetchTo(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, to int) ([]Event, error)
 	RemoveAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) error
+	Query(ctx context.Context, query EventQuery) (EventCursor, error)
+}
+
+// EventQuery ...
+type EventQuery interface {
+	EventTypes() []EventType
+	AggregateTypes() []AggregateType
+	AggregateIDs() []uuid.UUID
+	Versions() []int
+	VersionRanges() [][2]int
+}
+
+// EventCursor ...
+type EventCursor interface {
+	Next(context.Context) bool
+	Event() Event
+	Err() error
+	Close(context.Context) error
 }

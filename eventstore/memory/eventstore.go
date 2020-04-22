@@ -137,6 +137,106 @@ func (s *eventStore) RemoveAll(ctx context.Context, aggregateType cqrs.Aggregate
 	return nil
 }
 
+func (s *eventStore) Query(ctx context.Context, query cqrs.EventQuery) (cqrs.EventCursor, error) {
+	s.mux.RLock()
+	defer s.mux.RUnlock()
+
+	allEvents := s.allEvents()
+	var events []cqrs.Event
+	for _, event := range allEvents {
+		if len(query.EventTypes()) > 0 {
+			var found bool
+			for _, typ := range query.EventTypes() {
+				if typ == event.Type() {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				continue
+			}
+		}
+
+		if len(query.AggregateTypes()) >= 0 {
+			var found bool
+			for _, typ := range query.AggregateTypes() {
+				if typ == event.AggregateType() {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				continue
+			}
+		}
+
+		if len(query.AggregateIDs()) > 0 {
+			var found bool
+			for _, id := range query.AggregateIDs() {
+				if id == event.AggregateID() {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				continue
+			}
+		}
+
+		mustFindVersion := len(query.Versions()) > 0 || len(query.VersionRanges()) > 0
+		var versionsFound bool
+
+		if len(query.Versions()) > 0 {
+			for _, version := range query.Versions() {
+				if version == event.Version() {
+					versionsFound = true
+					break
+				}
+
+				if versionsFound {
+					break
+				}
+			}
+		}
+
+		if !versionsFound && len(query.VersionRanges()) > 0 {
+			for _, versionRange := range query.VersionRanges() {
+				if event.Version() >= versionRange[0] && event.Version() <= versionRange[1] {
+					versionsFound = true
+					break
+				}
+
+				if versionsFound {
+					break
+				}
+			}
+		}
+
+		if mustFindVersion && !versionsFound {
+			continue
+		}
+
+		events = append(events, event)
+	}
+
+	return newCursor(events), nil
+}
+
+func (s *eventStore) allEvents() []cqrs.Event {
+	var events []cqrs.Event
+	for _, idEvents := range s.events {
+		for _, evts := range idEvents {
+			for _, event := range evts {
+				events = append(events, event)
+			}
+		}
+	}
+	return events
+}
+
 func (s *eventStore) aggregateEvents(typ cqrs.AggregateType, id uuid.UUID) []cqrs.Event {
 	s.mux.RLock()
 	defer s.mux.RUnlock()
