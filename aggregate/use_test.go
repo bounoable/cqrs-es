@@ -109,7 +109,7 @@ func TestUseLatest__repositoryError(t *testing.T) {
 	repo := mock_cqrs.NewMockAggregateRepository(ctrl)
 	repo.EXPECT().FetchLatest(ctx, cqrs.AggregateType("testagg"), id).Return(nil, expectedErr)
 
-	agg, err := aggregate.UseLatest(ctx, repo, "testagg", id, func(ctx context.Context, agg cqrs.Aggregate) error {
+	agg, err := aggregate.UseLatest(ctx, repo, "testagg", id, func(_ context.Context, _ cqrs.Aggregate) error {
 		t.Fatal("function should not have been called")
 		return nil
 	})
