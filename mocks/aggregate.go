@@ -322,6 +322,20 @@ func (mr *MockAggregateRepositoryMockRecorder) Remove(ctx, aggregate interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Remove", reflect.TypeOf((*MockAggregateRepository)(nil).Remove), ctx, aggregate)
 }
 
+// RemoveType mocks base method
+func (m *MockAggregateRepository) RemoveType(ctx context.Context, typ cqrs_es.AggregateType) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveType", ctx, typ)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveType indicates an expected call of RemoveType
+func (mr *MockAggregateRepositoryMockRecorder) RemoveType(ctx, typ interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveType", reflect.TypeOf((*MockAggregateRepository)(nil).RemoveType), ctx, typ)
+}
+
 // Query mocks base method
 func (m *MockAggregateRepository) Query(ctx context.Context, query cqrs_es.AggregateQuery) (cqrs_es.AggregateCursor, error) {
 	m.ctrl.T.Helper()
@@ -536,17 +550,33 @@ func (mr *MockAggregateCursorMockRecorder) Next(arg0 interface{}) *gomock.Call {
 }
 
 // Aggregate mocks base method
-func (m *MockAggregateCursor) Aggregate() cqrs_es.Aggregate {
+func (m *MockAggregateCursor) Aggregate(arg0 context.Context) (cqrs_es.Aggregate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Aggregate")
+	ret := m.ctrl.Call(m, "Aggregate", arg0)
 	ret0, _ := ret[0].(cqrs_es.Aggregate)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Aggregate indicates an expected call of Aggregate
-func (mr *MockAggregateCursorMockRecorder) Aggregate() *gomock.Call {
+func (mr *MockAggregateCursorMockRecorder) Aggregate(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Aggregate", reflect.TypeOf((*MockAggregateCursor)(nil).Aggregate))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Aggregate", reflect.TypeOf((*MockAggregateCursor)(nil).Aggregate), arg0)
+}
+
+// Version mocks base method
+func (m *MockAggregateCursor) Version(arg0 context.Context, arg1 int) (cqrs_es.Aggregate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Version", arg0, arg1)
+	ret0, _ := ret[0].(cqrs_es.Aggregate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Version indicates an expected call of Version
+func (mr *MockAggregateCursorMockRecorder) Version(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Version", reflect.TypeOf((*MockAggregateCursor)(nil).Version), arg0, arg1)
 }
 
 // Err mocks base method

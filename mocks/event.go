@@ -397,92 +397,106 @@ func (mr *MockEventStoreMockRecorder) Save(ctx, originalVersion interface{}, eve
 }
 
 // Find mocks base method
-func (m *MockEventStore) Find(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, version int) (cqrs_es.Event, error) {
+func (m *MockEventStore) Find(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, version int) (cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Find", ctx, aggregateType, aggregateID, version)
+	ret := m.ctrl.Call(m, "Find", ctx, typ, id, version)
 	ret0, _ := ret[0].(cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Find indicates an expected call of Find
-func (mr *MockEventStoreMockRecorder) Find(ctx, aggregateType, aggregateID, version interface{}) *gomock.Call {
+func (mr *MockEventStoreMockRecorder) Find(ctx, typ, id, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockEventStore)(nil).Find), ctx, aggregateType, aggregateID, version)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockEventStore)(nil).Find), ctx, typ, id, version)
 }
 
 // Fetch mocks base method
-func (m *MockEventStore) Fetch(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, from, to int) ([]cqrs_es.Event, error) {
+func (m *MockEventStore) Fetch(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, from, to int) ([]cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Fetch", ctx, aggregateType, aggregateID, from, to)
+	ret := m.ctrl.Call(m, "Fetch", ctx, typ, id, from, to)
 	ret0, _ := ret[0].([]cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Fetch indicates an expected call of Fetch
-func (mr *MockEventStoreMockRecorder) Fetch(ctx, aggregateType, aggregateID, from, to interface{}) *gomock.Call {
+func (mr *MockEventStoreMockRecorder) Fetch(ctx, typ, id, from, to interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fetch", reflect.TypeOf((*MockEventStore)(nil).Fetch), ctx, aggregateType, aggregateID, from, to)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fetch", reflect.TypeOf((*MockEventStore)(nil).Fetch), ctx, typ, id, from, to)
 }
 
 // FetchAll mocks base method
-func (m *MockEventStore) FetchAll(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID) ([]cqrs_es.Event, error) {
+func (m *MockEventStore) FetchAll(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) ([]cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchAll", ctx, aggregateType, aggregateID)
+	ret := m.ctrl.Call(m, "FetchAll", ctx, typ, id)
 	ret0, _ := ret[0].([]cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FetchAll indicates an expected call of FetchAll
-func (mr *MockEventStoreMockRecorder) FetchAll(ctx, aggregateType, aggregateID interface{}) *gomock.Call {
+func (mr *MockEventStoreMockRecorder) FetchAll(ctx, typ, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAll", reflect.TypeOf((*MockEventStore)(nil).FetchAll), ctx, aggregateType, aggregateID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAll", reflect.TypeOf((*MockEventStore)(nil).FetchAll), ctx, typ, id)
 }
 
 // FetchFrom mocks base method
-func (m *MockEventStore) FetchFrom(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, from int) ([]cqrs_es.Event, error) {
+func (m *MockEventStore) FetchFrom(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, from int) ([]cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchFrom", ctx, aggregateType, aggregateID, from)
+	ret := m.ctrl.Call(m, "FetchFrom", ctx, typ, id, from)
 	ret0, _ := ret[0].([]cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FetchFrom indicates an expected call of FetchFrom
-func (mr *MockEventStoreMockRecorder) FetchFrom(ctx, aggregateType, aggregateID, from interface{}) *gomock.Call {
+func (mr *MockEventStoreMockRecorder) FetchFrom(ctx, typ, id, from interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchFrom", reflect.TypeOf((*MockEventStore)(nil).FetchFrom), ctx, aggregateType, aggregateID, from)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchFrom", reflect.TypeOf((*MockEventStore)(nil).FetchFrom), ctx, typ, id, from)
 }
 
 // FetchTo mocks base method
-func (m *MockEventStore) FetchTo(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID, to int) ([]cqrs_es.Event, error) {
+func (m *MockEventStore) FetchTo(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID, to int) ([]cqrs_es.Event, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchTo", ctx, aggregateType, aggregateID, to)
+	ret := m.ctrl.Call(m, "FetchTo", ctx, typ, id, to)
 	ret0, _ := ret[0].([]cqrs_es.Event)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FetchTo indicates an expected call of FetchTo
-func (mr *MockEventStoreMockRecorder) FetchTo(ctx, aggregateType, aggregateID, to interface{}) *gomock.Call {
+func (mr *MockEventStoreMockRecorder) FetchTo(ctx, typ, id, to interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchTo", reflect.TypeOf((*MockEventStore)(nil).FetchTo), ctx, aggregateType, aggregateID, to)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchTo", reflect.TypeOf((*MockEventStore)(nil).FetchTo), ctx, typ, id, to)
 }
 
-// RemoveAll mocks base method
-func (m *MockEventStore) RemoveAll(ctx context.Context, aggregateType cqrs_es.AggregateType, aggregateID uuid.UUID) error {
+// RemoveAggregate mocks base method
+func (m *MockEventStore) RemoveAggregate(ctx context.Context, typ cqrs_es.AggregateType, id uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveAll", ctx, aggregateType, aggregateID)
+	ret := m.ctrl.Call(m, "RemoveAggregate", ctx, typ, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// RemoveAll indicates an expected call of RemoveAll
-func (mr *MockEventStoreMockRecorder) RemoveAll(ctx, aggregateType, aggregateID interface{}) *gomock.Call {
+// RemoveAggregate indicates an expected call of RemoveAggregate
+func (mr *MockEventStoreMockRecorder) RemoveAggregate(ctx, typ, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAll", reflect.TypeOf((*MockEventStore)(nil).RemoveAll), ctx, aggregateType, aggregateID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAggregate", reflect.TypeOf((*MockEventStore)(nil).RemoveAggregate), ctx, typ, id)
+}
+
+// RemoveAggregateType mocks base method
+func (m *MockEventStore) RemoveAggregateType(ctx context.Context, typ cqrs_es.AggregateType) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveAggregateType", ctx, typ)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveAggregateType indicates an expected call of RemoveAggregateType
+func (mr *MockEventStoreMockRecorder) RemoveAggregateType(ctx, typ interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAggregateType", reflect.TypeOf((*MockEventStore)(nil).RemoveAggregateType), ctx, typ)
 }
 
 // Query mocks base method

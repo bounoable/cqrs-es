@@ -45,6 +45,7 @@ type AggregateRepository interface {
 	FetchLatest(ctx context.Context, typ AggregateType, id uuid.UUID) (Aggregate, error)
 	FetchLatestWithBase(ctx context.Context, aggregate Aggregate) (Aggregate, error)
 	Remove(ctx context.Context, aggregate Aggregate) error
+	RemoveType(ctx context.Context, typ AggregateType) error
 	Query(ctx context.Context, query AggregateQuery) (AggregateCursor, error)
 }
 

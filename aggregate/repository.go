@@ -114,6 +114,10 @@ func (r repository) Remove(ctx context.Context, aggregate cqrs.Aggregate) error 
 	return r.eventStore.RemoveAggregate(ctx, aggregate.AggregateType(), aggregate.AggregateID())
 }
 
+func (r repository) RemoveType(ctx context.Context, typ cqrs.AggregateType) error {
+	return r.eventStore.RemoveAggregateType(ctx, typ)
+}
+
 func (r repository) Query(ctx context.Context, query cqrs.AggregateQuery) (cqrs.AggregateCursor, error) {
 	eventQueryOpts := []event.QueryOption{event.QueryVersions(0)}
 
