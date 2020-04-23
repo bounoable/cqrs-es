@@ -126,7 +126,7 @@ func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateTy
 	return filtered, nil
 }
 
-func (s *eventStore) RemoveAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) error {
+func (s *eventStore) RemoveAggregate(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) error {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
@@ -134,6 +134,13 @@ func (s *eventStore) RemoveAll(ctx context.Context, aggregateType cqrs.Aggregate
 		delete(s.events[aggregateType], aggregateID)
 	}
 
+	return nil
+}
+
+func (s *eventStore) RemoveAggregateType(ctx context.Context, aggregateType cqrs.AggregateType) error {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	delete(s.events, aggregateType)
 	return nil
 }
 

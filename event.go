@@ -61,12 +61,13 @@ type EventMatcher func(Event) bool
 // EventStore stores events in a database.
 type EventStore interface {
 	Save(ctx context.Context, originalVersion int, events ...Event) error
-	Find(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, version int) (Event, error)
-	Fetch(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int, to int) ([]Event, error)
-	FetchAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) ([]Event, error)
-	FetchFrom(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, from int) ([]Event, error)
-	FetchTo(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID, to int) ([]Event, error)
-	RemoveAll(ctx context.Context, aggregateType AggregateType, aggregateID uuid.UUID) error
+	Find(ctx context.Context, typ AggregateType, id uuid.UUID, version int) (Event, error)
+	Fetch(ctx context.Context, typ AggregateType, id uuid.UUID, from int, to int) ([]Event, error)
+	FetchAll(ctx context.Context, typ AggregateType, id uuid.UUID) ([]Event, error)
+	FetchFrom(ctx context.Context, typ AggregateType, id uuid.UUID, from int) ([]Event, error)
+	FetchTo(ctx context.Context, typ AggregateType, id uuid.UUID, to int) ([]Event, error)
+	RemoveAggregate(ctx context.Context, typ AggregateType, id uuid.UUID) error
+	RemoveAggregateType(ctx context.Context, typ AggregateType) error
 	Query(ctx context.Context, query EventQuery) (EventCursor, error)
 }
 

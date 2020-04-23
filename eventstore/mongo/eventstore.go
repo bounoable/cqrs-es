@@ -395,10 +395,17 @@ func (s *eventStore) FetchTo(ctx context.Context, aggregateType cqrs.AggregateTy
 	return events, nil
 }
 
-func (s *eventStore) RemoveAll(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) error {
+func (s *eventStore) RemoveAggregate(ctx context.Context, aggregateType cqrs.AggregateType, aggregateID uuid.UUID) error {
 	_, err := s.col.DeleteMany(ctx, bson.D{
 		{Key: "aggregateType", Value: aggregateType},
 		{Key: "aggregateId", Value: aggregateID},
+	})
+	return err
+}
+
+func (s *eventStore) RemoveAggregateType(ctx context.Context, aggregateType cqrs.AggregateType) error {
+	_, err := s.col.DeleteMany(ctx, bson.D{
+		{Key: "aggregateType", Value: aggregateType},
 	})
 	return err
 }

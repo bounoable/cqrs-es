@@ -111,7 +111,7 @@ func (r repository) FetchLatestWithBase(ctx context.Context, aggregate cqrs.Aggr
 }
 
 func (r repository) Remove(ctx context.Context, aggregate cqrs.Aggregate) error {
-	return r.eventStore.RemoveAll(ctx, aggregate.AggregateType(), aggregate.AggregateID())
+	return r.eventStore.RemoveAggregate(ctx, aggregate.AggregateType(), aggregate.AggregateID())
 }
 
 func (r repository) Query(ctx context.Context, query cqrs.AggregateQuery) (cqrs.AggregateCursor, error) {
