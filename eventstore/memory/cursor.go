@@ -11,14 +11,14 @@ type cursor struct {
 	currentIndex int
 }
 
-func newCursor(events []cqrs.Event) cursor {
-	return cursor{
+func newCursor(events []cqrs.Event) *cursor {
+	return &cursor{
 		events:       events,
 		currentIndex: -1,
 	}
 }
 
-func (cur cursor) Next(ctx context.Context) bool {
+func (cur *cursor) Next(ctx context.Context) bool {
 	if cur.currentIndex >= len(cur.events)-1 {
 		return false
 	}
@@ -26,14 +26,14 @@ func (cur cursor) Next(ctx context.Context) bool {
 	return true
 }
 
-func (cur cursor) Event() cqrs.Event {
+func (cur *cursor) Event() cqrs.Event {
 	return cur.events[cur.currentIndex]
 }
 
-func (cur cursor) Err() error {
+func (cur *cursor) Err() error {
 	return nil
 }
 
-func (cur cursor) Close(_ context.Context) error {
+func (cur *cursor) Close(_ context.Context) error {
 	return nil
 }
