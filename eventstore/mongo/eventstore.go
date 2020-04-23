@@ -456,10 +456,7 @@ func (s *eventStore) Query(ctx context.Context, query cqrs.EventQuery) (cqrs.Eve
 		return nil, err
 	}
 
-	return cursor{
-		store:  s,
-		cursor: cur,
-	}, nil
+	return newCursor(s, cur), nil
 }
 
 func (s *eventStore) toCQRSEvent(evt dbEvent) (cqrs.Event, error) {

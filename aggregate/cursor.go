@@ -14,14 +14,14 @@ type cursor struct {
 	err         error
 }
 
-func newCursor(aggregates cqrs.AggregateRepository, eventcursor cqrs.EventCursor) cursor {
-	return cursor{
+func newCursor(aggregates cqrs.AggregateRepository, eventcursor cqrs.EventCursor) *cursor {
+	return &cursor{
 		aggregates:  aggregates,
 		eventcursor: eventcursor,
 	}
 }
 
-func (cur cursor) Next(ctx context.Context) bool {
+func (cur *cursor) Next(ctx context.Context) bool {
 	if !cur.eventcursor.Next(ctx) {
 		cur.err = cur.eventcursor.Err()
 		return false
@@ -29,7 +29,7 @@ func (cur cursor) Next(ctx context.Context) bool {
 	return true
 }
 
-func (cur cursor) Aggregate(ctx context.Context) (cqrs.Aggregate, error) {
+func (cur *cursor) Aggregate(ctx context.Context) (cqrs.Aggregate, error) {
 	evt, err := cur.currentEvent()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (cur cursor) Aggregate(ctx context.Context) (cqrs.Aggregate, error) {
 	return agg, nil
 }
 
-func (cur cursor) Version(ctx context.Context, version int) (cqrs.Aggregate, error) {
+func (cur *cursor) Version(ctx context.Context, version int) (cqrs.Aggregate, error) {
 	evt, err := cur.currentEvent()
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (cur cursor) Version(ctx context.Context, version int) (cqrs.Aggregate, err
 	return agg, nil
 }
 
-func (cur cursor) currentEvent() (cqrs.Event, error) {
+func (cur *cursor) currentEvent() (cqrs.Event, error) {
 	evt := cur.eventcursor.Event()
 	if evt == nil {
 		return nil, errors.New("cursor has no current event")
@@ -66,10 +66,10 @@ func (cur cursor) currentEvent() (cqrs.Event, error) {
 	return evt, nil
 }
 
-func (cur cursor) Err() error {
+func (cur *cursor) Err() error {
 	return cur.err
 }
 
-func (cur cursor) Close(ctx context.Context) error {
+func (cur *cursor) Close(ctx context.Context) error {
 	return cur.eventcursor.Close(ctx)
 }

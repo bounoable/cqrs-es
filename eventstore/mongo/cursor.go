@@ -14,7 +14,14 @@ type cursor struct {
 	err     error
 }
 
-func (cur cursor) Next(ctx context.Context) bool {
+func newCursor(store *eventStore, cur *mongo.Cursor) *cursor {
+	return &cursor{
+		store:  store,
+		cursor: cur,
+	}
+}
+
+func (cur *cursor) Next(ctx context.Context) bool {
 	if !cur.cursor.Next(ctx) {
 		cur.err = cur.cursor.Err()
 		return false
@@ -34,14 +41,14 @@ func (cur cursor) Next(ctx context.Context) bool {
 	return true
 }
 
-func (cur cursor) Event() cqrs.Event {
+func (cur *cursor) Event() cqrs.Event {
 	return cur.current
 }
 
-func (cur cursor) Err() error {
+func (cur *cursor) Err() error {
 	return cur.err
 }
 
-func (cur cursor) Close(ctx context.Context) error {
+func (cur *cursor) Close(ctx context.Context) error {
 	return cur.cursor.Close(ctx)
 }
