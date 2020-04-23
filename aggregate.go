@@ -60,14 +60,22 @@ type SnapshotRepository interface {
 
 // AggregateQuery ...
 type AggregateQuery interface {
+	// Types returns the aggregate types to query for.
 	Types() []AggregateType
+	// IDs returns the aggregate IDs to query for.
 	IDs() []uuid.UUID
 }
 
 // AggregateCursor ...
 type AggregateCursor interface {
+	// Next moves the cursor to the next aggregate.
 	Next(context.Context) bool
-	Aggregate() Aggregate
+	// Aggregate fetches and returns the current aggregate at it's latest version.
+	Aggregate(context.Context) (Aggregate, error)
+	// Version fetches and returns the current aggregate at the provided version.
+	Version(context.Context, int) (Aggregate, error)
+	// Err returns the current error.
 	Err() error
+	// Close closes the cursor.
 	Close(context.Context) error
 }

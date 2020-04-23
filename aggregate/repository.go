@@ -3,7 +3,6 @@ package aggregate
 import (
 	"context"
 	"fmt"
-	"sort"
 
 	cqrs "github.com/bounoable/cqrs-es"
 	"github.com/bounoable/cqrs-es/event"
@@ -75,6 +74,13 @@ func (r repository) FetchWithBase(ctx context.Context, aggregate cqrs.Aggregate,
 		return nil, err
 	}
 
+	if aggregate.CurrentVersion() != version {
+		return nil, UnreachedVersionError{
+			Wanted:  version,
+			Current: aggregate.CurrentVersion(),
+		}
+	}
+
 	return aggregate, nil
 }
 
@@ -109,7 +115,7 @@ func (r repository) Remove(ctx context.Context, aggregate cqrs.Aggregate) error 
 }
 
 func (r repository) Query(ctx context.Context, query cqrs.AggregateQuery) (cqrs.AggregateCursor, error) {
-	var eventQueryOpts []event.QueryOption
+	eventQueryOpts := []event.QueryOption{event.QueryVersions(0)}
 
 	if len(query.Types()) > 0 {
 		eventQueryOpts = append(eventQueryOpts, event.QueryAggregateType(query.Types()...))
@@ -124,67 +130,7 @@ func (r repository) Query(ctx context.Context, query cqrs.AggregateQuery) (cqrs.
 		return nil, err
 	}
 
-	var events []cqrs.Event
-	for eventCur.Next(ctx) {
-		events = append(events, eventCur.Event())
-	}
-
-	if eventCur.Err() != nil {
-		return nil, err
-	}
-
-	aggregates, err := r.eventsToAggregates(events)
-	if err != nil {
-		return nil, err
-	}
-
-	return newCursor(aggregates), nil
-}
-
-func (r repository) eventsToAggregates(events []cqrs.Event) ([]cqrs.Aggregate, error) {
-	groupedEvents := make(map[cqrs.AggregateType]map[uuid.UUID][]cqrs.Event)
-	eventsOfType := func(typ cqrs.AggregateType) map[uuid.UUID][]cqrs.Event {
-		typeEvents, ok := groupedEvents[typ]
-		if !ok {
-			typeEvents = make(map[uuid.UUID][]cqrs.Event)
-		}
-		return typeEvents
-	}
-	eventsOfID := func(typ cqrs.AggregateType, id uuid.UUID) []cqrs.Event {
-		typeEvents := eventsOfType(typ)
-		idEvents, ok := typeEvents[id]
-		if !ok {
-			idEvents = make([]cqrs.Event, 0)
-		}
-		return idEvents
-	}
-	addToIDEvents := func(typ cqrs.AggregateType, id uuid.UUID, events ...cqrs.Event) {
-		typeEvents := eventsOfType(typ)
-		typeEvents[id] = append(eventsOfID(typ, id), events...)
-	}
-
-	for _, event := range events {
-		addToIDEvents(event.AggregateType(), event.AggregateID(), event)
-	}
-
-	var aggregates []cqrs.Aggregate
-	for typ, typeEvents := range groupedEvents {
-		for id, events := range typeEvents {
-			sort.Slice(events, func(a, b int) bool {
-				return events[a].Version() < events[b].Version()
-			})
-
-			agg, err := r.aggregateCfg.New(typ, id)
-			if err != nil {
-				return nil, err
-			}
-
-			ApplyHistory(agg, events...)
-			aggregates = append(aggregates, agg)
-		}
-	}
-
-	return aggregates, nil
+	return newCursor(r, eventCur), nil
 }
 
 // IllegalVersionError ...
@@ -198,6 +144,16 @@ func (err IllegalVersionError) Error() string {
 
 func (err IllegalVersionError) Unwrap() error {
 	return err.Err
+}
+
+// UnreachedVersionError ...
+type UnreachedVersionError struct {
+	Wanted  int
+	Current int
+}
+
+func (err UnreachedVersionError) Error() string {
+	return fmt.Sprintf("want aggregate version %d but current version is %d", err.Wanted, err.Current)
 }
 
 type snapshotter struct {

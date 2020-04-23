@@ -72,17 +72,29 @@ type EventStore interface {
 
 // EventQuery ...
 type EventQuery interface {
+	// EventTypes returns the event types to query for.
+	// Should query for all event types if none provided.
 	EventTypes() []EventType
+	// AggregateTypes returns the aggregate types to query for.
+	// Should query for all aggregate types if none provided.
 	AggregateTypes() []AggregateType
+	// AggregateIDs returns the aggregate IDs to query for.
+	// Should query for all IDs if none provided.
 	AggregateIDs() []uuid.UUID
+	// Versions returns the aggregate versions to query for.
 	Versions() []int
+	// VersionRanges returns version ranges to query for.
 	VersionRanges() [][2]int
 }
 
 // EventCursor ...
 type EventCursor interface {
+	// Next moves the cursor to the next event.
 	Next(context.Context) bool
+	// Event returns the current event.
 	Event() Event
+	// Err returns the cursor error.
 	Err() error
+	// Close closes the cursor.
 	Close(context.Context) error
 }
