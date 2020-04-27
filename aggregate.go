@@ -37,6 +37,9 @@ type AggregateConfig interface {
 	Factories() map[AggregateType]AggregateFactory
 }
 
+// AggregateMatcher ...
+type AggregateMatcher func(Aggregate) bool
+
 // AggregateRepository ...
 type AggregateRepository interface {
 	Save(ctx context.Context, aggregate Aggregate) error
