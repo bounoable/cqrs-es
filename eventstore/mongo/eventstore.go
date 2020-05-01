@@ -165,6 +165,8 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 	res := s.col.FindOne(
 		ctx,
 		bson.D{
+			{Key: "aggregateType", Value: events[0].AggregateType()},
+			{Key: "aggregateId", Value: events[0].AggregateID()},
 			{Key: "version", Value: bson.D{
 				{Key: "$gte", Value: events[0].Version()},
 			}},
