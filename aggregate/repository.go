@@ -75,7 +75,7 @@ func (r repository) FetchWithBase(ctx context.Context, aggregate cqrs.Aggregate,
 	}
 
 	if aggregate.CurrentVersion() != version {
-		return nil, UnreachedVersionError{
+		return nil, VersionNotReachedError{
 			Wanted:  version,
 			Current: aggregate.CurrentVersion(),
 		}
@@ -150,13 +150,13 @@ func (err IllegalVersionError) Unwrap() error {
 	return err.Err
 }
 
-// UnreachedVersionError ...
-type UnreachedVersionError struct {
+// VersionNotReachedError ...
+type VersionNotReachedError struct {
 	Wanted  int
 	Current int
 }
 
-func (err UnreachedVersionError) Error() string {
+func (err VersionNotReachedError) Error() string {
 	return fmt.Sprintf("want aggregate version %d but current version is %d", err.Wanted, err.Current)
 }
 

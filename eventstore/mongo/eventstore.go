@@ -162,6 +162,31 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		return err
 	}
 
+	res := s.col.FindOne(
+		ctx,
+		bson.D{
+			{Key: "version", Value: bson.D{
+				{Key: "$gte", Value: events[0].Version()},
+			}},
+		},
+		options.FindOne().SetSort(bson.D{{Key: "version", Value: 1}}),
+	)
+
+	var prioEvent dbEvent
+	err := res.Decode(&prioEvent)
+	if err != mongo.ErrNoDocuments {
+		if err != nil {
+			return err
+		}
+
+		return event.OptimisticConcurrencyError{
+			AggregateType:   events[0].AggregateType(),
+			AggregateID:     events[0].AggregateID(),
+			LatestVersion:   prioEvent.Version,
+			ProvidedVersion: events[0].Version(),
+		}
+	}
+
 	dbEvents := make([]*dbEvent, len(events))
 	for i, e := range events {
 		data := e.Data()
