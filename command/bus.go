@@ -23,12 +23,12 @@ func BusWithConfig(config cqrs.CommandConfig) cqrs.CommandBus {
 }
 
 func (b *bus) Dispatch(ctx context.Context, cmd cqrs.Command) error {
-	handler, err := b.config.Handler(cmd.CommandType())
+	handler, err := b.config.Handler(cmd.Type())
 	if err != nil {
 		return err
 	}
 
-	if err := handler.HandleCommand(ctx, cmd); err != nil {
+	if err := handler.Handle(ctx, cmd); err != nil {
 		return err
 	}
 

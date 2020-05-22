@@ -23,9 +23,9 @@ func TestDispatch(t *testing.T) {
 	cmdType := cqrs.CommandType("test")
 	cmdHandler := mock_cqrs.NewMockCommandHandler(ctrl)
 
-	cmd.EXPECT().CommandType().Return(cmdType)
+	cmd.EXPECT().Type().Return(cmdType)
 	cfg.EXPECT().Handler(cmdType).Return(cmdHandler, nil)
-	cmdHandler.EXPECT().HandleCommand(ctx, cmd).Return(nil)
+	cmdHandler.EXPECT().Handle(ctx, cmd).Return(nil)
 
 	err := bus.Dispatch(ctx, cmd)
 	assert.Nil(t, err)

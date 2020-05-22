@@ -35,18 +35,18 @@ func (m *MockCommand) EXPECT() *MockCommandMockRecorder {
 	return m.recorder
 }
 
-// CommandType mocks base method
-func (m *MockCommand) CommandType() cqrs_es.CommandType {
+// Type mocks base method
+func (m *MockCommand) Type() cqrs_es.CommandType {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CommandType")
+	ret := m.ctrl.Call(m, "Type")
 	ret0, _ := ret[0].(cqrs_es.CommandType)
 	return ret0
 }
 
-// CommandType indicates an expected call of CommandType
-func (mr *MockCommandMockRecorder) CommandType() *gomock.Call {
+// Type indicates an expected call of Type
+func (mr *MockCommandMockRecorder) Type() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommandType", reflect.TypeOf((*MockCommand)(nil).CommandType))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Type", reflect.TypeOf((*MockCommand)(nil).Type))
 }
 
 // AggregateType mocks base method
@@ -114,6 +114,43 @@ func (mr *MockCommandBusMockRecorder) Dispatch(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dispatch", reflect.TypeOf((*MockCommandBus)(nil).Dispatch), arg0, arg1)
 }
 
+// MockCommandHandler is a mock of CommandHandler interface
+type MockCommandHandler struct {
+	ctrl     *gomock.Controller
+	recorder *MockCommandHandlerMockRecorder
+}
+
+// MockCommandHandlerMockRecorder is the mock recorder for MockCommandHandler
+type MockCommandHandlerMockRecorder struct {
+	mock *MockCommandHandler
+}
+
+// NewMockCommandHandler creates a new mock instance
+func NewMockCommandHandler(ctrl *gomock.Controller) *MockCommandHandler {
+	mock := &MockCommandHandler{ctrl: ctrl}
+	mock.recorder = &MockCommandHandlerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockCommandHandler) EXPECT() *MockCommandHandlerMockRecorder {
+	return m.recorder
+}
+
+// Handle mocks base method
+func (m *MockCommandHandler) Handle(arg0 context.Context, arg1 cqrs_es.Command) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Handle", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Handle indicates an expected call of Handle
+func (mr *MockCommandHandlerMockRecorder) Handle(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handle", reflect.TypeOf((*MockCommandHandler)(nil).Handle), arg0, arg1)
+}
+
 // MockCommandConfig is a mock of CommandConfig interface
 type MockCommandConfig struct {
 	ctrl     *gomock.Controller
@@ -176,41 +213,4 @@ func (m *MockCommandConfig) Handlers() map[cqrs_es.CommandType]cqrs_es.CommandHa
 func (mr *MockCommandConfigMockRecorder) Handlers() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handlers", reflect.TypeOf((*MockCommandConfig)(nil).Handlers))
-}
-
-// MockCommandHandler is a mock of CommandHandler interface
-type MockCommandHandler struct {
-	ctrl     *gomock.Controller
-	recorder *MockCommandHandlerMockRecorder
-}
-
-// MockCommandHandlerMockRecorder is the mock recorder for MockCommandHandler
-type MockCommandHandlerMockRecorder struct {
-	mock *MockCommandHandler
-}
-
-// NewMockCommandHandler creates a new mock instance
-func NewMockCommandHandler(ctrl *gomock.Controller) *MockCommandHandler {
-	mock := &MockCommandHandler{ctrl: ctrl}
-	mock.recorder = &MockCommandHandlerMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockCommandHandler) EXPECT() *MockCommandHandlerMockRecorder {
-	return m.recorder
-}
-
-// HandleCommand mocks base method
-func (m *MockCommandHandler) HandleCommand(arg0 context.Context, arg1 cqrs_es.Command) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleCommand", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// HandleCommand indicates an expected call of HandleCommand
-func (mr *MockCommandHandlerMockRecorder) HandleCommand(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleCommand", reflect.TypeOf((*MockCommandHandler)(nil).HandleCommand), arg0, arg1)
 }

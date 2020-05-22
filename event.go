@@ -50,7 +50,7 @@ type EventBus interface {
 type EventConfig interface {
 	Register(EventType, EventData)
 	// NewData creates an EventData instance for EventType.
-	// The returned object has to be a non-pointer struct.
+	// The returned object must be a non-pointer struct.
 	NewData(EventType) (EventData, error)
 	Protos() map[EventType]EventData
 }
