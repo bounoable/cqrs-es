@@ -164,36 +164,12 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		return fmt.Errorf("validate events: %w", err)
 	}
 
-	res := s.col.FindOne(
-		ctx,
-		bson.D{
-			{Key: "aggregateType", Value: events[0].AggregateType()},
-			{Key: "aggregateId", Value: events[0].AggregateID()},
-		},
-		options.FindOne().SetSort(bson.D{{Key: "version", Value: 1}}),
-	)
-
-	var prioEvent dbEvent
-	err := res.Decode(&prioEvent)
-	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
-		return fmt.Errorf("decode event: %w", err)
-	}
-
-	if err == nil && prioEvent.Version != originalVersion {
-		return event.OptimisticConcurrencyError{
-			AggregateType:   events[0].AggregateType(),
-			AggregateID:     events[0].AggregateID(),
-			LatestVersion:   prioEvent.Version,
-			ProvidedVersion: events[0].Version(),
-		}
-	}
-
 	dbEvents := make([]*dbEvent, len(events))
 	for i, e := range events {
 		data := e.Data()
 		var buf bytes.Buffer
 		if err := gob.NewEncoder(&buf).Encode(&data); err != nil {
-			return err
+			return fmt.Errorf("encode event data: %w", err)
 		}
 
 		dbevent := &dbEvent{
@@ -216,25 +192,29 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 	if s.config.Transactions {
 		if err := s.db.Client().UseSession(ctx, func(ctx mongo.SessionContext) error {
 			if err := ctx.StartTransaction(); err != nil {
-				return err
+				return fmt.Errorf("start transaction: %w", err)
 			}
 
 			if err := s.saveDocs(ctx, events[0].AggregateType(), events[0].AggregateID(), originalVersion, docs); err != nil {
-				return err
+				return fmt.Errorf("save events: %w", err)
 			}
 
-			return ctx.CommitTransaction(ctx)
+			if err := ctx.CommitTransaction(ctx); err != nil {
+				return fmt.Errorf("commit transaction: %w", err)
+			}
+
+			return nil
 		}); err != nil {
 			return err
 		}
 	} else {
 		if err := s.saveDocs(ctx, events[0].AggregateType(), events[0].AggregateID(), originalVersion, docs); err != nil {
-			return err
+			return fmt.Errorf("save events: %w", err)
 		}
 	}
 
 	if err := s.publish(context.Background(), events...); err != nil {
-		return err
+		return fmt.Errorf("publish event: %w", err)
 	}
 
 	return nil
@@ -261,19 +241,22 @@ func (s *eventStore) saveDocs(ctx context.Context, aggregateType cqrs.AggregateT
 	}, options.FindOne().SetSort(bson.D{{Key: "version", Value: -1}}))
 
 	var latest dbEvent
-	if err := res.Decode(&latest); err == nil {
-		if latest.Version != originalVersion {
-			return event.OptimisticConcurrencyError{
-				AggregateType:   aggregateType,
-				AggregateID:     aggregateID,
-				LatestVersion:   latest.Version,
-				ProvidedVersion: originalVersion,
-			}
+	err := res.Decode(&latest)
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+		return fmt.Errorf("decode event: %w", err)
+	}
+
+	if err == nil && latest.Version != originalVersion {
+		return event.OptimisticConcurrencyError{
+			AggregateType:   aggregateType,
+			AggregateID:     aggregateID,
+			LatestVersion:   latest.Version,
+			ProvidedVersion: originalVersion,
 		}
 	}
 
 	if _, err := s.col.InsertMany(ctx, docs); err != nil {
-		return err
+		return fmt.Errorf("insert many: %w", err)
 	}
 
 	return nil
