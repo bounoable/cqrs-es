@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -159,7 +161,7 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 	}
 
 	if err := event.Validate(events, originalVersion); err != nil {
-		return err
+		return fmt.Errorf("validate events: %w", err)
 	}
 
 	res := s.col.FindOne(
@@ -167,20 +169,17 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 		bson.D{
 			{Key: "aggregateType", Value: events[0].AggregateType()},
 			{Key: "aggregateId", Value: events[0].AggregateID()},
-			{Key: "version", Value: bson.D{
-				{Key: "$gte", Value: events[0].Version()},
-			}},
 		},
 		options.FindOne().SetSort(bson.D{{Key: "version", Value: 1}}),
 	)
 
 	var prioEvent dbEvent
 	err := res.Decode(&prioEvent)
-	if err != mongo.ErrNoDocuments {
-		if err != nil {
-			return err
-		}
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+		return fmt.Errorf("decode event: %w", err)
+	}
 
+	if err == nil && prioEvent.Version != originalVersion {
 		return event.OptimisticConcurrencyError{
 			AggregateType:   events[0].AggregateType(),
 			AggregateID:     events[0].AggregateID(),
