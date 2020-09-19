@@ -104,7 +104,7 @@ func ClientOptions(options ...*options.ClientOptions) Option {
 
 // EventStore ...
 func EventStore(ctx context.Context, eventCfg cqrs.EventConfig, opts ...Option) (cqrs.EventStore, error) {
-	var cfg Config
+	cfg := Config{PublishEvents: true}
 	for _, opt := range opts {
 		opt(&cfg)
 	}
