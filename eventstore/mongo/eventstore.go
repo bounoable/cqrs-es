@@ -29,6 +29,7 @@ type Config struct {
 	Database         string
 	Publisher        cqrs.EventPublisher
 	ResolvePublisher func() cqrs.EventPublisher
+	PublishEvents    bool
 	Transactions     bool
 	CreateIndexes    bool
 	ClientOptions    []*options.ClientOptions
@@ -56,6 +57,13 @@ func Publisher(publisher cqrs.EventPublisher) Option {
 func ResolvePublisher(resolve func() cqrs.EventPublisher) Option {
 	return func(cfg *Config) {
 		cfg.ResolvePublisher = resolve
+	}
+}
+
+// PublishEvents ...
+func PublishEvents(publish bool) Option {
+	return func(cfg *Config) {
+		cfg.PublishEvents = publish
 	}
 }
 
@@ -221,6 +229,13 @@ func (s *eventStore) Save(ctx context.Context, originalVersion int, events ...cq
 }
 
 func (s *eventStore) publish(ctx context.Context, events ...cqrs.Event) error {
+	if !s.config.PublishEvents {
+		return nil
+	}
+	return s.forcePublish(ctx, events...)
+}
+
+func (s *eventStore) forcePublish(ctx context.Context, events ...cqrs.Event) error {
 	if s.publisher == nil && s.config.ResolvePublisher != nil {
 		if pub := s.config.ResolvePublisher(); pub != nil {
 			s.publisher = pub
