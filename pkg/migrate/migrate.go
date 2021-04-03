@@ -62,7 +62,12 @@ func (m *Migrator) Migrate(ctx context.Context) error {
 }
 
 func (m *Migrator) insertBuffer(ctx context.Context, buf <-chan cqrs.Event, iter int) error {
-	log.Printf("Inserting Events %d-%d...\n", 100*(iter-1), (100*(iter-1))+(len(buf)))
+	if len(buf) == 0 {
+		return nil
+	}
+	start := 100 * iter
+	end := start + len(buf) - 1
+	log.Printf("Inserting Events %d-%d...\n", start, end)
 	var events []event.Event
 	for evt := range buf {
 		events = append(events, event.New(
