@@ -74,7 +74,7 @@ func (m *Migrator) insertBuffer(ctx context.Context, buf <-chan cqrs.Event, iter
 			evt.Type().String(),
 			evt.Data(),
 			event.Time(evt.Time()),
-			event.Aggregate(string(evt.AggregateType()), evt.AggregateID(), evt.Version()),
+			event.Aggregate(string(evt.AggregateType()), evt.AggregateID(), evt.Version()+1),
 		))
 	}
 	return m.store.Insert(ctx, events...)

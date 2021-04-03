@@ -8,6 +8,8 @@ import (
 	cqrs "github.com/bounoable/cqrs-es"
 )
 
+var DisableRegister = false
+
 type config struct {
 	mux    sync.RWMutex
 	protos map[cqrs.EventType]cqrs.EventData
