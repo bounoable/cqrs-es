@@ -32,7 +32,7 @@ func (m *Migrator) Migrate(ctx context.Context) error {
 	}
 	defer cur.Close(ctx)
 
-	buf := make(chan cqrs.Event, 100)
+	buf := make(chan cqrs.Event, 1000)
 
 	var iter int
 	for cur.Next(ctx) {
@@ -43,7 +43,7 @@ func (m *Migrator) Migrate(ctx context.Context) error {
 			if err := m.insertBuffer(ctx, buf, iter); err != nil {
 				return fmt.Errorf("insert buffer: %w", err)
 			}
-			buf = make(chan cqrs.Event, 100)
+			buf = make(chan cqrs.Event, 1000)
 			buf <- cur.Event()
 			iter++
 		}
@@ -65,7 +65,7 @@ func (m *Migrator) insertBuffer(ctx context.Context, buf <-chan cqrs.Event, iter
 	if len(buf) == 0 {
 		return nil
 	}
-	start := 100 * iter
+	start := 1000 * iter
 	end := start + len(buf) - 1
 	log.Printf("Inserting Events %d-%d...\n", start, end)
 	var events []event.Event
