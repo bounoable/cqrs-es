@@ -32,23 +32,19 @@ func (m *Migrator) Migrate(ctx context.Context) error {
 	}
 	defer cur.Close(ctx)
 
-	buf := make(chan cqrs.Event, 1000)
+	buf := make([]cqrs.Event, 0, 1000)
 
 	var iter int
 	for cur.Next(ctx) {
-		select {
-		case buf <- cur.Event():
-		default:
-			close(buf)
+		buf = append(buf, cur.Event())
+		if len(buf) >= 1000 {
 			if err := m.insertBuffer(ctx, buf, iter); err != nil {
 				return fmt.Errorf("insert buffer: %w", err)
 			}
-			buf = make(chan cqrs.Event, 1000)
-			buf <- cur.Event()
+			buf = buf[:0]
 			iter++
 		}
 	}
-	close(buf)
 
 	if err := m.insertBuffer(ctx, buf, iter); err != nil {
 		return fmt.Errorf("insert buffer: %w", err)
@@ -61,7 +57,7 @@ func (m *Migrator) Migrate(ctx context.Context) error {
 	return nil
 }
 
-func (m *Migrator) insertBuffer(ctx context.Context, buf <-chan cqrs.Event, iter int) error {
+func (m *Migrator) insertBuffer(ctx context.Context, buf []cqrs.Event, iter int) error {
 	if len(buf) == 0 {
 		return nil
 	}
@@ -69,7 +65,7 @@ func (m *Migrator) insertBuffer(ctx context.Context, buf <-chan cqrs.Event, iter
 	end := start + len(buf) - 1
 	log.Printf("Inserting Events %d-%d...\n", start, end)
 	var events []event.Event
-	for evt := range buf {
+	for _, evt := range buf {
 		events = append(events, event.New(
 			evt.Type().String(),
 			evt.Data(),
